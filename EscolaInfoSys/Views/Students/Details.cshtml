@@ -1,0 +1,41 @@
+﻿@model Student
+
+@{
+    ViewData["Title"] = "Student Details";
+}
+
+<h2>Student Details</h2>
+
+<div>
+    <dl class="row">
+        <dt class="col-sm-2">Full Name</dt>
+        <dd class="col-sm-10">@Model.FullName</dd>
+
+        <dt class="col-sm-2">Student Number</dt>
+        <dd class="col-sm-10">@Model.PupilNumber</dd>
+
+        <dt class="col-sm-2">Email</dt>
+        <dd class="col-sm-10">@Model.Email</dd>
+
+        <dt class="col-sm-2">Form Group</dt>
+        <dd class="col-sm-10">@Model.FormGroup?.Name</dd>
+
+        <dt class="col-sm-2">Document Photo</dt>
+        <dd class="col-sm-10">
+            @if (!string.IsNullOrEmpty(Model.DocumentPhoto))
+            {
+                <img src="@Model.DocumentPhoto" class="img-thumbnail" width="200" />
+            }
+            else
+            {
+                <span>No photo uploaded</span>
+            }
+        </dd>
+
+    </dl>
+</div>
+
+<p>
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Edit</a>
+    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+</p>

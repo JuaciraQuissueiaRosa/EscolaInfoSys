@@ -7,7 +7,7 @@ namespace EscolaInfoSys.Data
         public static async Task SeedRolesAndUsersAsync(IServiceProvider serviceProvider)
         {
             var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-            var userManager = serviceProvider.GetRequiredService<UserManager<IdentityUser>>();
+            var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
             string[] roleNames = { "Administrator", "StaffMember", "Student" };
 
@@ -35,12 +35,12 @@ namespace EscolaInfoSys.Data
             await CreateUserIfNotExists(userManager, studentEmail, studentPassword, "Student");
         }
 
-        private static async Task CreateUserIfNotExists(UserManager<IdentityUser> userManager, string email, string password, string role)
+        private static async Task CreateUserIfNotExists(UserManager<ApplicationUser> userManager, string email, string password, string role)
         {
             var user = await userManager.FindByEmailAsync(email);
             if (user == null)
             {
-                user = new IdentityUser
+                user = new ApplicationUser
                 {
                     UserName = email,
                     Email = email,

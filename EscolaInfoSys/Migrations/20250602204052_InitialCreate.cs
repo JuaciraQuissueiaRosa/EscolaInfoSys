@@ -208,7 +208,7 @@ namespace EscolaInfoSys.Migrations
                     FullName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     PupilNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ProfilePhoto = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ProfilePhoto = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     DocumentPhoto = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     FormGroupId = table.Column<int>(type: "int", nullable: false)
                 },

@@ -1,0 +1,31 @@
+﻿@model Student
+
+@{
+    ViewData["Title"] = "Delete Student";
+}
+
+<h2>Delete Student</h2>
+
+<h4>Are you sure you want to delete this student?</h4>
+<hr />
+
+<dl class="row">
+    <dt class="col-sm-2">Full Name</dt>
+    <dd class="col-sm-10">@Model.FullName</dd>
+
+    <dt class="col-sm-2">Student Number</dt>
+    <dd class="col-sm-10">@Model.PupilNumber</dd>
+
+    <dt class="col-sm-2">Email</dt>
+    <dd class="col-sm-10">@Model.Email</dd>
+
+    <dt class="col-sm-2">Form Group</dt>
+    <dd class="col-sm-10">@Model.FormGroup?.Name</dd>
+</dl>
+
+<form asp-action="DeleteConfirmed">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger">Delete</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>
+

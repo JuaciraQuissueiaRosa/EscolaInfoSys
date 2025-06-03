@@ -9,6 +9,7 @@
   <ItemGroup>
     <Folder Include="API\" />
     <Folder Include="Services\" />
+    <Folder Include="wwwroot\images\students\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -20,6 +21,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.7" />
   </ItemGroup>
 
 </Project>

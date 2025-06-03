@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EscolaInfoSys.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250602122749_InitialCreate")]
+    [Migration("20250602204052_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -239,7 +239,6 @@ namespace EscolaInfoSys.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ProfilePhoto")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PupilNumber")
