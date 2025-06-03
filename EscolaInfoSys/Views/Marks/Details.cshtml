@@ -1,0 +1,34 @@
+﻿@model Mark
+
+@{
+    ViewData["Title"] = "Mark Details";
+}
+
+<h2>Mark Details</h2>
+
+<div>
+    <dl class="row">
+        <dt class="col-sm-3">Student</dt>
+        <dd class="col-sm-9">@Model.Student?.FullName</dd>
+
+        <dt class="col-sm-3">Subject</dt>
+        <dd class="col-sm-9">@Model.Subject?.Name</dd>
+
+        <dt class="col-sm-3">Value</dt>
+        <dd class="col-sm-9">@Model.Value</dd>
+
+        <dt class="col-sm-3">Evaluation Type</dt>
+        <dd class="col-sm-9">@Model.EvaluationType</dd>
+
+        <dt class="col-sm-3">Staff Member</dt>
+        <dd class="col-sm-9">@Model.StaffMember?.FullName</dd>
+
+        <dt class="col-sm-3">Date</dt>
+        <dd class="col-sm-9">@Model.Date.ToShortDateString()</dd>
+    </dl>
+</div>
+
+<p>
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Edit</a>
+    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+</p>

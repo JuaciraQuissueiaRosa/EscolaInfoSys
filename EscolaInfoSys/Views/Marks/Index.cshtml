@@ -1,0 +1,44 @@
+﻿@model IEnumerable<Mark>
+
+@{
+    ViewData["Title"] = "Marks";
+}
+
+<h2>Marks</h2>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Add New Mark</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Student</th>
+            <th>Subject</th>
+            <th>Value</th>
+            <th>Type</th>
+            <th>Staff Member</th>
+            <th>Date</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var mark in Model)
+        {
+            <tr>
+                <td>@mark.Student?.FullName</td>
+                <td>@mark.Subject?.Name</td>
+                <td>@mark.Value</td>
+                <td>@mark.EvaluationType</td>
+                <td>@mark.StaffMember?.FullName</td>
+                <td>@mark.Date.ToShortDateString()</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@mark.Id">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@mark.Id">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@mark.Id">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
