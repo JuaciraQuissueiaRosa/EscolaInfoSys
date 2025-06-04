@@ -1,0 +1,26 @@
+﻿@model Absence
+
+@{
+    ViewData["Title"] = "Absence Details";
+}
+
+<h2>Absence Details</h2>
+
+<dl class="row">
+    <dt class="col-sm-2">Date</dt>
+    <dd class="col-sm-10">@Model.Date.ToShortDateString()</dd>
+
+    <dt class="col-sm-2">Justified</dt>
+    <dd class="col-sm-10">@((Model.Justified) ? "Yes" : "No")</dd>
+
+    <dt class="col-sm-2">Student</dt>
+    <dd class="col-sm-10">@Model.Student?.FullName</dd>
+
+    <dt class="col-sm-2">Subject</dt>
+    <dd class="col-sm-10">@Model.Subject?.Name</dd>
+</dl>
+
+<p>
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Edit</a>
+    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+</p>
