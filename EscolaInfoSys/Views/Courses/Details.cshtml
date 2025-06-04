@@ -1,0 +1,38 @@
+﻿@model Course
+
+@{
+    ViewData["Title"] = "Course Details";
+}
+
+<h2>Course Details</h2>
+
+<dl class="row">
+    <dt class="col-sm-2">Name</dt>
+    <dd class="col-sm-10">@Model.Name</dd>
+
+    <dt class="col-sm-2">Description</dt>
+    <dd class="col-sm-10">@Model.Description</dd>
+
+    <dt class="col-sm-2">Subjects</dt>
+    <dd class="col-sm-10">
+        @if (Model.Subjects != null && Model.Subjects.Any())
+        {
+            <ul>
+                @foreach (var subject in Model.Subjects)
+                {
+                    <li>@subject.Name</li>
+                }
+            </ul>
+        }
+        else
+        {
+            <span>No subjects assigned to this course.</span>
+        }
+    </dd>
+</dl>
+
+<p>
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Edit</a>
+    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+</p>
+
