@@ -1,4 +1,5 @@
 ﻿using EscolaInfoSys.Data;
+using EscolaInfoSys.Data.Repositories.Interfaces;
 using EscolaInfoSys.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -11,77 +12,72 @@ namespace EscolaInfoSys.Controllers
     [Authorize(Roles = "Administrator,StaffMember")]
     public class StudentsController : Controller
     {
+        private readonly IStudentRepository _repository;
         private readonly ApplicationDbContext _context;
 
-        public StudentsController(ApplicationDbContext context)
+        public StudentsController(IStudentRepository repository, ApplicationDbContext context)
         {
-            _context = context;
+            _repository = repository;
+            _context = context; // usado para carregar o ViewBag.FormGroupId
         }
 
+        // GET: Students
         public async Task<IActionResult> Index()
         {
-            var students = _context.Students.Include(s => s.FormGroup);
-            return View(await students.ToListAsync());
+            var students = await _repository.GetAllAsync();
+            return View(students);
         }
 
-        public async Task<IActionResult> Details(int? id)
+        // GET: Students/Details/5
+        public async Task<IActionResult> Details(int id)
         {
-            if (id == null) return NotFound();
-
-            var student = await _context.Students
-                .Include(s => s.FormGroup)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var student = await _repository.GetByIdAsync(id);
             if (student == null) return NotFound();
-
             return View(student);
         }
 
+        // GET: Students/Create
         public IActionResult Create()
         {
-            ViewData["FormGroupId"] = new SelectList(_context.FormGroups, "Id", "Name");
+            ViewBag.FormGroupId = new SelectList(_context.FormGroups, "Id", "Name");
             return View();
         }
 
+        // POST: Students/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Student student, IFormFile file)
+        public async Task<IActionResult> Create(Student student, IFormFile? file)
         {
             if (ModelState.IsValid)
             {
                 if (file != null && file.Length > 0)
                 {
-                    var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/students", fileName);
-
-                    using (var stream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await file.CopyToAsync(stream);
-                    }
-
-                    student.DocumentPhoto = "/images/students/" + fileName;
+                    var fileName = Path.GetFileName(file.FileName);
+                    var filePath = Path.Combine("wwwroot/images", fileName);
+                    using var stream = new FileStream(filePath, FileMode.Create);
+                    await file.CopyToAsync(stream);
+                    student.ProfilePhoto = "/images/" + fileName;
                 }
 
-                _context.Add(student);
-                await _context.SaveChangesAsync();
+                await _repository.AddAsync(student);
                 return RedirectToAction(nameof(Index));
             }
 
-            ViewData["FormGroupId"] = new SelectList(_context.FormGroups, "Id", "Name", student.FormGroupId);
+            ViewBag.FormGroupId = new SelectList(_context.FormGroups, "Id", "Name", student.FormGroupId);
             return View(student);
         }
 
-
-        public async Task<IActionResult> Edit(int? id)
+        // GET: Students/Edit/5
+        public async Task<IActionResult> Edit(int id)
         {
-            if (id == null) return NotFound();
-
-            var student = await _context.Students.FindAsync(id);
+            var student = await _repository.GetByIdAsync(id);
             if (student == null) return NotFound();
 
-            ViewData["FormGroupId"] = new SelectList(_context.FormGroups, "Id", "Name", student.FormGroupId);
+            ViewBag.FormGroupId = new SelectList(_context.FormGroups, "Id", "Name", student.FormGroupId);
             return View(student);
         }
 
+        // POST: Students/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Student student)
@@ -90,41 +86,31 @@ namespace EscolaInfoSys.Controllers
 
             if (ModelState.IsValid)
             {
-                try
-                {
-                    _context.Update(student);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!_context.Students.Any(e => e.Id == id)) return NotFound();
-                    else throw;
-                }
+                await _repository.UpdateAsync(student);
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["FormGroupId"] = new SelectList(_context.FormGroups, "Id", "Name", student.FormGroupId);
+
+            ViewBag.FormGroupId = new SelectList(_context.FormGroups, "Id", "Name", student.FormGroupId);
             return View(student);
         }
 
-        public async Task<IActionResult> Delete(int? id)
+        // GET: Students/Delete/5
+        public async Task<IActionResult> Delete(int id)
         {
-            if (id == null) return NotFound();
-
-            var student = await _context.Students
-                .Include(s => s.FormGroup)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var student = await _repository.GetByIdAsync(id);
             if (student == null) return NotFound();
-
             return View(student);
         }
 
+        // POST: Students/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var student = await _context.Students.FindAsync(id);
-            _context.Students.Remove(student);
-            await _context.SaveChangesAsync();
+            var student = await _repository.GetByIdAsync(id);
+            if (student == null) return NotFound();
+
+            await _repository.DeleteAsync(student);
             return RedirectToAction(nameof(Index));
         }
     }

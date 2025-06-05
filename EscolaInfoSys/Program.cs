@@ -25,6 +25,8 @@ builder.Services.AddAuthentication(options =>
 })
 .AddCookie(IdentityConstants.ApplicationScheme);
 
+builder.Services.AddScoped<IStudentRepository, StudentRepository>();
+
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
