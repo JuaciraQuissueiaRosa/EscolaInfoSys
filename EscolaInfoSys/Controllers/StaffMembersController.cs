@@ -1,4 +1,5 @@
 ﻿using EscolaInfoSys.Data;
+using EscolaInfoSys.Data.Repositories.Interfaces;
 using EscolaInfoSys.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -10,28 +11,23 @@ namespace EscolaInfoSys.Controllers
     [Authorize(Roles = "Administrator,StaffMember")]
     public class StaffMembersController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IStaffMemberRepository _repository;
 
-        public StaffMembersController(ApplicationDbContext context)
+        public StaffMembersController(IStaffMemberRepository repository)
         {
-            _context = context;
+            _repository = repository;
         }
 
         public async Task<IActionResult> Index()
         {
-            return View(await _context.StaffMembers.ToListAsync());
+            var staff = await _repository.GetAllAsync();
+            return View(staff);
         }
 
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(int id)
         {
-            if (id == null) return NotFound();
-
-            var staff = await _context.StaffMembers
-                .Include(s => s.Marks)
-                .FirstOrDefaultAsync(m => m.Id == id);
-
+            var staff = await _repository.GetByIdAsync(id);
             if (staff == null) return NotFound();
-
             return View(staff);
         }
 
@@ -46,20 +42,16 @@ namespace EscolaInfoSys.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(staff);
-                await _context.SaveChangesAsync();
+                await _repository.AddAsync(staff);
                 return RedirectToAction(nameof(Index));
             }
             return View(staff);
         }
 
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int id)
         {
-            if (id == null) return NotFound();
-
-            var staff = await _context.StaffMembers.FindAsync(id);
+            var staff = await _repository.GetByIdAsync(id);
             if (staff == null) return NotFound();
-
             return View(staff);
         }
 
@@ -71,30 +63,16 @@ namespace EscolaInfoSys.Controllers
 
             if (ModelState.IsValid)
             {
-                try
-                {
-                    _context.Update(staff);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!_context.StaffMembers.Any(e => e.Id == id)) return NotFound();
-                    else throw;
-                }
+                await _repository.UpdateAsync(staff);
                 return RedirectToAction(nameof(Index));
             }
             return View(staff);
         }
 
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int id)
         {
-            if (id == null) return NotFound();
-
-            var staff = await _context.StaffMembers
-                .FirstOrDefaultAsync(m => m.Id == id);
-
+            var staff = await _repository.GetByIdAsync(id);
             if (staff == null) return NotFound();
-
             return View(staff);
         }
 
@@ -102,9 +80,10 @@ namespace EscolaInfoSys.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var staff = await _context.StaffMembers.FindAsync(id);
-            _context.StaffMembers.Remove(staff);
-            await _context.SaveChangesAsync();
+            var staff = await _repository.GetByIdAsync(id);
+            if (staff == null) return NotFound();
+
+            await _repository.DeleteAsync(staff);
             return RedirectToAction(nameof(Index));
         }
     }

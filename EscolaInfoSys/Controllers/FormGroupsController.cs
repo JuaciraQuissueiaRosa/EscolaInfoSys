@@ -1,4 +1,5 @@
 ﻿using EscolaInfoSys.Data;
+using EscolaInfoSys.Data.Repositories.Interfaces;
 using EscolaInfoSys.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -10,28 +11,23 @@ namespace EscolaInfoSys.Controllers
     [Authorize(Roles = "Administrator,StaffMember")]
     public class FormGroupsController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IFormGroupRepository _repository;
 
-        public FormGroupsController(ApplicationDbContext context)
+        public FormGroupsController(IFormGroupRepository repository)
         {
-            _context = context;
+            _repository = repository;
         }
 
         public async Task<IActionResult> Index()
         {
-            return View(await _context.FormGroups.ToListAsync());
+            var formGroups = await _repository.GetAllAsync();
+            return View(formGroups);
         }
 
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(int id)
         {
-            if (id == null) return NotFound();
-
-            var group = await _context.FormGroups
-                .Include(f => f.Students)
-                .FirstOrDefaultAsync(m => m.Id == id);
-
+            var group = await _repository.GetByIdAsync(id);
             if (group == null) return NotFound();
-
             return View(group);
         }
 
@@ -46,20 +42,16 @@ namespace EscolaInfoSys.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(formGroup);
-                await _context.SaveChangesAsync();
+                await _repository.AddAsync(formGroup);
                 return RedirectToAction(nameof(Index));
             }
             return View(formGroup);
         }
 
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int id)
         {
-            if (id == null) return NotFound();
-
-            var group = await _context.FormGroups.FindAsync(id);
+            var group = await _repository.GetByIdAsync(id);
             if (group == null) return NotFound();
-
             return View(group);
         }
 
@@ -71,32 +63,16 @@ namespace EscolaInfoSys.Controllers
 
             if (ModelState.IsValid)
             {
-                try
-                {
-                    _context.Update(formGroup);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!_context.FormGroups.Any(e => e.Id == id))
-                        return NotFound();
-                    else
-                        throw;
-                }
+                await _repository.UpdateAsync(formGroup);
                 return RedirectToAction(nameof(Index));
             }
-
             return View(formGroup);
         }
 
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int id)
         {
-            if (id == null) return NotFound();
-
-            var group = await _context.FormGroups
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var group = await _repository.GetByIdAsync(id);
             if (group == null) return NotFound();
-
             return View(group);
         }
 
@@ -104,9 +80,10 @@ namespace EscolaInfoSys.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var group = await _context.FormGroups.FindAsync(id);
-            _context.FormGroups.Remove(group);
-            await _context.SaveChangesAsync();
+            var group = await _repository.GetByIdAsync(id);
+            if (group == null) return NotFound();
+
+            await _repository.DeleteAsync(group);
             return RedirectToAction(nameof(Index));
         }
     }

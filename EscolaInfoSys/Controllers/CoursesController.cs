@@ -1,4 +1,5 @@
 ﻿using EscolaInfoSys.Data;
+using EscolaInfoSys.Data.Repositories.Interfaces;
 using EscolaInfoSys.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -10,28 +11,23 @@ namespace EscolaInfoSys.Controllers
     [Authorize(Roles = "Administrator,StaffMember")]
     public class CoursesController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ICourseRepository _repository;
 
-        public CoursesController(ApplicationDbContext context)
+        public CoursesController(ICourseRepository repository)
         {
-            _context = context;
+            _repository = repository;
         }
 
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Courses.ToListAsync());
+            var courses = await _repository.GetAllAsync();
+            return View(courses);
         }
 
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(int id)
         {
-            if (id == null) return NotFound();
-
-            var course = await _context.Courses
-                .Include(c => c.Subjects)
-                .FirstOrDefaultAsync(m => m.Id == id);
-
+            var course = await _repository.GetByIdAsync(id);
             if (course == null) return NotFound();
-
             return View(course);
         }
 
@@ -46,20 +42,16 @@ namespace EscolaInfoSys.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(course);
-                await _context.SaveChangesAsync();
+                await _repository.AddAsync(course);
                 return RedirectToAction(nameof(Index));
             }
             return View(course);
         }
 
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int id)
         {
-            if (id == null) return NotFound();
-
-            var course = await _context.Courses.FindAsync(id);
+            var course = await _repository.GetByIdAsync(id);
             if (course == null) return NotFound();
-
             return View(course);
         }
 
@@ -71,30 +63,16 @@ namespace EscolaInfoSys.Controllers
 
             if (ModelState.IsValid)
             {
-                try
-                {
-                    _context.Update(course);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!_context.Courses.Any(e => e.Id == id)) return NotFound();
-                    else throw;
-                }
+                await _repository.UpdateAsync(course);
                 return RedirectToAction(nameof(Index));
             }
             return View(course);
         }
 
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int id)
         {
-            if (id == null) return NotFound();
-
-            var course = await _context.Courses
-                .FirstOrDefaultAsync(m => m.Id == id);
-
+            var course = await _repository.GetByIdAsync(id);
             if (course == null) return NotFound();
-
             return View(course);
         }
 
@@ -102,9 +80,10 @@ namespace EscolaInfoSys.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var course = await _context.Courses.FindAsync(id);
-            _context.Courses.Remove(course);
-            await _context.SaveChangesAsync();
+            var course = await _repository.GetByIdAsync(id);
+            if (course == null) return NotFound();
+
+            await _repository.DeleteAsync(course);
             return RedirectToAction(nameof(Index));
         }
     }

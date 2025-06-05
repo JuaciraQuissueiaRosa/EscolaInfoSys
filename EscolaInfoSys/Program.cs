@@ -1,4 +1,6 @@
 using EscolaInfoSys.Data;
+using EscolaInfoSys.Data.Repositories.Interfaces;
+using EscolaInfoSys.Data.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -25,7 +27,8 @@ builder.Services.AddAuthentication(options =>
 })
 .AddCookie(IdentityConstants.ApplicationScheme);
 
-builder.Services.AddScoped<IStudentRepository, StudentRepository>();
+builder.Services.RegisterRepositories();
+
 
 builder.Services.AddControllersWithViews();
 

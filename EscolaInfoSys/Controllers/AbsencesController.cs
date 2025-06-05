@@ -1,4 +1,5 @@
 ﻿using EscolaInfoSys.Data;
+using EscolaInfoSys.Data.Repositories.Interfaces;
 using EscolaInfoSys.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -11,39 +12,32 @@ namespace EscolaInfoSys.Controllers
     [Authorize(Roles = "Administrator,StaffMember")]
     public class AbsencesController : Controller
     {
+        private readonly IAbsenceRepository _repository;
         private readonly ApplicationDbContext _context;
 
-        public AbsencesController(ApplicationDbContext context)
+        public AbsencesController(IAbsenceRepository repository, ApplicationDbContext context)
         {
+            _repository = repository;
             _context = context;
         }
 
         public async Task<IActionResult> Index()
         {
-            var absences = _context.Absences
-                .Include(a => a.Student)
-                .Include(a => a.Subject);
-            return View(await absences.ToListAsync());
+            var absences = await _repository.GetAllAsync();
+            return View(absences);
         }
 
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(int id)
         {
-            if (id == null) return NotFound();
-
-            var absence = await _context.Absences
-                .Include(a => a.Student)
-                .Include(a => a.Subject)
-                .FirstOrDefaultAsync(m => m.Id == id);
-
+            var absence = await _repository.GetByIdAsync(id);
             if (absence == null) return NotFound();
-
             return View(absence);
         }
 
         public IActionResult Create()
         {
-            ViewData["StudentId"] = new SelectList(_context.Students, "Id", "FullName");
-            ViewData["SubjectId"] = new SelectList(_context.Subjects, "Id", "Name");
+            ViewBag.StudentId = new SelectList(_context.Students, "Id", "FullName");
+            ViewBag.SubjectId = new SelectList(_context.Subjects, "Id", "Name");
             return View();
         }
 
@@ -53,25 +47,22 @@ namespace EscolaInfoSys.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(absence);
-                await _context.SaveChangesAsync();
+                await _repository.AddAsync(absence);
                 return RedirectToAction(nameof(Index));
             }
 
-            ViewData["StudentId"] = new SelectList(_context.Students, "Id", "FullName", absence.StudentId);
-            ViewData["SubjectId"] = new SelectList(_context.Subjects, "Id", "Name", absence.SubjectId);
+            ViewBag.StudentId = new SelectList(_context.Students, "Id", "FullName", absence.StudentId);
+            ViewBag.SubjectId = new SelectList(_context.Subjects, "Id", "Name", absence.SubjectId);
             return View(absence);
         }
 
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int id)
         {
-            if (id == null) return NotFound();
-
-            var absence = await _context.Absences.FindAsync(id);
+            var absence = await _repository.GetByIdAsync(id);
             if (absence == null) return NotFound();
 
-            ViewData["StudentId"] = new SelectList(_context.Students, "Id", "FullName", absence.StudentId);
-            ViewData["SubjectId"] = new SelectList(_context.Subjects, "Id", "Name", absence.SubjectId);
+            ViewBag.StudentId = new SelectList(_context.Students, "Id", "FullName", absence.StudentId);
+            ViewBag.SubjectId = new SelectList(_context.Subjects, "Id", "Name", absence.SubjectId);
             return View(absence);
         }
 
@@ -83,35 +74,19 @@ namespace EscolaInfoSys.Controllers
 
             if (ModelState.IsValid)
             {
-                try
-                {
-                    _context.Update(absence);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!_context.Absences.Any(e => e.Id == id)) return NotFound();
-                    else throw;
-                }
+                await _repository.UpdateAsync(absence);
                 return RedirectToAction(nameof(Index));
             }
 
-            ViewData["StudentId"] = new SelectList(_context.Students, "Id", "FullName", absence.StudentId);
-            ViewData["SubjectId"] = new SelectList(_context.Subjects, "Id", "Name", absence.SubjectId);
+            ViewBag.StudentId = new SelectList(_context.Students, "Id", "FullName", absence.StudentId);
+            ViewBag.SubjectId = new SelectList(_context.Subjects, "Id", "Name", absence.SubjectId);
             return View(absence);
         }
 
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int id)
         {
-            if (id == null) return NotFound();
-
-            var absence = await _context.Absences
-                .Include(a => a.Student)
-                .Include(a => a.Subject)
-                .FirstOrDefaultAsync(m => m.Id == id);
-
+            var absence = await _repository.GetByIdAsync(id);
             if (absence == null) return NotFound();
-
             return View(absence);
         }
 
@@ -119,9 +94,10 @@ namespace EscolaInfoSys.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var absence = await _context.Absences.FindAsync(id);
-            _context.Absences.Remove(absence);
-            await _context.SaveChangesAsync();
+            var absence = await _repository.GetByIdAsync(id);
+            if (absence == null) return NotFound();
+
+            await _repository.DeleteAsync(absence);
             return RedirectToAction(nameof(Index));
         }
     }

@@ -1,4 +1,5 @@
 ﻿using EscolaInfoSys.Data;
+using EscolaInfoSys.Data.Repositories.Interfaces;
 using EscolaInfoSys.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -11,27 +12,32 @@ namespace EscolaInfoSys.Controllers
     [Authorize(Roles = "Administrator,StaffMember")]
     public class MarksController : Controller
     {
+        private readonly IMarkRepository _repository;
         private readonly ApplicationDbContext _context;
 
-        public MarksController(ApplicationDbContext context)
+        public MarksController(IMarkRepository repository, ApplicationDbContext context)
         {
+            _repository = repository;
             _context = context;
         }
 
         public async Task<IActionResult> Index()
         {
-            var marks = _context.Marks
-                .Include(m => m.Student)
-                .Include(m => m.Subject)
-                .Include(m => m.StaffMember);
-            return View(await marks.ToListAsync());
+            var marks = await _repository.GetAllAsync();
+            return View(marks);
+        }
+
+        public async Task<IActionResult> Details(int id)
+        {
+            var mark = await _repository.GetByIdAsync(id);
+            if (mark == null) return NotFound();
+            return View(mark);
         }
 
         public IActionResult Create()
         {
-            ViewData["StudentId"] = new SelectList(_context.Students, "Id", "FullName");
-            ViewData["SubjectId"] = new SelectList(_context.Subjects, "Id", "Name");
-            ViewData["StaffMemberId"] = new SelectList(_context.StaffMembers, "Id", "FullName");
+            ViewBag.StudentId = new SelectList(_context.Students, "Id", "FullName");
+            ViewBag.SubjectId = new SelectList(_context.Subjects, "Id", "Name");
             return View();
         }
 
@@ -41,43 +47,22 @@ namespace EscolaInfoSys.Controllers
         {
             if (ModelState.IsValid)
             {
-                mark.Date = DateTime.Now;
-                _context.Add(mark);
-                await _context.SaveChangesAsync();
+                await _repository.AddAsync(mark);
                 return RedirectToAction(nameof(Index));
             }
 
-            ViewData["StudentId"] = new SelectList(_context.Students, "Id", "FullName", mark.StudentId);
-            ViewData["SubjectId"] = new SelectList(_context.Subjects, "Id", "Name", mark.SubjectId);
-            ViewData["StaffMemberId"] = new SelectList(_context.StaffMembers, "Id", "FullName", mark.StaffMemberId);
+            ViewBag.StudentId = new SelectList(_context.Students, "Id", "FullName", mark.StudentId);
+            ViewBag.SubjectId = new SelectList(_context.Subjects, "Id", "Name", mark.SubjectId);
             return View(mark);
         }
 
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Edit(int id)
         {
-            if (id == null) return NotFound();
-
-            var mark = await _context.Marks
-                .Include(m => m.Student)
-                .Include(m => m.Subject)
-                .Include(m => m.StaffMember)
-                .FirstOrDefaultAsync(m => m.Id == id);
-
+            var mark = await _repository.GetByIdAsync(id);
             if (mark == null) return NotFound();
 
-            return View(mark);
-        }
-
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null) return NotFound();
-
-            var mark = await _context.Marks.FindAsync(id);
-            if (mark == null) return NotFound();
-
-            ViewData["StudentId"] = new SelectList(_context.Students, "Id", "FullName", mark.StudentId);
-            ViewData["SubjectId"] = new SelectList(_context.Subjects, "Id", "Name", mark.SubjectId);
-            ViewData["StaffMemberId"] = new SelectList(_context.StaffMembers, "Id", "FullName", mark.StaffMemberId);
+            ViewBag.StudentId = new SelectList(_context.Students, "Id", "FullName", mark.StudentId);
+            ViewBag.SubjectId = new SelectList(_context.Subjects, "Id", "Name", mark.SubjectId);
             return View(mark);
         }
 
@@ -89,37 +74,19 @@ namespace EscolaInfoSys.Controllers
 
             if (ModelState.IsValid)
             {
-                try
-                {
-                    _context.Update(mark);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!_context.Marks.Any(m => m.Id == id)) return NotFound();
-                    else throw;
-                }
+                await _repository.UpdateAsync(mark);
                 return RedirectToAction(nameof(Index));
             }
 
-            ViewData["StudentId"] = new SelectList(_context.Students, "Id", "FullName", mark.StudentId);
-            ViewData["SubjectId"] = new SelectList(_context.Subjects, "Id", "Name", mark.SubjectId);
-            ViewData["StaffMemberId"] = new SelectList(_context.StaffMembers, "Id", "FullName", mark.StaffMemberId);
+            ViewBag.StudentId = new SelectList(_context.Students, "Id", "FullName", mark.StudentId);
+            ViewBag.SubjectId = new SelectList(_context.Subjects, "Id", "Name", mark.SubjectId);
             return View(mark);
         }
 
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int id)
         {
-            if (id == null) return NotFound();
-
-            var mark = await _context.Marks
-                .Include(m => m.Student)
-                .Include(m => m.Subject)
-                .Include(m => m.StaffMember)
-                .FirstOrDefaultAsync(m => m.Id == id);
-
+            var mark = await _repository.GetByIdAsync(id);
             if (mark == null) return NotFound();
-
             return View(mark);
         }
 
@@ -127,9 +94,10 @@ namespace EscolaInfoSys.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var mark = await _context.Marks.FindAsync(id);
-            _context.Marks.Remove(mark);
-            await _context.SaveChangesAsync();
+            var mark = await _repository.GetByIdAsync(id);
+            if (mark == null) return NotFound();
+
+            await _repository.DeleteAsync(mark);
             return RedirectToAction(nameof(Index));
         }
     }
