@@ -10,17 +10,17 @@
 <hr />
 
 <dl class="row">
-    <dt class="col-sm-2">Full Name</dt>
-    <dd class="col-sm-10">@Model.FullName</dd>
+    <dt class="col-sm-3">Full Name</dt>
+    <dd class="col-sm-9">@Model.FullName</dd>
 
-    <dt class="col-sm-2">Student Number</dt>
-    <dd class="col-sm-10">@Model.PupilNumber</dd>
+    <dt class="col-sm-3">Pupil Number</dt>
+    <dd class="col-sm-9">@Model.PupilNumber</dd>
 
-    <dt class="col-sm-2">Email</dt>
-    <dd class="col-sm-10">@Model.Email</dd>
+    <dt class="col-sm-3">Email</dt>
+    <dd class="col-sm-9">@Model.Email</dd>
 
-    <dt class="col-sm-2">Form Group</dt>
-    <dd class="col-sm-10">@Model.FormGroup?.Name</dd>
+    <dt class="col-sm-3">Form Group</dt>
+    <dd class="col-sm-9">@Model.FormGroup?.Name</dd>
 </dl>
 
 <form asp-action="DeleteConfirmed">
@@ -28,4 +28,5 @@
     <button type="submit" class="btn btn-danger">Delete</button>
     <a asp-action="Index" class="btn btn-secondary">Cancel</a>
 </form>
+
 

@@ -7,17 +7,17 @@
 <h2>Students</h2>
 
 <p>
-    <a asp-action="Create" class="btn btn-primary">Create New</a>
+    <a asp-action="Create" class="btn">Add New Student</a>
 </p>
 
 <table class="table">
     <thead>
         <tr>
-            <th>@Html.DisplayNameFor(m => m.First().FullName)</th>
-            <th>@Html.DisplayNameFor(m => m.First().PupilNumber)</th>
-            <th>@Html.DisplayNameFor(m => m.First().Email)</th>
-            <th>@Html.DisplayNameFor(m => m.First().FormGroup.Name)</th>
-            <th></th>
+            <th>@Html.DisplayNameFor(model => model.First().FullName)</th>
+            <th>@Html.DisplayNameFor(model => model.PupilNumber)</th>
+            <th>@Html.DisplayNameFor(model => model.Email)</th>
+            <th>@Html.DisplayNameFor(model => model.FormGroup.Name)</th>
+            <th>Actions</th>
         </tr>
     </thead>
     <tbody>
@@ -37,4 +37,5 @@
         }
     </tbody>
 </table>
+
 

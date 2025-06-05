@@ -1,8 +1,36 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Welcome";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+
+@* 
+@if (User.IsInRole("Administrator"))
+{
+    <p>You are logged in as <strong>Administrator</strong>.</p>
+    <ul>
+        <li><a asp-controller="Students" asp-action="Index">Manage Students</a></li>
+        <li><a asp-controller="StaffMembers" asp-action="Index">Manage Staff</a></li>
+        <li><a asp-controller="Marks" asp-action="Index">Manage Marks</a></li>
+    </ul>
+}
+else if (User.IsInRole("StaffMember"))
+{
+    <p>Welcome, staff member.</p>
+    <ul>
+        <li><a asp-controller="Marks" asp-action="Index">Enter Marks</a></li>
+        <li><a asp-controller="Absences" asp-action="Index">Record Absences</a></li>
+    </ul>
+}
+else if (User.IsInRole("Student"))
+{
+    <p>Welcome, student.</p>
+    <ul>
+        <li><a asp-controller="Marks" asp-action="Index">View Your Marks</a></li>
+        <li><a asp-controller="Absences" asp-action="Index">View Your Absences</a></li>
+    </ul>
+}
+else
+{
+    <p>Please <a asp-controller="Account" asp-action="Login">log in</a> to continue.</p>
+}
+ *@
