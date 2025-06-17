@@ -34,6 +34,23 @@
             background-color: #f8f9fa;
             padding: 1rem 0;
         }
+
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        .page-wrapper {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        main {
+            flex: 1;
+        }
+
     </style>
 </head>
 <body class="layout-boxed">
@@ -46,18 +63,50 @@
             <div class="navbar-nav flex-row order-md-last align-items-center">
                 @if (User.Identity.IsAuthenticated)
                 {
+                    var userName = User.Identity.Name;
+                    var isAdmin = User.IsInRole("Administrator");
+                    var isStaff = User.IsInRole("StaffMember");
+                    var isStudent = User.IsInRole("Student");
+
                     <div class="nav-item dropdown">
                         <a href="#" class="nav-link d-flex align-items-center lh-1 text-reset p-0" data-bs-toggle="dropdown" aria-label="Open user menu">
                             <span class="avatar avatar-sm me-2" style="background-image: url(/img/avatar-placeholder.png)"></span>
                             <div class="d-none d-xl-block">
-                                <div class="fw-semibold">@User.Identity.Name</div>
-                                <div class="mt-1 small text-muted">Account</div>
+                                <div class="fw-semibold">@userName</div>
+                                <div class="mt-1 small text-muted">
+                                    @(isAdmin ? "Admin" : isStaff ? "Staff" : "Student")
+                                </div>
                             </div>
                         </a>
+
                         <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
                             <a asp-controller="Account" asp-action="Profile" class="dropdown-item">My Profile</a>
                             <a asp-controller="Account" asp-action="EditProfile" class="dropdown-item">Edit Profile</a>
                             <a asp-controller="Account" asp-action="ChangePassword" class="dropdown-item">Change Password</a>
+
+                            @if (isAdmin)
+                            {
+                                <div class="dropdown-divider"></div>
+                                <a asp-controller="FormGroups" asp-action="Index" class="dropdown-item">Manage Form Groups</a>
+                                <a asp-controller="StaffMembers" asp-action="Index" class="dropdown-item">Manage Staff</a>
+                                <a asp-controller="Courses" asp-action="Index" class="dropdown-item">Manage Courses</a>
+                            }
+
+                            @if (isStaff)
+                            {
+                                <div class="dropdown-divider"></div>
+                                <a asp-controller="Students" asp-action="Index" class="dropdown-item">My Students</a>
+                                <a asp-controller="Marks" asp-action="Index" class="dropdown-item">Enter Marks</a>
+                                <a asp-controller="Absences" asp-action="Index" class="dropdown-item">Record Absences</a>
+                            }
+
+                            @if (isStudent)
+                            {
+                                <div class="dropdown-divider"></div>
+                                <a asp-controller="Marks" asp-action="Index" class="dropdown-item">My Marks</a>
+                                <a asp-controller="Absences" asp-action="Index" class="dropdown-item">My Absences</a>
+                            }
+
                             <div class="dropdown-divider"></div>
                             <form asp-controller="Account" asp-action="Logout" method="post" class="dropdown-item">
                                 <button type="submit" class="btn btn-link p-0 m-0 text-start w-100">Logout</button>
@@ -71,23 +120,22 @@
                     <a class="nav-link px-3" asp-controller="Account" asp-action="Register">Register</a>
                 }
             </div>
+
         </div>
     </header>
-
-    <div class="page-wrapper">
+    <main class="main-content">
         <div class="container-xl mt-4">
-            <main role="main" class="pb-3">
-                @RenderBody()
-            </main>
+            @RenderBody()
         </div>
+    </main>
 
-        <footer class="footer small text-muted py-2 border-top">
-            <div class="container text-center">
-                &copy; 2025 - EscolaInfoSys - <a asp-area="" asp-controller="Home" asp-action="About">About</a>
-            </div>
-        </footer>
+  @*   <footer class="footer text-muted border-top text-center">
+        <div class="container">
+            &copy; 2025 - EscolaInfoSys - <a asp-area="" asp-controller="Home" asp-action="About" class="text-muted">About</a>
+        </div>
+    </footer>
+    *@
 
-    </div>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
