@@ -1,16 +1,20 @@
 using System.Diagnostics;
+using EscolaInfoSys.Data;
 using EscolaInfoSys.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EscolaInfoSys.Controllers
 {
+    [Authorize]
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(UserManager<ApplicationUser> userManager)
         {
-            _logger = logger;
+            _userManager = userManager;
         }
 
         public IActionResult Index()
@@ -18,6 +22,20 @@ namespace EscolaInfoSys.Controllers
             return View();
         }
 
+        public IActionResult AdminDashboard()
+        {
+            return View();
+        }
+
+        public IActionResult StaffDashboard()
+        {
+            return View();
+        }
+
+        public IActionResult StudentDashboard()
+        {
+            return View();
+        }
         public IActionResult Privacy()
         {
             return View();
@@ -25,6 +43,13 @@ namespace EscolaInfoSys.Controllers
         public IActionResult About()
         {
             return View();
+        }
+        public IActionResult StatusCode(int code)
+        {
+            if (code == 404)
+                return View("Error404");
+
+            return View("Error");
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

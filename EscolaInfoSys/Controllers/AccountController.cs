@@ -1,5 +1,6 @@
 ﻿using EscolaInfoSys.Data;
 using EscolaInfoSys.Models.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -10,11 +11,13 @@ namespace EscolaInfoSys.Controllers
     {
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public AccountController(SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager)
+        public AccountController(SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager, IWebHostEnvironment webHostEnvironment)
         {
             _signInManager = signInManager;
             _userManager = userManager;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         [HttpGet]
@@ -81,7 +84,7 @@ namespace EscolaInfoSys.Controllers
                     UserName = model.Email,
                     Email = model.Email,
                     EmailConfirmed = true,
-                    FullName = model.FullName,
+                    Name = model.FullName,
                     ProfilePhoto = null
                 };
 
@@ -126,6 +129,103 @@ namespace EscolaInfoSys.Controllers
 
             return View(model);
         }
+
+        [Authorize]
+        public async Task<IActionResult> Profile()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var roles = await _userManager.GetRolesAsync(user);
+
+            var model = new ProfileViewModel
+            {
+                Email = user.Email,
+                FullName = user.Name,
+                Role = roles.FirstOrDefault(),
+                ProfilePhoto = user.ProfilePhoto
+            };
+
+            return View(model);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> EditProfile()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return NotFound();
+
+            var model = new EditProfileViewModel
+            {
+                FullName = user.Name,
+                CurrentPhoto = user.ProfilePhoto
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EditProfile(EditProfileViewModel model)
+        {
+            if (!ModelState.IsValid) return View(model);
+
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return NotFound();
+
+            user.Name= model.FullName;
+
+            if (model.NewPhoto != null && model.NewPhoto.Length > 0)
+            {
+                var fileName = Guid.NewGuid() + Path.GetExtension(model.NewPhoto.FileName);
+                var filePath = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await model.NewPhoto.CopyToAsync(stream);
+                }
+
+                user.ProfilePhoto = fileName;
+            }
+
+            var result = await _userManager.UpdateAsync(user);
+            if (!result.Succeeded)
+            {
+                foreach (var error in result.Errors)
+                    ModelState.AddModelError("", error.Description);
+
+                return View(model);
+            }
+
+            return RedirectToAction("Profile");
+        }
+
+
+        [HttpGet]
+        [Authorize]
+        public IActionResult ChangePassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
+        {
+            if (!ModelState.IsValid) return View(model);
+
+            var user = await _userManager.GetUserAsync(User);
+            var result = await _userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
+
+            if (result.Succeeded)
+                return RedirectToAction("Profile");
+
+            foreach (var error in result.Errors)
+                ModelState.AddModelError("", error.Description);
+
+            return View(model);
+        }
+
+
+
 
     }
 }

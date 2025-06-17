@@ -27,7 +27,7 @@ namespace EscolaInfoSys.Models
         public int FormGroupId { get; set; }
         public FormGroup FormGroup { get; set; }
 
-        public ICollection<Mark> Marks { get; set; }
-        public ICollection<Absence> Absences { get; set; }
+        public ICollection<Mark>? Marks { get; set; }
+        public ICollection<Absence>? Absences { get; set; }
     }
 }

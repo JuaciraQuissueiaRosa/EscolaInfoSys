@@ -1,20 +1,25 @@
-﻿@model StaffMember
+﻿@model EscolaInfoSys.Models.StaffMember
 
 @{
     ViewData["Title"] = "Staff Member Details";
 }
 
-<h2>Staff Member Details</h2>
+<h2 class="page-title">Staff Member Details</h2>
 
-<dl class="row">
-    <dt class="col-sm-2">Full Name</dt>
-    <dd class="col-sm-10">@Model.FullName</dd>
-
-    <dt class="col-sm-2">Email</dt>
-    <dd class="col-sm-10">@Model.Email</dd>
-</dl>
-
-<p>
-    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Edit</a>
-    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
-</p>
+<div class="card p-4">
+    <dl class="row">
+        <dt class="col-sm-3">@Html.DisplayNameFor(m => m.FullName)</dt>
+        <dd class="col-sm-9">@Html.DisplayFor(m => m.FullName)</dd>
+        <dt class="col-sm-3">@Html.DisplayNameFor(m => m.Email)</dt>
+        <dd class="col-sm-9">@Html.DisplayFor(m => m.Email)</dd>
+    </dl>
+    <div>
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Edit</a>
+        <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+    </div>
+</div>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

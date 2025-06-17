@@ -1,104 +1,170 @@
-﻿using EscolaInfoSys.Data;
-using EscolaInfoSys.Data.Repositories.Interfaces;
-using EscolaInfoSys.Models;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using EscolaInfoSys.Data;
+using EscolaInfoSys.Models;
 
 namespace EscolaInfoSys.Controllers
 {
-    [Authorize(Roles = "Administrator,StaffMember")]
     public class AbsencesController : Controller
     {
-        private readonly IAbsenceRepository _repository;
         private readonly ApplicationDbContext _context;
 
-        public AbsencesController(IAbsenceRepository repository, ApplicationDbContext context)
+        public AbsencesController(ApplicationDbContext context)
         {
-            _repository = repository;
             _context = context;
         }
 
+        // GET: Absences
         public async Task<IActionResult> Index()
         {
-            var absences = await _repository.GetAllAsync();
-            return View(absences);
+            var applicationDbContext = _context.Absences.Include(a => a.Student).Include(a => a.Subject);
+            return View(await applicationDbContext.ToListAsync());
         }
 
-        public async Task<IActionResult> Details(int id)
+        // GET: Absences/Details/5
+        public async Task<IActionResult> Details(int? id)
         {
-            var absence = await _repository.GetByIdAsync(id);
-            if (absence == null) return NotFound();
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var absence = await _context.Absences
+                .Include(a => a.Student)
+                .Include(a => a.Subject)
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (absence == null)
+            {
+                return NotFound();
+            }
+
             return View(absence);
         }
 
+        // GET: Absences/Create
         public IActionResult Create()
         {
-            ViewBag.StudentId = new SelectList(_context.Students, "Id", "FullName");
-            ViewBag.SubjectId = new SelectList(_context.Subjects, "Id", "Name");
+            ViewData["StudentId"] = new SelectList(_context.Students, "Id", "Email");
+            ViewData["SubjectId"] = new SelectList(_context.Subjects, "Id", "Id");
             return View();
         }
 
+        // POST: Absences/Create
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Absence absence)
+        public async Task<IActionResult> Create([Bind("Id,Date,StudentId,SubjectId,Justified")] Absence absence)
         {
             if (ModelState.IsValid)
             {
-                await _repository.AddAsync(absence);
+                _context.Add(absence);
+                await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-
-            ViewBag.StudentId = new SelectList(_context.Students, "Id", "FullName", absence.StudentId);
-            ViewBag.SubjectId = new SelectList(_context.Subjects, "Id", "Name", absence.SubjectId);
+            ViewData["StudentId"] = new SelectList(_context.Students, "Id", "Email", absence.StudentId);
+            ViewData["SubjectId"] = new SelectList(_context.Subjects, "Id", "Id", absence.SubjectId);
             return View(absence);
         }
 
-        public async Task<IActionResult> Edit(int id)
+        // GET: Absences/Edit/5
+        public async Task<IActionResult> Edit(int? id)
         {
-            var absence = await _repository.GetByIdAsync(id);
-            if (absence == null) return NotFound();
+            if (id == null)
+            {
+                return NotFound();
+            }
 
-            ViewBag.StudentId = new SelectList(_context.Students, "Id", "FullName", absence.StudentId);
-            ViewBag.SubjectId = new SelectList(_context.Subjects, "Id", "Name", absence.SubjectId);
+            var absence = await _context.Absences.FindAsync(id);
+            if (absence == null)
+            {
+                return NotFound();
+            }
+            ViewData["StudentId"] = new SelectList(_context.Students, "Id", "Email", absence.StudentId);
+            ViewData["SubjectId"] = new SelectList(_context.Subjects, "Id", "Id", absence.SubjectId);
             return View(absence);
         }
 
+        // POST: Absences/Edit/5
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Absence absence)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Date,StudentId,SubjectId,Justified")] Absence absence)
         {
-            if (id != absence.Id) return NotFound();
+            if (id != absence.Id)
+            {
+                return NotFound();
+            }
 
             if (ModelState.IsValid)
             {
-                await _repository.UpdateAsync(absence);
+                try
+                {
+                    _context.Update(absence);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!AbsenceExists(absence.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
                 return RedirectToAction(nameof(Index));
             }
-
-            ViewBag.StudentId = new SelectList(_context.Students, "Id", "FullName", absence.StudentId);
-            ViewBag.SubjectId = new SelectList(_context.Subjects, "Id", "Name", absence.SubjectId);
+            ViewData["StudentId"] = new SelectList(_context.Students, "Id", "Email", absence.StudentId);
+            ViewData["SubjectId"] = new SelectList(_context.Subjects, "Id", "Id", absence.SubjectId);
             return View(absence);
         }
 
-        public async Task<IActionResult> Delete(int id)
+        // GET: Absences/Delete/5
+        public async Task<IActionResult> Delete(int? id)
         {
-            var absence = await _repository.GetByIdAsync(id);
-            if (absence == null) return NotFound();
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var absence = await _context.Absences
+                .Include(a => a.Student)
+                .Include(a => a.Subject)
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (absence == null)
+            {
+                return NotFound();
+            }
+
             return View(absence);
         }
 
+        // POST: Absences/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var absence = await _repository.GetByIdAsync(id);
-            if (absence == null) return NotFound();
+            var absence = await _context.Absences.FindAsync(id);
+            if (absence != null)
+            {
+                _context.Absences.Remove(absence);
+            }
 
-            await _repository.DeleteAsync(absence);
+            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
+        }
+
+        private bool AbsenceExists(int id)
+        {
+            return _context.Absences.Any(e => e.Id == id);
         }
     }
 }

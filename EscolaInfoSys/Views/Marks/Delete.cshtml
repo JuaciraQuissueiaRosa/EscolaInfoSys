@@ -1,36 +1,39 @@
-﻿@model Mark
+﻿@model EscolaInfoSys.Models.Mark
 
 @{
-    ViewData["Title"] = "Delete Mark";
+    ViewData["Title"] = "Delete";
 }
 
-<h2>Delete Mark</h2>
+<h2 class="page-title">Delete Mark</h2>
 
-<h4>Are you sure you want to delete this mark?</h4>
-<hr />
+<div class="card">
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-3">@Html.DisplayNameFor(m => m.Value)</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(m => m.Value)</dd>
+            <dt class="col-sm-3">@Html.DisplayNameFor(m => m.Date)</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(m => m.Date)</dd>
+            <dt class="col-sm-3">@Html.DisplayNameFor(m => m.Student)</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(m => m.Student.Email)</dd>
+            <dt class="col-sm-3">@Html.DisplayNameFor(m => m.Subject)</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(m => m.Subject.Id)</dd>
+            <dt class="col-sm-3">@Html.DisplayNameFor(m => m.EvaluationType)</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(m => m.EvaluationType)</dd>
+            <dt class="col-sm-3">@Html.DisplayNameFor(m => m.StaffMember)</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(m => m.StaffMember.Email)</dd>
+        </dl>
+    </div>
+    <div class="card-footer">
+        <form asp-action="Delete">
+            <input type="hidden" asp-for="Id" />
+            <button type="submit" class="btn btn-danger">Delete</button>
+            <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
 
-<dl class="row">
-    <dt class="col-sm-3">Student</dt>
-    <dd class="col-sm-9">@Model.Student?.FullName</dd>
-
-    <dt class="col-sm-3">Subject</dt>
-    <dd class="col-sm-9">@Model.Subject?.Name</dd>
-
-    <dt class="col-sm-3">Value</dt>
-    <dd class="col-sm-9">@Model.Value</dd>
-
-    <dt class="col-sm-3">Evaluation Type</dt>
-    <dd class="col-sm-9">@Model.EvaluationType</dd>
-
-    <dt class="col-sm-3">Staff Member</dt>
-    <dd class="col-sm-9">@Model.StaffMember?.FullName</dd>
-
-    <dt class="col-sm-3">Date</dt>
-    <dd class="col-sm-9">@Model.Date.ToShortDateString()</dd>
-</dl>
-
-<form asp-action="DeleteConfirmed">
-    <input type="hidden" asp-for="Id" />
-    <button type="submit" class="btn btn-danger">Delete</button>
-    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
-</form>

@@ -1,90 +1,157 @@
-﻿using EscolaInfoSys.Data;
-using EscolaInfoSys.Data.Repositories.Interfaces;
-using EscolaInfoSys.Models;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using EscolaInfoSys.Data;
+using EscolaInfoSys.Models;
 
 namespace EscolaInfoSys.Controllers
 {
-    [Authorize(Roles = "Administrator,StaffMember")]
     public class StaffMembersController : Controller
     {
-        private readonly IStaffMemberRepository _repository;
+        private readonly ApplicationDbContext _context;
 
-        public StaffMembersController(IStaffMemberRepository repository)
+        public StaffMembersController(ApplicationDbContext context)
         {
-            _repository = repository;
+            _context = context;
         }
 
+        // GET: StaffMembers
         public async Task<IActionResult> Index()
         {
-            var staff = await _repository.GetAllAsync();
-            return View(staff);
+            return View(await _context.StaffMembers.ToListAsync());
         }
 
-        public async Task<IActionResult> Details(int id)
+        // GET: StaffMembers/Details/5
+        public async Task<IActionResult> Details(int? id)
         {
-            var staff = await _repository.GetByIdAsync(id);
-            if (staff == null) return NotFound();
-            return View(staff);
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var staffMember = await _context.StaffMembers
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (staffMember == null)
+            {
+                return NotFound();
+            }
+
+            return View(staffMember);
         }
 
+        // GET: StaffMembers/Create
         public IActionResult Create()
         {
             return View();
         }
 
+        // POST: StaffMembers/Create
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(StaffMember staff)
+        public async Task<IActionResult> Create([Bind("Id,FullName,Email")] StaffMember staffMember)
         {
             if (ModelState.IsValid)
             {
-                await _repository.AddAsync(staff);
+                _context.Add(staffMember);
+                await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(staff);
+            return View(staffMember);
         }
 
-        public async Task<IActionResult> Edit(int id)
+        // GET: StaffMembers/Edit/5
+        public async Task<IActionResult> Edit(int? id)
         {
-            var staff = await _repository.GetByIdAsync(id);
-            if (staff == null) return NotFound();
-            return View(staff);
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var staffMember = await _context.StaffMembers.FindAsync(id);
+            if (staffMember == null)
+            {
+                return NotFound();
+            }
+            return View(staffMember);
         }
 
+        // POST: StaffMembers/Edit/5
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, StaffMember staff)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,FullName,Email")] StaffMember staffMember)
         {
-            if (id != staff.Id) return NotFound();
+            if (id != staffMember.Id)
+            {
+                return NotFound();
+            }
 
             if (ModelState.IsValid)
             {
-                await _repository.UpdateAsync(staff);
+                try
+                {
+                    _context.Update(staffMember);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!StaffMemberExists(staffMember.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
                 return RedirectToAction(nameof(Index));
             }
-            return View(staff);
+            return View(staffMember);
         }
 
-        public async Task<IActionResult> Delete(int id)
+        // GET: StaffMembers/Delete/5
+        public async Task<IActionResult> Delete(int? id)
         {
-            var staff = await _repository.GetByIdAsync(id);
-            if (staff == null) return NotFound();
-            return View(staff);
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var staffMember = await _context.StaffMembers
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (staffMember == null)
+            {
+                return NotFound();
+            }
+
+            return View(staffMember);
         }
 
+        // POST: StaffMembers/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var staff = await _repository.GetByIdAsync(id);
-            if (staff == null) return NotFound();
+            var staffMember = await _context.StaffMembers.FindAsync(id);
+            if (staffMember != null)
+            {
+                _context.StaffMembers.Remove(staffMember);
+            }
 
-            await _repository.DeleteAsync(staff);
+            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
+        }
+
+        private bool StaffMemberExists(int id)
+        {
+            return _context.StaffMembers.Any(e => e.Id == id);
         }
     }
 }

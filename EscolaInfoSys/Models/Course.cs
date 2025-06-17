@@ -6,6 +6,6 @@
         public string Name { get; set; }
         public string Description { get; set; }
 
-        public ICollection<Subject> Subjects { get; set; }
+        public ICollection<Subject>? Subjects { get; set; }
     }
 }

@@ -1,34 +1,35 @@
-﻿@model Mark
+﻿@model EscolaInfoSys.Models.Mark
 
 @{
-    ViewData["Title"] = "Mark Details";
+    ViewData["Title"] = "Details";
 }
 
-<h2>Mark Details</h2>
+<h2 class="page-title">Mark Details</h2>
 
-<div>
-    <dl class="row">
-        <dt class="col-sm-3">Student</dt>
-        <dd class="col-sm-9">@Model.Student?.FullName</dd>
-
-        <dt class="col-sm-3">Subject</dt>
-        <dd class="col-sm-9">@Model.Subject?.Name</dd>
-
-        <dt class="col-sm-3">Value</dt>
-        <dd class="col-sm-9">@Model.Value</dd>
-
-        <dt class="col-sm-3">Evaluation Type</dt>
-        <dd class="col-sm-9">@Model.EvaluationType</dd>
-
-        <dt class="col-sm-3">Staff Member</dt>
-        <dd class="col-sm-9">@Model.StaffMember?.FullName</dd>
-
-        <dt class="col-sm-3">Date</dt>
-        <dd class="col-sm-9">@Model.Date.ToShortDateString()</dd>
-    </dl>
+<div class="card">
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-3">@Html.DisplayNameFor(m => m.Value)</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(m => m.Value)</dd>
+            <dt class="col-sm-3">@Html.DisplayNameFor(m => m.Date)</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(m => m.Date)</dd>
+            <dt class="col-sm-3">@Html.DisplayNameFor(m => m.Student)</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(m => m.Student.Email)</dd>
+            <dt class="col-sm-3">@Html.DisplayNameFor(m => m.Subject)</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(m => m.Subject.Id)</dd>
+            <dt class="col-sm-3">@Html.DisplayNameFor(m => m.EvaluationType)</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(m => m.EvaluationType)</dd>
+            <dt class="col-sm-3">@Html.DisplayNameFor(m => m.StaffMember)</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(m => m.StaffMember.Email)</dd>
+        </dl>
+    </div>
+    <div class="card-footer">
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Edit</a>
+        <a asp-action="Index" class="btn btn-secondary">Back</a>
+    </div>
 </div>
-
-<p>
-    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Edit</a>
-    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
-</p>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

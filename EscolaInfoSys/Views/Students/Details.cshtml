@@ -1,38 +1,61 @@
-﻿@model Student
+﻿@model EscolaInfoSys.Models.Student
 
 @{
     ViewData["Title"] = "Student Details";
 }
 
-<h2>Student Details</h2>
+<h2 class="page-title">Student Details</h2>
 
-<dl class="row">
-    <dt class="col-sm-3">Full Name</dt>
-    <dd class="col-sm-9">@Model.FullName</dd>
+<div class="card">
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-3">Full Name</dt>
+            <dd class="col-sm-9">@Model.FullName</dd>
 
-    <dt class="col-sm-3">Pupil Number</dt>
-    <dd class="col-sm-9">@Model.PupilNumber</dd>
+            <dt class="col-sm-3">Student Number</dt>
+            <dd class="col-sm-9">@Model.PupilNumber</dd>
 
-    <dt class="col-sm-3">Email</dt>
-    <dd class="col-sm-9">@Model.Email</dd>
+            <dt class="col-sm-3">Email</dt>
+            <dd class="col-sm-9">@Model.Email</dd>
 
-    <dt class="col-sm-3">Form Group</dt>
-    <dd class="col-sm-9">@Model.FormGroup?.Name</dd>
+            <dt class="col-sm-3">Form Group</dt>
+            <dd class="col-sm-9">@Model.FormGroup?.Name</dd>
 
-    <dt class="col-sm-3">Document</dt>
-    <dd class="col-sm-9">@Model.DocumentPhoto</dd>
+            <dt class="col-sm-3">Profile Photo</dt>
+            <dd class="col-sm-9">
+                @if (!string.IsNullOrEmpty(Model.ProfilePhoto))
+                {
+                    <img src="@Url.Content("~/uploads/" + Model.ProfilePhoto)" class="img-thumbnail" style="max-height: 150px;" />
+                }
+                else
+                {
+                    <span>No photo uploaded</span>
+                }
+            </dd>
 
-    @if (!string.IsNullOrEmpty(Model.ProfilePhoto))
-    {
-        <dt class="col-sm-3">Profile Photo</dt>
-        <dd class="col-sm-9">
-            <img src="@Model.ProfilePhoto" alt="Profile Photo" style="max-height: 150px;" />
-        </dd>
+            <dt class="col-sm-3">Document Photo</dt>
+            <dd class="col-sm-9">
+                @if (!string.IsNullOrEmpty(Model.DocumentPhoto))
+                {
+                    <img src="@Url.Content("~/uploads/" + Model.DocumentPhoto)" class="img-thumbnail" style="max-height: 150px;" />
+                }
+                else
+                {
+                    <span>No document uploaded</span>
+                }
+            </dd>
+        </dl>
+    </div>
+    <div class="card-footer text-end">
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Edit</a>
+        <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+    </div>
+</div>
+
+
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-</dl>
-
-<p>
-    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Edit</a>
-    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
-</p>
-
+}

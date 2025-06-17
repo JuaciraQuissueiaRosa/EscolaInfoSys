@@ -1,37 +1,34 @@
-﻿@model Absence
+﻿@model EscolaInfoSys.Models.Course
 
 @{
-    ViewData["Title"] = "Record Absence";
+    ViewData["Title"] = "Create";
 }
 
-<h2>Record Absence</h2>
+<h2 class="page-title">Create Course</h2>
 
-<form asp-action="Create">
-    <div class="form-group">
-        <label asp-for="Date" class="control-label"></label>
-        <input asp-for="Date" class="form-control" type="date" />
-        <span asp-validation-for="Date" class="text-danger"></span>
+<div class="card">
+    <div class="card-body">
+        <form asp-action="Create">
+            <div asp-validation-summary="All" class="text-danger"></div>
+
+            <div class="mb-3">
+                <label asp-for="Name" class="form-label"></label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Description" class="form-label"></label>
+                <input asp-for="Description" class="form-control" />
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Create</button>
+            <a asp-action="Index" class="btn btn-secondary ms-2">Back</a>
+        </form>
     </div>
+</div>
 
-    <div class="form-group">
-        <label asp-for="Justified" class="control-label"></label>
-        <input asp-for="Justified" class="form-check-input" />
-        <span asp-validation-for="Justified" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label asp-for="StudentId" class="control-label"></label>
-        <select asp-for="StudentId" class="form-control" asp-items="ViewBag.StudentId"></select>
-        <span asp-validation-for="StudentId" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label asp-for="SubjectId" class="control-label"></label>
-        <select asp-for="SubjectId" class="form-control" asp-items="ViewBag.SubjectId"></select>
-        <span asp-validation-for="SubjectId" class="text-danger"></span>
-    </div>
-
-    <button type="submit" class="btn btn-primary">Save</button>
-    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
-</form>
-
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

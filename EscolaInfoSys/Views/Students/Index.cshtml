@@ -1,22 +1,19 @@
-﻿@model IEnumerable<Student>
-
+﻿@model IEnumerable<EscolaInfoSys.Models.Student>
 @{
     ViewData["Title"] = "Students";
 }
 
 <h2>Students</h2>
 
-<p>
-    <a asp-action="Create" class="btn">Add New Student</a>
-</p>
+<a asp-action="Create" class="btn btn-primary mb-3">Create New Student</a>
 
-<table class="table">
+<table class="table card-table table-vcenter">
     <thead>
         <tr>
-            <th>@Html.DisplayNameFor(model => model.First().FullName)</th>
-            <th>@Html.DisplayNameFor(model => model.PupilNumber)</th>
-            <th>@Html.DisplayNameFor(model => model.Email)</th>
-            <th>@Html.DisplayNameFor(model => model.FormGroup.Name)</th>
+            <th>Full Name</th>
+            <th>Pupil Number</th>
+            <th>Email</th>
+            <th>Form Group</th>
             <th>Actions</th>
         </tr>
     </thead>
@@ -29,13 +26,16 @@
                 <td>@item.Email</td>
                 <td>@item.FormGroup?.Name</td>
                 <td>
-                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Edit</a>
+                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">Details</a>
+                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Delete</a>
                 </td>
             </tr>
         }
     </tbody>
 </table>
-
-
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

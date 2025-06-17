@@ -1,0 +1,42 @@
+﻿@model EscolaInfoSys.Models.ViewModels.ProfileViewModel
+
+@{
+    ViewData["Title"] = "My Profile";
+}
+
+<div class="page-body">
+    <div class="container-xl">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card card-md">
+                    <div class="card-body text-center">
+                        <h3 class="card-title mb-4">My Profile</h3>
+
+                        @if (!string.IsNullOrEmpty(Model.ProfilePhoto))
+                        {
+                            <img src="~/uploads/@Model.ProfilePhoto" class="rounded-circle mb-3" style="width: 120px;" alt="Profile Photo" />
+                        }
+                        else
+                        {
+                            <div class="mb-3">
+                                <span class="avatar avatar-xl" style="background-image: url('/img/avatar-placeholder.png')"></span>
+                            </div>
+                        }
+
+                        <p class="mb-1"><strong>Full Name:</strong> @Model.FullName</p>
+                        <p class="mb-1"><strong>Email:</strong> @Model.Email</p>
+                        <p class="mb-0"><strong>Role:</strong> @Model.Role</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+
+

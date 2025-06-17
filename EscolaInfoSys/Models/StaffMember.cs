@@ -14,6 +14,6 @@ namespace EscolaInfoSys.Models
         [EmailAddress]
         public string Email { get; set; }
 
-        public ICollection<Mark> Marks { get; set; }
+        public ICollection<Mark>? Marks { get; set; }
     }
 }

@@ -7,50 +7,109 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/EscolaInfoSys.styles.css" asp-append-version="true" />
-</head>
-<body>
-    <header>
-        <nav>
-            <ul class="top-nav">
-                <li><a asp-controller="Home" asp-action="Index">Home</a></li>
-                <li><a asp-controller="Students" asp-action="Index">Students</a></li>
-                <li><a asp-controller="Courses" asp-action="Index">Courses</a></li>
-                <li><a asp-controller="Subjects" asp-action="Index">Subjects</a></li>
-                <li><a asp-controller="FormGroups" asp-action="Index">Form Groups</a></li>
-                <li><a asp-controller="Marks" asp-action="Index">Marks</a></li>
-                <li><a asp-controller="Absences" asp-action="Index">Absences</a></li>
+    <link href="https://unpkg.com/tabler@1.0.0/dist/css/tabler.min.css" rel="stylesheet" />
+    <style>
+        .navbar-brand {
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
 
+        .avatar {
+            border-radius: 50%;
+        }
+
+        .nav-link {
+            color: #1f2937;
+        }
+
+            .nav-link:hover {
+                color: #0d6efd;
+            }
+
+        .dropdown-menu {
+            min-width: 200px;
+        }
+
+        footer {
+            background-color: #f8f9fa;
+            padding: 1rem 0;
+        }
+    </style>
+</head>
+<body class="layout-boxed">
+    <header class="navbar navbar-expand-md d-print-none navbar-light bg-white shadow-sm">
+        <div class="container-xl">
+            <a href="/" class="navbar-brand">
+                <span class="text-primary">Escola</span><span class="text-muted">InfoSys</span>
+            </a>
+
+            <div class="navbar-nav flex-row order-md-last align-items-center">
                 @if (User.Identity.IsAuthenticated)
                 {
-                    <li>
-                        <form asp-controller="Account" asp-action="Logout" method="post" class="logout-form">
-                            <button type="submit">Logout</button>
-                        </form>
-                    </li>
+                    <div class="nav-item dropdown">
+                        <a href="#" class="nav-link d-flex align-items-center lh-1 text-reset p-0" data-bs-toggle="dropdown" aria-label="Open user menu">
+                            <span class="avatar avatar-sm me-2" style="background-image: url(/img/avatar-placeholder.png)"></span>
+                            <div class="d-none d-xl-block">
+                                <div class="fw-semibold">@User.Identity.Name</div>
+                                <div class="mt-1 small text-muted">Account</div>
+                            </div>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                            <a asp-controller="Account" asp-action="Profile" class="dropdown-item">My Profile</a>
+                            <a asp-controller="Account" asp-action="EditProfile" class="dropdown-item">Edit Profile</a>
+                            <a asp-controller="Account" asp-action="ChangePassword" class="dropdown-item">Change Password</a>
+                            <div class="dropdown-divider"></div>
+                            <form asp-controller="Account" asp-action="Logout" method="post" class="dropdown-item">
+                                <button type="submit" class="btn btn-link p-0 m-0 text-start w-100">Logout</button>
+                            </form>
+                        </div>
+                    </div>
                 }
                 else
                 {
-                    <li><a asp-controller="Account" asp-action="Login">Login</a></li>
-                    <li><a asp-controller="Account" asp-action="Register">Register</a></li>
+                    <a class="nav-link px-3" asp-controller="Account" asp-action="Login">Login</a>
+                    <a class="nav-link px-3" asp-controller="Account" asp-action="Register">Register</a>
                 }
-            </ul>
-        </nav>
+            </div>
+        </div>
     </header>
 
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
+    <div class="page-wrapper">
+        <div class="container-xl mt-4">
+            <main role="main" class="pb-3">
+                @RenderBody()
+            </main>
+        </div>
+
+        <footer class="footer small text-muted py-2 border-top">
+            <div class="container text-center">
+                &copy; 2025 - EscolaInfoSys - <a asp-area="" asp-controller="Home" asp-action="About">About</a>
+            </div>
+        </footer>
+
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2025 - EscolaInfoSys - <a asp-area="" asp-controller="Home" asp-action="About">About</a>
-        </div>
-    </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
+    <script>
+        function toggleDropdown() {
+            var dropdown = document.getElementById("accountDropdown");
+            dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+        }
+
+        document.addEventListener("click", function (e) {
+            const dropdown = document.getElementById("accountDropdown");
+            const toggle = document.querySelector(".dropdown-toggle");
+
+            if (dropdown && toggle && !dropdown.contains(e.target) && !toggle.contains(e.target)) {
+                dropdown.style.display = "none";
+            }
+        });
+    </script>
+
+    <script src="https://unpkg.com/tabler@1.0.0/dist/js/tabler.min.js"></script>
 </body>
 </html>
+

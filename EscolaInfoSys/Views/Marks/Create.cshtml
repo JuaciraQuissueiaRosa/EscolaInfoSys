@@ -1,42 +1,68 @@
-﻿@model Mark
+﻿@model EscolaInfoSys.Models.Mark
 
 @{
-    ViewData["Title"] = "Add Mark";
+    ViewData["Title"] = "Create";
 }
 
-<h2>Add Mark</h2>
-
-<form asp-action="Create">
-    <div class="form-group">
-        <label asp-for="StudentId"></label>
-        <select asp-for="StudentId" class="form-control" asp-items="ViewBag.StudentId"></select>
-        <span asp-validation-for="StudentId" class="text-danger"></span>
+<div class="page-wrapper">
+    <div class="page-header d-print-none">
+        <div class="container-xl">
+            <h1 class="page-title">Create Mark</h1>
+        </div>
     </div>
+    <div class="page-body">
+        <div class="container-xl">
+            <div class="row justify-content-center">
+                <div class="col-lg-6">
+                    <form asp-action="Create" method="post">
+                        <div asp-validation-summary="All" class="alert alert-danger"></div>
 
-    <div class="form-group">
-        <label asp-for="SubjectId"></label>
-        <select asp-for="SubjectId" class="form-control" asp-items="ViewBag.SubjectId"></select>
-        <span asp-validation-for="SubjectId" class="text-danger"></span>
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label asp-for="Value" class="form-label"></label>
+                                    <input asp-for="Value" class="form-control" />
+                                    <span asp-validation-for="Value" class="text-danger"></span>
+                                </div>
+                                <div class="mb-3">
+                                    <label asp-for="Date" class="form-label"></label>
+                                    <input asp-for="Date" class="form-control" type="date" />
+                                    <span asp-validation-for="Date" class="text-danger"></span>
+                                </div>
+                                <div class="mb-3">
+                                    <label asp-for="StudentId" class="form-label"></label>
+                                    <select asp-for="StudentId" class="form-select" asp-items="ViewBag.StudentId"></select>
+                                </div>
+                                <div class="mb-3">
+                                    <label asp-for="SubjectId" class="form-label"></label>
+                                    <select asp-for="SubjectId" class="form-select" asp-items="ViewBag.SubjectId"></select>
+                                </div>
+                                <div class="mb-3">
+                                    <label asp-for="EvaluationType" class="form-label"></label>
+                                    <input asp-for="EvaluationType" class="form-control" />
+                                    <span asp-validation-for="EvaluationType" class="text-danger"></span>
+                                </div>
+                                <div class="mb-3">
+                                    <label asp-for="StaffMemberId" class="form-label"></label>
+                                    <select asp-for="StaffMemberId" class="form-select" asp-items="ViewBag.StaffMemberId"></select>
+                                </div>
+                            </div>
+                            <div class="card-footer text-end">
+                                <button type="submit" class="btn btn-primary">Save</button>
+                                <a asp-action="Index" class="btn btn-secondary">Back</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
+</div>
 
-    <div class="form-group">
-        <label asp-for="Value"></label>
-        <input asp-for="Value" class="form-control" />
-        <span asp-validation-for="Value" class="text-danger"></span>
-    </div>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
 
-    <div class="form-group">
-        <label asp-for="EvaluationType"></label>
-        <input asp-for="EvaluationType" class="form-control" />
-        <span asp-validation-for="EvaluationType" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label asp-for="StaffMemberId"></label>
-        <select asp-for="StaffMemberId" class="form-control" asp-items="ViewBag.StaffMemberId"></select>
-        <span asp-validation-for="StaffMemberId" class="text-danger"></span>
-    </div>
-
-    <button type="submit" class="btn btn-primary">Save</button>
-    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
-</form>
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

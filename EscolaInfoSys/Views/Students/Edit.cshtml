@@ -1,49 +1,66 @@
-﻿@model Student
+﻿@model EscolaInfoSys.Models.Student
 
 @{
     ViewData["Title"] = "Edit Student";
 }
 
-<h2>Edit Student</h2>
+<h2 class="page-title">Edit Student</h2>
 
-<form asp-action="Edit" enctype="multipart/form-data">
+<form asp-action="Edit" method="post" enctype="multipart/form-data" class="card p-4">
+    <div asp-validation-summary="All" class="alert alert-danger"></div>
+
     <input type="hidden" asp-for="Id" />
 
-    <div class="form-group">
-        <label asp-for="FullName"></label>
+    <div class="mb-3">
+        <label asp-for="FullName" class="form-label"></label>
         <input asp-for="FullName" class="form-control" />
         <span asp-validation-for="FullName" class="text-danger"></span>
     </div>
 
-    <div class="form-group">
-        <label asp-for="PupilNumber"></label>
+    <div class="mb-3">
+        <label asp-for="PupilNumber" class="form-label"></label>
         <input asp-for="PupilNumber" class="form-control" />
         <span asp-validation-for="PupilNumber" class="text-danger"></span>
     </div>
 
-    <div class="form-group">
-        <label asp-for="Email"></label>
+    <div class="mb-3">
+        <label asp-for="Email" class="form-label"></label>
         <input asp-for="Email" class="form-control" />
         <span asp-validation-for="Email" class="text-danger"></span>
     </div>
 
-    <div class="form-group">
-        <label asp-for="FormGroupId"></label>
-        <select asp-for="FormGroupId" class="form-control" asp-items="ViewBag.FormGroupId"></select>
+    <div class="mb-3">
+        <label class="form-label">Current Profile Photo</label><br />
+        @if (!string.IsNullOrEmpty(Model.ProfilePhoto))
+        {
+            <img src="~/uploads/@Model.ProfilePhoto" class="img-thumbnail mb-2" style="max-height: 120px;" />
+        }
+        <input type="file" name="ProfilePhotoFile" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Current Document Photo</label><br />
+        @if (!string.IsNullOrEmpty(Model.DocumentPhoto))
+        {
+            <img src="~/uploads/@Model.DocumentPhoto" class="img-thumbnail mb-2" style="max-height: 120px;" />
+        }
+        <input type="file" name="DocumentPhotoFile" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="FormGroupId" class="form-label"></label>
+        <select asp-for="FormGroupId" asp-items="ViewBag.FormGroupId" class="form-select"></select>
         <span asp-validation-for="FormGroupId" class="text-danger"></span>
     </div>
 
-    <div class="form-group">
-        <label asp-for="ProfilePhoto"></label>
-        <input asp-for="ProfilePhoto" type="file" class="form-control" />
+    <div class="mt-4">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
     </div>
-
-    <div class="form-group">
-        <label asp-for="DocumentPhoto"></label>
-        <input asp-for="DocumentPhoto" type="text" class="form-control" />
-    </div>
-
-    <button type="submit" class="btn">Save</button>
-    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
 </form>
 
+
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

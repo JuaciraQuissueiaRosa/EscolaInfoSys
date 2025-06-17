@@ -1,100 +1,164 @@
-﻿using EscolaInfoSys.Data;
-using EscolaInfoSys.Data.Repositories.Interfaces;
-using EscolaInfoSys.Models;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using EscolaInfoSys.Data;
+using EscolaInfoSys.Models;
 
 namespace EscolaInfoSys.Controllers
 {
-    [Authorize(Roles = "Administrator,StaffMember")]
     public class SubjectsController : Controller
     {
-        private readonly ISubjectRepository _repository;
         private readonly ApplicationDbContext _context;
 
-        public SubjectsController(ISubjectRepository repository, ApplicationDbContext context)
+        public SubjectsController(ApplicationDbContext context)
         {
-            _repository = repository;
             _context = context;
         }
 
+        // GET: Subjects
         public async Task<IActionResult> Index()
         {
-            var subjects = await _repository.GetAllAsync();
-            return View(subjects);
+            var applicationDbContext = _context.Subjects.Include(s => s.Course);
+            return View(await applicationDbContext.ToListAsync());
         }
 
-        public async Task<IActionResult> Details(int id)
+        // GET: Subjects/Details/5
+        public async Task<IActionResult> Details(int? id)
         {
-            var subject = await _repository.GetByIdAsync(id);
-            if (subject == null) return NotFound();
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var subject = await _context.Subjects
+                .Include(s => s.Course)
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (subject == null)
+            {
+                return NotFound();
+            }
+
             return View(subject);
         }
 
+        // GET: Subjects/Create
         public IActionResult Create()
         {
-            ViewBag.CourseId = new SelectList(_context.Courses, "Id", "Name");
+            ViewData["CourseId"] = new SelectList(_context.Courses, "Id", "Id");
             return View();
         }
 
+        // POST: Subjects/Create
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Subject subject)
+        public async Task<IActionResult> Create([Bind("Id,Name,CourseId")] Subject subject)
         {
             if (ModelState.IsValid)
             {
-                await _repository.AddAsync(subject);
+                _context.Add(subject);
+                await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-
-            ViewBag.CourseId = new SelectList(_context.Courses, "Id", "Name", subject.CourseId);
+            ViewData["CourseId"] = new SelectList(_context.Courses, "Id", "Id", subject.CourseId);
             return View(subject);
         }
 
-        public async Task<IActionResult> Edit(int id)
+        // GET: Subjects/Edit/5
+        public async Task<IActionResult> Edit(int? id)
         {
-            var subject = await _repository.GetByIdAsync(id);
-            if (subject == null) return NotFound();
+            if (id == null)
+            {
+                return NotFound();
+            }
 
-            ViewBag.CourseId = new SelectList(_context.Courses, "Id", "Name", subject.CourseId);
+            var subject = await _context.Subjects.FindAsync(id);
+            if (subject == null)
+            {
+                return NotFound();
+            }
+            ViewData["CourseId"] = new SelectList(_context.Courses, "Id", "Id", subject.CourseId);
             return View(subject);
         }
 
+        // POST: Subjects/Edit/5
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Subject subject)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,CourseId")] Subject subject)
         {
-            if (id != subject.Id) return NotFound();
+            if (id != subject.Id)
+            {
+                return NotFound();
+            }
 
             if (ModelState.IsValid)
             {
-                await _repository.UpdateAsync(subject);
+                try
+                {
+                    _context.Update(subject);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!SubjectExists(subject.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
                 return RedirectToAction(nameof(Index));
             }
-
-            ViewBag.CourseId = new SelectList(_context.Courses, "Id", "Name", subject.CourseId);
+            ViewData["CourseId"] = new SelectList(_context.Courses, "Id", "Id", subject.CourseId);
             return View(subject);
         }
 
-        public async Task<IActionResult> Delete(int id)
+        // GET: Subjects/Delete/5
+        public async Task<IActionResult> Delete(int? id)
         {
-            var subject = await _repository.GetByIdAsync(id);
-            if (subject == null) return NotFound();
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var subject = await _context.Subjects
+                .Include(s => s.Course)
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (subject == null)
+            {
+                return NotFound();
+            }
+
             return View(subject);
         }
 
+        // POST: Subjects/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var subject = await _repository.GetByIdAsync(id);
-            if (subject == null) return NotFound();
+            var subject = await _context.Subjects.FindAsync(id);
+            if (subject != null)
+            {
+                _context.Subjects.Remove(subject);
+            }
 
-            await _repository.DeleteAsync(subject);
+            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
+        }
+
+        private bool SubjectExists(int id)
+        {
+            return _context.Subjects.Any(e => e.Id == id);
         }
     }
 }

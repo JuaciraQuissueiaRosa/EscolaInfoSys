@@ -1,32 +1,41 @@
-﻿@model Student
-
+﻿@model EscolaInfoSys.Models.Student
 @{
     ViewData["Title"] = "Delete Student";
 }
 
-<h2>Delete Student</h2>
+<h2 class="text-danger">Are you sure you want to delete this student?</h2>
 
-<h4>Are you sure you want to delete this student?</h4>
-<hr />
+<div class="card p-4 mt-3">
+    <dl class="row">
+        <dt class="col-sm-4">Full Name</dt>
+        <dd class="col-sm-8">@Model.FullName</dd>
 
-<dl class="row">
-    <dt class="col-sm-3">Full Name</dt>
-    <dd class="col-sm-9">@Model.FullName</dd>
+        <dt class="col-sm-4">Pupil Number</dt>
+        <dd class="col-sm-8">@Model.PupilNumber</dd>
 
-    <dt class="col-sm-3">Pupil Number</dt>
-    <dd class="col-sm-9">@Model.PupilNumber</dd>
+        <dt class="col-sm-4">Email</dt>
+        <dd class="col-sm-8">@Model.Email</dd>
 
-    <dt class="col-sm-3">Email</dt>
-    <dd class="col-sm-9">@Model.Email</dd>
+        <dt class="col-sm-4">Profile Photo</dt>
+        <dd class="col-sm-8">@Model.ProfilePhoto</dd>
 
-    <dt class="col-sm-3">Form Group</dt>
-    <dd class="col-sm-9">@Model.FormGroup?.Name</dd>
-</dl>
+        <dt class="col-sm-4">Document Photo</dt>
+        <dd class="col-sm-8">@Model.DocumentPhoto</dd>
 
-<form asp-action="DeleteConfirmed">
-    <input type="hidden" asp-for="Id" />
-    <button type="submit" class="btn btn-danger">Delete</button>
-    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
-</form>
+        <dt class="col-sm-4">Form Group</dt>
+        <dd class="col-sm-8">@Model.FormGroup?.Name</dd>
+    </dl>
+
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="Id" />
+        <button type="submit" class="btn btn-danger">Delete</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
 
 
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

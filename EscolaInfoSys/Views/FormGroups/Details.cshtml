@@ -1,36 +1,21 @@
-﻿@model FormGroup
-
+﻿@model EscolaInfoSys.Models.FormGroup
 @{
     ViewData["Title"] = "Form Group Details";
 }
 
-<h2>Form Group Details</h2>
-
-<div>
-    <dl class="row">
-        <dt class="col-sm-2">Name</dt>
-        <dd class="col-sm-10">@Model.Name</dd>
-
-        <dt class="col-sm-2">Students</dt>
-        <dd class="col-sm-10">
-            @if (Model.Students != null && Model.Students.Any())
-            {
-                <ul>
-                    @foreach (var student in Model.Students)
-                    {
-                        <li>@student.FullName (@student.PupilNumber)</li>
-                    }
-                </ul>
-            }
-            else
-            {
-                <span>No students in this group.</span>
-            }
-        </dd>
-    </dl>
+<h2 class="page-title">Form Group Details</h2>
+<div class="card">
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Name)</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(model => model.Name)</dd>
+        </dl>
+        <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-primary">Edit</a>
+        <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+    </div>
 </div>
-
-<p>
-    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Edit</a>
-    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
-</p>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
