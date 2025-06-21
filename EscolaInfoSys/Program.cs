@@ -1,6 +1,7 @@
 using EscolaInfoSys.Data;
 using EscolaInfoSys.Data.Repositories;
 using EscolaInfoSys.Models;
+using EscolaInfoSys.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,7 +20,7 @@ builder.Services.AddIdentityCore<ApplicationUser>(options =>
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddSignInManager()
 .AddDefaultTokenProviders();
-
+builder.Services.AddScoped<IEmailSender, SmtpEmailSender>();
 // Authentication setup for Identity (cookie-based)
 builder.Services.AddAuthentication(options =>
 {
@@ -34,15 +35,11 @@ builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
+//if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
-    app.UseStatusCodePagesWithReExecute("/Home/StatusCode", "?code={0}");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
+    app.UseExceptionHandler("/Error/GenericError");
+    app.UseStatusCodePagesWithReExecute("/Error/{0}");
 }
-
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 

@@ -1,5 +1,6 @@
 ﻿using EscolaInfoSys.Data;
 using EscolaInfoSys.Models.ViewModels;
+using EscolaInfoSys.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -12,12 +13,16 @@ namespace EscolaInfoSys.Controllers
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly IEmailSender _emailSender;
 
-        public AccountController(SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager, IWebHostEnvironment webHostEnvironment)
+
+        public AccountController(SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager, IWebHostEnvironment webHostEnvironment,
+            IEmailSender emailSender)
         {
             _signInManager = signInManager;
             _userManager = userManager;
             _webHostEnvironment = webHostEnvironment;
+            _emailSender = emailSender;
         }
 
         [HttpGet]
@@ -26,7 +31,6 @@ namespace EscolaInfoSys.Controllers
             ViewData["ReturnUrl"] = returnUrl;
             return View();
         }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel model, string returnUrl = null)
@@ -38,6 +42,13 @@ namespace EscolaInfoSys.Controllers
             if (user == null)
             {
                 ModelState.AddModelError("", "Invalid login attempt.");
+                return View(model);
+            }
+
+           
+            if (!await _userManager.IsEmailConfirmedAsync(user))
+            {
+                ModelState.AddModelError("", "You must confirm your email before logging in.");
                 return View(model);
             }
 
@@ -58,6 +69,7 @@ namespace EscolaInfoSys.Controllers
             ModelState.AddModelError("", "Invalid login attempt.");
             return View(model);
         }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -83,7 +95,7 @@ namespace EscolaInfoSys.Controllers
                 {
                     UserName = model.Email,
                     Email = model.Email,
-                    EmailConfirmed = true,
+                    EmailConfirmed = false,
                     Name = model.FullName,
                     ProfilePhoto = null
                 };
@@ -92,8 +104,13 @@ namespace EscolaInfoSys.Controllers
                 if (result.Succeeded)
                 {
                     await _userManager.AddToRoleAsync(user, "Student");
-                    await _signInManager.SignInAsync(user, isPersistent: false);
-                    return RedirectToAction("Index", "Home");
+                    var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                    var confirmationLink = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, token }, Request.Scheme);
+
+                    await _emailSender.SendEmailAsync(user.Email, "Confirm your email",
+                        $"Please confirm your account by clicking <a href='{confirmationLink}'>here</a>.");
+
+                    return RedirectToAction("RegisterConfirmation");
                 }
 
                 foreach (var error in result.Errors)
@@ -128,6 +145,35 @@ namespace EscolaInfoSys.Controllers
                 ModelState.AddModelError(string.Empty, error.Description);
 
             return View(model);
+        }
+
+        [HttpGet]
+        public IActionResult ForgotPassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordViewModel model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+
+            var user = await _userManager.FindByEmailAsync(model.Email);
+            if (user == null || !(await _userManager.IsEmailConfirmedAsync(user)))
+            {
+              
+                return RedirectToAction("ForgotPasswordConfirmation");
+            }
+
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var callbackUrl = Url.Action("ResetPassword", "Account", new { token, email = user.Email }, Request.Scheme);
+
+            await _emailSender.SendEmailAsync(user.Email, "Reset your password",
+                $"You requested to reset your password. Click <a href='{callbackUrl}'>here</a> to reset it.");
+
+            return RedirectToAction("ForgotPasswordConfirmation");
         }
 
         [Authorize]
@@ -223,6 +269,26 @@ namespace EscolaInfoSys.Controllers
 
             return View(model);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> ConfirmEmail(string userId, string token)
+        {
+            if (userId == null || token == null)
+                return RedirectToAction("Index", "Home");
+
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+                return NotFound();
+
+            var result = await _userManager.ConfirmEmailAsync(user, token);
+            if (result.Succeeded)
+            {
+                return View("ConfirmEmail"); 
+            }
+
+            return View("ConfirmEmailError");
+        }
+
 
 
 
