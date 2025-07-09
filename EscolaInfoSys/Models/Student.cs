@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using EscolaInfoSys.Data;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using System.ComponentModel.DataAnnotations;
 
 namespace EscolaInfoSys.Models
 {
@@ -22,12 +24,17 @@ namespace EscolaInfoSys.Models
 
         // FK to Class
         [Display(Name = "Document Photo")]
-        public string DocumentPhoto { get; set; }
+        public string? DocumentPhoto { get; set; }
 
         public int FormGroupId { get; set; }
+
+        [ValidateNever]
         public FormGroup FormGroup { get; set; }
 
         public ICollection<Mark>? Marks { get; set; }
         public ICollection<Absence>? Absences { get; set; }
+
+        public string ApplicationUserId { get; set; }
+        public ApplicationUser ApplicationUser { get; set; }
     }
 }

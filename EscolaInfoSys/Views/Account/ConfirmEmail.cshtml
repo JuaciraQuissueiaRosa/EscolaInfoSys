@@ -1,10 +1,24 @@
 ﻿@{
     ViewData["Title"] = "Email Confirmed";
 }
-
-<div class="container mt-5">
-    <div class="alert alert-success">
-        Your email has been confirmed successfully. You can now <a asp-action="Login">log in</a>.
+<div class="page-body">
+    <div class="container">
+        <div class="row justify-content-center mt-5">
+            <div class="col-md-8">
+                <div class="card card-md text-center">
+                    <div class="card-body">
+                        <h2 class="card-title text-success mb-3">
+                            <i class="fa fa-check-circle me-2"></i>Email Confirmed!
+                        </h2>
+                        <p class="text-muted">
+                            Your email has been successfully confirmed. You may now log in to your account.
+                        </p>
+                        <a asp-controller="Account" asp-action="Login" class="btn btn-success mt-3">
+                            <i class="fa fa-sign-in-alt me-2"></i>Go to Login
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
-

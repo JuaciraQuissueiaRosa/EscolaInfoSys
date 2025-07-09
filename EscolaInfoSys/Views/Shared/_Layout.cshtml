@@ -82,36 +82,65 @@
                         </a>
 
                         <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                            <a asp-controller="Account" asp-action="Profile" class="dropdown-item">My Profile</a>
-                            <a asp-controller="Account" asp-action="EditProfile" class="dropdown-item">Edit Profile</a>
-                            <a asp-controller="Account" asp-action="ChangePassword" class="dropdown-item">Change Password</a>
+                            <a asp-controller="Account" asp-action="Profile" class="dropdown-item">
+                                <i class="fa fa-user me-2"></i> My Profile
+                            </a>
+                            <a asp-controller="Account" asp-action="EditProfile" class="dropdown-item">
+                                <i class="fa fa-edit me-2"></i> Edit Profile
+                            </a>
+                            <a asp-controller="Account" asp-action="ChangePassword" class="dropdown-item">
+                                <i class="fa fa-lock me-2"></i> Change Password
+                            </a>
 
                             @if (isAdmin)
                             {
                                 <div class="dropdown-divider"></div>
-                                <a asp-controller="FormGroups" asp-action="Index" class="dropdown-item">Manage Form Groups</a>
-                                <a asp-controller="StaffMembers" asp-action="Index" class="dropdown-item">Manage Staff</a>
-                                <a asp-controller="Courses" asp-action="Index" class="dropdown-item">Manage Courses</a>
+                                <a asp-controller="FormGroups" asp-action="Index" class="dropdown-item">
+                                    <i class="fa fa-layer-group me-2"></i> Manage Form Groups
+                                </a>
+                                <a asp-controller="StaffMembers" asp-action="Index" class="dropdown-item">
+                                    <i class="fa fa-users-cog me-2"></i> Manage Staff
+                                </a>
+                                <a asp-controller="Courses" asp-action="Index" class="dropdown-item">
+                                    <i class="fa fa-book me-2"></i> Manage Courses
+                                </a>
+                              
                             }
 
                             @if (isStaff)
                             {
                                 <div class="dropdown-divider"></div>
-                                <a asp-controller="Students" asp-action="Index" class="dropdown-item">My Students</a>
-                                <a asp-controller="Marks" asp-action="Index" class="dropdown-item">Enter Marks</a>
-                                <a asp-controller="Absences" asp-action="Index" class="dropdown-item">Record Absences</a>
+                                <a asp-controller="Students" asp-action="Index" class="dropdown-item">
+                                    <i class="fa fa-user-graduate me-2"></i> My Students
+                                </a>
+                                <a asp-controller="Marks" asp-action="Index" class="dropdown-item">
+                                    <i class="fa fa-pen me-2"></i> Enter Marks
+                                </a>
+                                <a asp-controller="Absences" asp-action="Index" class="dropdown-item">
+                                    <i class="fa fa-calendar-times me-2"></i> Record Absences
+                                </a>
+                                <a asp-controller="Alerts" asp-action="Create" class="dropdown-item">
+                                    <i class="fa fa-bullhorn me-2 text-danger"></i> Send Alert
+                                </a>
                             }
 
                             @if (isStudent)
                             {
                                 <div class="dropdown-divider"></div>
-                                <a asp-controller="Marks" asp-action="Index" class="dropdown-item">My Marks</a>
-                                <a asp-controller="Absences" asp-action="Index" class="dropdown-item">My Absences</a>
+                                <a asp-controller="Marks" asp-action="Index" class="dropdown-item">
+                                    <i class="fa fa-file-alt me-2"></i> My Marks
+                                </a>
+                                <a asp-controller="Absences" asp-action="Index" class="dropdown-item">
+                                    <i class="fa fa-calendar-check me-2"></i> My Absences
+                                </a>
                             }
+
 
                             <div class="dropdown-divider"></div>
                             <form asp-controller="Account" asp-action="Logout" method="post" class="dropdown-item">
-                                <button type="submit" class="btn btn-link p-0 m-0 text-start w-100">Logout</button>
+                                <button type="submit" class="btn btn-link p-0 m-0 text-start w-100">
+                                    <i class="fa fa-sign-out-alt me-2"></i> Logout
+                                </button>
                             </form>
                         </div>
                     </div>
@@ -125,6 +154,14 @@
 
         </div>
     </header>
+
+    @* Alerts for administrator *@
+    @if (User.Identity.IsAuthenticated && User.IsInRole("Administrator"))
+    {
+        <div class="container mt-4">
+            @await Component.InvokeAsync("Alerts")
+        </div>
+    }
     <main class="main-content">
         <div class="container-xl mt-4">
             @RenderBody()

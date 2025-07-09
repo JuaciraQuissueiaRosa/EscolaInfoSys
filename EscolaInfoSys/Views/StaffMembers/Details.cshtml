@@ -4,7 +4,7 @@
     ViewData["Title"] = "Staff Member Details";
 }
 
-<h2 class="page-title">Staff Member Details</h2>
+<h2 class="page-title"><i class="fa fa-id-card"></i> Staff Member Details</h2>
 
 <div class="card p-4">
     <dl class="row">
@@ -14,8 +14,8 @@
         <dd class="col-sm-9">@Html.DisplayFor(m => m.Email)</dd>
     </dl>
     <div>
-        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Edit</a>
-        <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary"><i class="fa fa-edit"></i> Edit</a>
+        <a asp-action="Index" class="btn btn-secondary"><i class="fa fa-arrow-left"></i> Back to List</a>
     </div>
 </div>
 @section Scripts {

@@ -1,0 +1,44 @@
+﻿@model EscolaInfoSys.Models.Alert
+
+@{
+    ViewData["Title"] = "Send Alert";
+}
+
+<h2 class="page-title">
+    <i class="fa-solid fa-bullhorn text-danger me-2"></i> Send Alert
+</h2>
+
+<form asp-action="Create" method="post" class="card p-4">
+    <div asp-validation-summary="All" class="alert alert-danger"></div>
+
+    <div class="mb-3">
+        <label asp-for="Title" class="form-label">
+            <i class="fa-solid fa-heading me-1"></i> @Html.DisplayNameFor(m => m.Title)
+        </label>
+        <input asp-for="Title" class="form-control" placeholder="Short title..." />
+        <span asp-validation-for="Title" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Message" class="form-label">
+            <i class="fa-solid fa-message me-1"></i> @Html.DisplayNameFor(m => m.Message)
+        </label>
+        <textarea asp-for="Message" class="form-control" rows="4" placeholder="Describe the issue or request..."></textarea>
+        <span asp-validation-for="Message" class="text-danger"></span>
+    </div>
+
+    <div class="mt-4">
+        <button type="submit" class="btn btn-danger">
+            <i class="fa-solid fa-paper-plane me-2"></i> Send Alert
+        </button>
+        <a asp-controller="Home" asp-action="Index" class="btn btn-secondary">
+            <i class="fa-solid fa-arrow-left me-2"></i> Cancel
+        </a>
+    </div>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

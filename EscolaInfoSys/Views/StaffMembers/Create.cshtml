@@ -4,7 +4,8 @@
     ViewData["Title"] = "Create Staff Member";
 }
 
-<h2 class="page-title">Create Staff Member</h2>
+
+<h2 class="page-title"><i class="fa fa-user-plus"></i> Create Staff Member</h2>
 
 <form asp-action="Create" method="post" class="card p-4">
     <div asp-validation-summary="All" class="alert alert-danger"></div>
@@ -22,8 +23,8 @@
     </div>
 
     <div class="mt-4">
-        <button type="submit" class="btn btn-primary">Create</button>
-        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+        <button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> Create</button>
+        <a asp-action="Index" class="btn btn-secondary"><i class="fa fa-times"></i> Cancel</a>
     </div>
 </form>
 @section Scripts {

@@ -3,9 +3,9 @@
     ViewData["Title"] = "Form Groups";
 }
 
-<h2 class="page-title">Form Groups</h2>
+<h2 class="page-title"><i class="fa fa-layer-group"></i> Form Groups</h2>
 <div class="mb-3">
-    <a asp-action="Create" class="btn btn-primary">+ Create New</a>
+    <a asp-action="Create" class="btn btn-primary"><i class="fa fa-plus-circle"></i> Create New</a>
 </div>
 <div class="card">
     <div class="table-responsive">
@@ -22,9 +22,9 @@
                     <tr>
                         <td>@Html.DisplayFor(modelItem => item.Name)</td>
                         <td class="text-end">
-                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">Edit</a>
-                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary">Details</a>
-                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger">Delete</a>
+                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary"><i class="fa fa-edit"></i></a>
+                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary"><i class="fa fa-eye"></i></a>
+                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger"><i class="fa fa-trash"></i></a>
                         </td>
                     </tr>
                 }
@@ -32,6 +32,7 @@
         </table>
     </div>
 </div>
+
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");

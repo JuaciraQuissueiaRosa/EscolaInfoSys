@@ -1,15 +1,17 @@
-﻿@model EscolaInfoSys.Models.Student
+﻿
+
+@model EscolaInfoSys.Models.Student
 
 @{
     ViewData["Title"] = "Edit Student";
 }
 
-<h2 class="page-title">Edit Student</h2>
+<h2 class="page-title"><i class="fa fa-user-edit text-warning me-2"></i> Edit Student</h2>
 
-<form asp-action="Edit" method="post" enctype="multipart/form-data" class="card p-4">
-    <div asp-validation-summary="All" class="alert alert-danger"></div>
-
+<form asp-action="Edit" method="post" class="card p-4">
     <input type="hidden" asp-for="Id" />
+
+    <div asp-validation-summary="All" class="alert alert-danger"></div>
 
     <div class="mb-3">
         <label asp-for="FullName" class="form-label"></label>
@@ -30,37 +32,35 @@
     </div>
 
     <div class="mb-3">
-        <label class="form-label">Current Profile Photo</label><br />
-        @if (!string.IsNullOrEmpty(Model.ProfilePhoto))
-        {
-            <img src="~/uploads/@Model.ProfilePhoto" class="img-thumbnail mb-2" style="max-height: 120px;" />
-        }
-        <input type="file" name="ProfilePhotoFile" class="form-control" />
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label">Current Document Photo</label><br />
-        @if (!string.IsNullOrEmpty(Model.DocumentPhoto))
-        {
-            <img src="~/uploads/@Model.DocumentPhoto" class="img-thumbnail mb-2" style="max-height: 120px;" />
-        }
-        <input type="file" name="DocumentPhotoFile" class="form-control" />
-    </div>
-
-    <div class="mb-3">
         <label asp-for="FormGroupId" class="form-label"></label>
         <select asp-for="FormGroupId" asp-items="ViewBag.FormGroupId" class="form-select"></select>
         <span asp-validation-for="FormGroupId" class="text-danger"></span>
     </div>
 
+    <div class="mb-3">
+        <label asp-for="ProfilePhoto" class="form-label"></label>
+        <input asp-for="ProfilePhoto" class="form-control" />
+        <span asp-validation-for="ProfilePhoto" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="DocumentPhoto" class="form-label"></label>
+        <input asp-for="DocumentPhoto" class="form-control" />
+        <span asp-validation-for="DocumentPhoto" class="text-danger"></span>
+    </div>
+
     <div class="mt-4">
-        <button type="submit" class="btn btn-primary">Save</button>
-        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+        <button type="submit" class="btn btn-warning">
+            <i class="fa fa-save me-1"></i> Save Changes
+        </button>
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="fa fa-arrow-left me-1"></i> Back
+        </a>
     </div>
 </form>
 
-
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

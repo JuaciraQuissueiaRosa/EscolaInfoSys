@@ -7,18 +7,20 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using EscolaInfoSys.Data;
 using EscolaInfoSys.Models;
+using EscolaInfoSys.Services;
 
 namespace EscolaInfoSys.Controllers
 {
     public class AbsencesController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly AbsenceCheckerService _absenceCheckerService;
 
-        public AbsencesController(ApplicationDbContext context)
+        public AbsencesController(ApplicationDbContext context, AbsenceCheckerService absenceCheckerService)
         {
             _context = context;
+            _absenceCheckerService = absenceCheckerService;
         }
-
         // GET: Absences
         public async Task<IActionResult> Index()
         {
@@ -65,12 +67,18 @@ namespace EscolaInfoSys.Controllers
             {
                 _context.Add(absence);
                 await _context.SaveChangesAsync();
+
+                // ✅ Verifica se o aluno ultrapassou a percentagem de faltas
+                await _absenceCheckerService.CheckExclusionAsync(absence.StudentId, absence.SubjectId);
+
                 return RedirectToAction(nameof(Index));
             }
+
             ViewData["StudentId"] = new SelectList(_context.Students, "Id", "Email", absence.StudentId);
             ViewData["SubjectId"] = new SelectList(_context.Subjects, "Id", "Id", absence.SubjectId);
             return View(absence);
         }
+
 
         // GET: Absences/Edit/5
         public async Task<IActionResult> Edit(int? id)

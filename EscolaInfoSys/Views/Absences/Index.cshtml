@@ -1,21 +1,20 @@
-﻿@model IEnumerable<EscolaInfoSys.Models.Course>
-
+﻿@model IEnumerable<EscolaInfoSys.Models.Absence>
 @{
-    ViewData["Title"] = "Courses";
+    ViewData["Title"] = "Absences";
 }
-
-<h2 class="page-title">Courses</h2>
+<h2><i class="fa fa-calendar-times"></i> Absences</h2>
 
 <div class="card">
     <div class="card-header">
-        <a asp-action="Create" class="btn btn-primary">Create New</a>
+        <a asp-action="Create" class="btn btn-primary"><i class="fa fa-plus-circle"></i> Add New</a>
     </div>
     <div class="table-responsive">
         <table class="table table-vcenter">
             <thead>
                 <tr>
-                    <th>@Html.DisplayNameFor(model => model.Name)</th>
-                    <th>@Html.DisplayNameFor(model => model.Description)</th>
+                    <th>Student</th>
+                    <th>Subject</th>
+                    <th>Date</th>
                     <th></th>
                 </tr>
             </thead>
@@ -23,12 +22,13 @@
                 @foreach (var item in Model)
                 {
                     <tr>
-                        <td>@Html.DisplayFor(modelItem => item.Name)</td>
-                        <td>@Html.DisplayFor(modelItem => item.Description)</td>
+                        <td>@item.Student.FullName</td>
+                        <td>@item.Subject.Name</td>
+                        <td>@item.Date.ToShortDateString()</td>
                         <td>
-                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Edit</a>
-                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">Details</a>
-                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Delete</a>
+                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning"><i class="fa fa-edit"></i></a>
+                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info"><i class="fa fa-eye"></i></a>
+                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger"><i class="fa fa-trash"></i></a>
                         </td>
                     </tr>
                 }
@@ -36,6 +36,7 @@
         </table>
     </div>
 </div>
+
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");

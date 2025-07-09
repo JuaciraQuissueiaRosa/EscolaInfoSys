@@ -21,6 +21,7 @@ builder.Services.AddIdentityCore<ApplicationUser>(options =>
 .AddSignInManager()
 .AddDefaultTokenProviders();
 builder.Services.AddScoped<IEmailSender, SmtpEmailSender>();
+builder.Services.AddScoped<AbsenceCheckerService>();
 // Authentication setup for Identity (cookie-based)
 builder.Services.AddAuthentication(options =>
 {

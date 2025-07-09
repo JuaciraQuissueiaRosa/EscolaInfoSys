@@ -4,9 +4,10 @@
     ViewData["Title"] = "Marks";
 }
 
+
 <div class="page-header d-flex justify-content-between align-items-center mb-3">
-    <h2 class="page-title">Marks</h2>
-    <a asp-action="Create" class="btn btn-primary">+ New Mark</a>
+    <h2 class="page-title"><i class="fa fa-list"></i> Marks</h2>
+    <a asp-action="Create" class="btn btn-primary"><i class="fa fa-plus"></i> New Mark</a>
 </div>
 
 <div class="card">
@@ -30,14 +31,29 @@
                         <tr>
                             <td>@item.Value</td>
                             <td>@item.Date.ToShortDateString()</td>
-                            <td>@item.Student?.Email</td>
+                            <td>
+                                @item.Student?.Email
+                                @{
+                                    var exclusions = ViewBag.Exclusions as List<EscolaInfoSys.Models.StudentExclusion>;
+                                    var isExcluded = exclusions?.Any(e => e.StudentId == item.StudentId && e.SubjectId == item.SubjectId) ?? false;
+                                }
+                                @if (isExcluded)
+                                {
+                                    <span class="badge bg-danger ms-1"><i class="fa fa-ban"></i> Excluded</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-success ms-1"><i class="fa fa-check-circle"></i> Active</span>
+                                }
+                            </td>
+
                             <td>@item.Subject?.Name</td>
                             <td>@item.EvaluationType</td>
                             <td>@item.StaffMember?.Email</td>
                             <td class="text-end">
-                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Edit</a>
-                                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">Details</a>
-                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Delete</a>
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning"><i class="fa fa-edit"></i> Edit</a>
+                                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info"><i class="fa fa-info-circle"></i> Details</a>
+                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger"><i class="fa fa-trash"></i> Delete</a>
                             </td>
                         </tr>
                     }

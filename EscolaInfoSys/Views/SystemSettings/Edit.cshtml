@@ -1,0 +1,13 @@
+﻿@model SystemSettings
+
+<h2>Edit Max Absence %</h2>
+
+<form asp-action="Edit" method="post">
+    <div class="mb-3">
+        <label asp-for="MaxAbsencePercentage"></label>
+        <input asp-for="MaxAbsencePercentage" class="form-control" />
+        <span asp-validation-for="MaxAbsencePercentage" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-success">Save</button>
+</form>

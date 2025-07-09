@@ -1,0 +1,27 @@
+﻿@model List<EscolaInfoSys.Models.Alert>
+
+<h5 class="card-header bg-light">
+    <i class="fa fa-bell text-warning me-2"></i> Recent Platform Alerts
+</h5>
+
+<ul class="list-group list-group-flush">
+    @foreach (var alert in Model)
+    {
+        <li class="list-group-item">
+            <strong>@alert.Title</strong> <br />
+            <span class="text-muted">@alert.Message</span><br />
+            <small class="text-secondary">
+                <i class="fa fa-user"></i>
+                @if (alert.StaffMember?.ApplicationUser != null)
+                {
+                    @($"{alert.StaffMember.ApplicationUser.UserName} ({alert.StaffMember.ApplicationUser.Email})")
+                }
+                else
+                {
+                    <span class="text-muted">(Unknown)</span>
+                }
+                - @alert.CreatedAt.ToShortDateString()
+            </small>
+        </li>
+    }
+</ul>

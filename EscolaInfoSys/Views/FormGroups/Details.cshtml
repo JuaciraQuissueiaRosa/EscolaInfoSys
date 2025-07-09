@@ -3,14 +3,15 @@
     ViewData["Title"] = "Form Group Details";
 }
 
-<h2 class="page-title">Form Group Details</h2>
+
+<h2 class="page-title"><i class="fa fa-info-circle"></i> Form Group Details</h2>
 <div class="card">
     <div class="card-body">
         <dl class="row">
             <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Name)</dt>
             <dd class="col-sm-9">@Html.DisplayFor(model => model.Name)</dd>
         </dl>
-        <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-primary">Edit</a>
+        <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-primary"><i class="fa fa-edit"></i> Edit</a>
         <a asp-action="Index" class="btn btn-secondary">Back to List</a>
     </div>
 </div>

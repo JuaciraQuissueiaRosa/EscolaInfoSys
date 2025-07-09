@@ -1,10 +1,8 @@
-﻿@model EscolaInfoSys.Models.Course
-
+﻿@model EscolaInfoSys.Models.Absence
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Create Absence";
 }
-
-<h2 class="page-title">Create Course</h2>
+<h2><i class="fa fa-plus-circle"></i> Create Absence</h2>
 
 <div class="card">
     <div class="card-body">
@@ -12,18 +10,21 @@
             <div asp-validation-summary="All" class="text-danger"></div>
 
             <div class="mb-3">
-                <label asp-for="Name" class="form-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
+                <label asp-for="StudentId" class="form-label"></label>
+                <select asp-for="StudentId" class="form-select" asp-items="ViewBag.StudentId"></select>
             </div>
 
             <div class="mb-3">
-                <label asp-for="Description" class="form-label"></label>
-                <input asp-for="Description" class="form-control" />
-                <span asp-validation-for="Description" class="text-danger"></span>
+                <label asp-for="SubjectId" class="form-label"></label>
+                <select asp-for="SubjectId" class="form-select" asp-items="ViewBag.SubjectId"></select>
             </div>
 
-            <button type="submit" class="btn btn-primary">Create</button>
+            <div class="mb-3">
+                <label asp-for="Date" class="form-label"></label>
+                <input asp-for="Date" class="form-control" type="date" />
+            </div>
+
+            <button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> Create</button>
             <a asp-action="Index" class="btn btn-secondary ms-2">Back</a>
         </form>
     </div>

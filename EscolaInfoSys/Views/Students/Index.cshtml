@@ -3,9 +3,10 @@
     ViewData["Title"] = "Students";
 }
 
-<h2>Students</h2>
 
-<a asp-action="Create" class="btn btn-primary mb-3">Create New Student</a>
+<h2><i class="fa fa-users"></i> Students</h2>
+
+<a asp-action="Create" class="btn btn-primary mb-3"><i class="fa fa-user-plus"></i> Create New Student</a>
 
 <table class="table card-table table-vcenter">
     <thead>
@@ -26,9 +27,9 @@
                 <td>@item.Email</td>
                 <td>@item.FormGroup?.Name</td>
                 <td>
-                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Edit</a>
-                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">Details</a>
-                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Delete</a>
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning"><i class="fa fa-edit"></i></a>
+                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info"><i class="fa fa-eye"></i></a>
+                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger"><i class="fa fa-trash"></i></a>
                 </td>
             </tr>
         }

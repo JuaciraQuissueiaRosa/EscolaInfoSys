@@ -1,5 +1,6 @@
 ﻿@model EscolaInfoSys.Models.ViewModels.ProfileViewModel
 
+
 @{
     ViewData["Title"] = "My Profile";
 }
@@ -10,7 +11,7 @@
             <div class="col-md-6">
                 <div class="card card-md">
                     <div class="card-body text-center">
-                        <h3 class="card-title mb-4">My Profile</h3>
+                        <h3 class="card-title mb-4"><i class="fa fa-user"></i> My Profile</h3>
 
                         @if (!string.IsNullOrEmpty(Model.ProfilePhoto))
                         {
@@ -32,6 +33,7 @@
         </div>
     </div>
 </div>
+
 
 @section Scripts {
     @{

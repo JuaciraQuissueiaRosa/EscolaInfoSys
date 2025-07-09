@@ -4,7 +4,7 @@
     ViewData["Title"] = "Course Details";
 }
 
-<h2 class="page-title">Course Details</h2>
+<h2 class="page-title"><i class="fa fa-info-circle"></i> Course Details</h2>
 
 <div class="card">
     <div class="card-body">
@@ -15,8 +15,8 @@
             <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Description)</dt>
             <dd class="col-sm-9">@Html.DisplayFor(model => model.Description)</dd>
         </dl>
-        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Edit</a>
-        <a asp-action="Index" class="btn btn-secondary ms-2">Back</a>
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning"><i class="fa fa-edit"></i> Edit</a>
+        <a asp-action="Index" class="btn btn-secondary ms-2"><i class="fa fa-arrow-left"></i> Back</a>
     </div>
 </div>
 @section Scripts {

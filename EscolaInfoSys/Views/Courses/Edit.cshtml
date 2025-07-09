@@ -3,8 +3,7 @@
 @{
     ViewData["Title"] = "Edit Course";
 }
-
-<h2 class="page-title">Edit Course</h2>
+<h2 class="page-title"><i class="fa fa-edit"></i> Edit Course</h2>
 
 <div class="card">
     <div class="card-body">
@@ -24,11 +23,12 @@
                 <span asp-validation-for="Description" class="text-danger"></span>
             </div>
 
-            <button type="submit" class="btn btn-success">Save</button>
-            <a asp-action="Index" class="btn btn-secondary ms-2">Back</a>
+            <button type="submit" class="btn btn-success"><i class="fa fa-save"></i> Save</button>
+            <a asp-action="Index" class="btn btn-secondary ms-2"><i class="fa fa-arrow-left"></i> Back</a>
         </form>
     </div>
 </div>
+
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}

@@ -22,8 +22,22 @@ namespace EscolaInfoSys.Controllers
         // GET: Marks
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Marks.Include(m => m.StaffMember).Include(m => m.Student).Include(m => m.Subject);
-            return View(await applicationDbContext.ToListAsync());
+            var marks = await _context.Marks
+       .Include(m => m.StaffMember)
+       .Include(m => m.Student)
+       .Include(m => m.Subject)
+       .ToListAsync();
+
+            var studentIds = marks.Select(m => m.StudentId).Distinct();
+            var subjectIds = marks.Select(m => m.SubjectId).Distinct();
+
+            var exclusions = await _context.StudentExclusions
+                .Where(e => studentIds.Contains(e.StudentId) && subjectIds.Contains(e.SubjectId))
+                .ToListAsync();
+
+            ViewBag.Exclusions = exclusions;
+
+            return View(marks);
         }
 
         // GET: Marks/Details/5

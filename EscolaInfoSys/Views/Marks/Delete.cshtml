@@ -3,8 +3,7 @@
 @{
     ViewData["Title"] = "Delete";
 }
-
-<h2 class="page-title">Delete Mark</h2>
+<h2 class="page-title"><i class="fa fa-trash"></i> Delete Mark</h2>
 
 <div class="card">
     <div class="card-body">
@@ -26,8 +25,8 @@
     <div class="card-footer">
         <form asp-action="Delete">
             <input type="hidden" asp-for="Id" />
-            <button type="submit" class="btn btn-danger">Delete</button>
-            <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+            <button type="submit" class="btn btn-danger"><i class="fa fa-trash"></i> Delete</button>
+            <a asp-action="Index" class="btn btn-secondary"><i class="fa fa-times"></i> Cancel</a>
         </form>
     </div>
 </div>

@@ -1,9 +1,10 @@
 ﻿@model EscolaInfoSys.Models.Student
+
 @{
     ViewData["Title"] = "Create Student";
 }
 
-<h2 class="page-title">Create Student</h2>
+<h2 class="page-title"><i class="fa fa-user-plus"></i> Create Student</h2>
 
 <form asp-action="Create" method="post" enctype="multipart/form-data" class="card p-4">
     <div asp-validation-summary="All" class="alert alert-danger"></div>
@@ -25,28 +26,34 @@
         <input asp-for="Email" class="form-control" />
         <span asp-validation-for="Email" class="text-danger"></span>
     </div>
+
     <div class="mb-3">
-        <label class="form-label">Profile Photo</label>
+        <label class="form-label"><i class="fa fa-image"></i> Profile Photo</label>
         <input type="file" name="ProfilePhotoFile" class="form-control" />
     </div>
 
     <div class="mb-3">
-        <label class="form-label">Document Photo</label>
+        <label class="form-label"><i class="fa fa-id-card"></i> Document Photo</label>
         <input type="file" name="DocumentPhotoFile" class="form-control" />
+        <span asp-validation-for="DocumentPhoto" class="text-danger"></span>
     </div>
 
     <div class="mb-3">
         <label asp-for="FormGroupId" class="form-label"></label>
-        <select asp-for="FormGroupId" asp-items="ViewBag.FormGroupId" class="form-select"></select>
+        <select asp-for="FormGroupId" asp-items="ViewBag.FormGroupId" class="form-select">
+            <option value="">-- Select Form Group --</option>
+        </select>
+        <span asp-validation-for="FormGroupId" class="text-danger"></span>
     </div>
 
     <div class="mt-4">
-        <button type="submit" class="btn btn-primary">Create</button>
-        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+        <button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> Create</button>
+        <a asp-action="Index" class="btn btn-secondary"><i class="fa fa-arrow-left"></i> Cancel</a>
     </div>
 </form>
 
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

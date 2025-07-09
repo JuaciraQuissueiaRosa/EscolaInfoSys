@@ -4,9 +4,12 @@
     ViewData["Title"] = "Student Details";
 }
 
-<h2 class="page-title">Student Details</h2>
-
 <div class="card">
+    <div class="card-header">
+        <h3 class="card-title">
+            <i class="fa fa-user text-info me-2"></i> Student Details
+        </h3>
+    </div>
     <div class="card-body">
         <dl class="row">
             <dt class="col-sm-3">Full Name</dt>
@@ -18,18 +21,18 @@
             <dt class="col-sm-3">Email</dt>
             <dd class="col-sm-9">@Model.Email</dd>
 
-            <dt class="col-sm-3">Form Group</dt>
+            <dt class="col-sm-3">Class</dt>
             <dd class="col-sm-9">@Model.FormGroup?.Name</dd>
 
             <dt class="col-sm-3">Profile Photo</dt>
             <dd class="col-sm-9">
                 @if (!string.IsNullOrEmpty(Model.ProfilePhoto))
                 {
-                    <img src="@Url.Content("~/uploads/" + Model.ProfilePhoto)" class="img-thumbnail" style="max-height: 150px;" />
+                    <img src="@Model.ProfilePhoto" class="img-thumbnail" width="100" />
                 }
                 else
                 {
-                    <span>No photo uploaded</span>
+                    <span class="text-muted">No photo</span>
                 }
             </dd>
 
@@ -37,25 +40,18 @@
             <dd class="col-sm-9">
                 @if (!string.IsNullOrEmpty(Model.DocumentPhoto))
                 {
-                    <img src="@Url.Content("~/uploads/" + Model.DocumentPhoto)" class="img-thumbnail" style="max-height: 150px;" />
+                    <img src="@Model.DocumentPhoto" class="img-thumbnail" width="100" />
                 }
                 else
                 {
-                    <span>No document uploaded</span>
+                    <span class="text-muted">No document</span>
                 }
             </dd>
         </dl>
     </div>
-    <div class="card-footer text-end">
-        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Edit</a>
-        <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+    <div class="card-footer">
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="fa fa-arrow-left me-1"></i> Back to List
+        </a>
     </div>
 </div>
-
-
-
-@section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
-}

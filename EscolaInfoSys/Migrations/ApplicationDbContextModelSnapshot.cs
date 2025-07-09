@@ -122,6 +122,38 @@ namespace EscolaInfoSys.Migrations
                     b.ToTable("Absences");
                 });
 
+            modelBuilder.Entity("EscolaInfoSys.Models.Alert", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("StaffId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("StaffMemberId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StaffMemberId");
+
+                    b.ToTable("Alerts");
+                });
+
             modelBuilder.Entity("EscolaInfoSys.Models.Course", b =>
                 {
                     b.Property<int>("Id")
@@ -205,6 +237,10 @@ namespace EscolaInfoSys.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("ApplicationUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -214,6 +250,8 @@ namespace EscolaInfoSys.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ApplicationUserId");
 
                     b.ToTable("StaffMembers");
                 });
@@ -226,8 +264,11 @@ namespace EscolaInfoSys.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("DocumentPhoto")
+                    b.Property<string>("ApplicationUserId")
                         .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("DocumentPhoto")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Email")
@@ -250,9 +291,37 @@ namespace EscolaInfoSys.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ApplicationUserId");
+
                     b.HasIndex("FormGroupId");
 
                     b.ToTable("Students");
+                });
+
+            modelBuilder.Entity("EscolaInfoSys.Models.StudentExclusion", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("IsExcluded")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("StudentId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SubjectId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StudentId");
+
+                    b.HasIndex("SubjectId");
+
+                    b.ToTable("StudentExclusions");
                 });
 
             modelBuilder.Entity("EscolaInfoSys.Models.Subject", b =>
@@ -273,6 +342,9 @@ namespace EscolaInfoSys.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("TotalLessons")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CourseId");
@@ -280,6 +352,22 @@ namespace EscolaInfoSys.Migrations
                     b.HasIndex("FormGroupId");
 
                     b.ToTable("Subjects");
+                });
+
+            modelBuilder.Entity("EscolaInfoSys.Models.SystemSettings", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<double>("MaxAbsencePercentage")
+                        .HasColumnType("float");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SystemSettings");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -434,6 +522,15 @@ namespace EscolaInfoSys.Migrations
                     b.Navigation("Subject");
                 });
 
+            modelBuilder.Entity("EscolaInfoSys.Models.Alert", b =>
+                {
+                    b.HasOne("EscolaInfoSys.Models.StaffMember", "StaffMember")
+                        .WithMany()
+                        .HasForeignKey("StaffMemberId");
+
+                    b.Navigation("StaffMember");
+                });
+
             modelBuilder.Entity("EscolaInfoSys.Models.Mark", b =>
                 {
                     b.HasOne("EscolaInfoSys.Models.StaffMember", "StaffMember")
@@ -461,15 +558,53 @@ namespace EscolaInfoSys.Migrations
                     b.Navigation("Subject");
                 });
 
+            modelBuilder.Entity("EscolaInfoSys.Models.StaffMember", b =>
+                {
+                    b.HasOne("EscolaInfoSys.Data.ApplicationUser", "ApplicationUser")
+                        .WithMany()
+                        .HasForeignKey("ApplicationUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ApplicationUser");
+                });
+
             modelBuilder.Entity("EscolaInfoSys.Models.Student", b =>
                 {
+                    b.HasOne("EscolaInfoSys.Data.ApplicationUser", "ApplicationUser")
+                        .WithMany()
+                        .HasForeignKey("ApplicationUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("EscolaInfoSys.Models.FormGroup", "FormGroup")
                         .WithMany("Students")
                         .HasForeignKey("FormGroupId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("ApplicationUser");
+
                     b.Navigation("FormGroup");
+                });
+
+            modelBuilder.Entity("EscolaInfoSys.Models.StudentExclusion", b =>
+                {
+                    b.HasOne("EscolaInfoSys.Models.Student", "Student")
+                        .WithMany()
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("EscolaInfoSys.Models.Subject", "Subject")
+                        .WithMany()
+                        .HasForeignKey("SubjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Student");
+
+                    b.Navigation("Subject");
                 });
 
             modelBuilder.Entity("EscolaInfoSys.Models.Subject", b =>
