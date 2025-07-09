@@ -3,30 +3,31 @@
     ViewData["Title"] = "Login";
 }
 
+
 <div class="page-body">
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-6">
                 <div class="card card-md">
                     <div class="card-body">
-                        <h3 class="card-title text-center mb-4">Login</h3>
+                        <h3 class="card-title text-center mb-4"><i class="fa fa-sign-in-alt me-2"></i> Login</h3>
                         <form asp-action="Login" method="post">
                             <div asp-validation-summary="All" class="alert alert-danger"></div>
 
                             <div class="mb-3">
-                                <label asp-for="Email" class="form-label"></label>
+                                <label asp-for="Email" class="form-label"><i class="fa fa-envelope me-2"></i> Email</label>
                                 <input asp-for="Email" class="form-control" />
                                 <span asp-validation-for="Email" class="text-danger"></span>
                             </div>
 
                             <div class="mb-3">
-                                <label asp-for="Password" class="form-label"></label>
+                                <label asp-for="Password" class="form-label"><i class="fa fa-lock me-2"></i> Password</label>
                                 <input asp-for="Password" class="form-control" />
                                 <span asp-validation-for="Password" class="text-danger"></span>
                             </div>
 
                             <div class="form-footer">
-                                <button type="submit" class="btn btn-primary w-100"><i class="fa fa-sign-in-alt"></i> Login</button>
+                                <button type="submit" class="btn btn-primary w-100"><i class="fa fa-sign-in-alt me-2"></i> Login</button>
                             </div>
                         </form>
                     </div>
