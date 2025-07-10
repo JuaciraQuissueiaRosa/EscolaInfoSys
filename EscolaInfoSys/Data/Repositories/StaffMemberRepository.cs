@@ -45,5 +45,13 @@ namespace EscolaInfoSys.Data.Repositories
         {
             return await _context.StaffMembers.AnyAsync(s => s.Id == id);
         }
+
+        public async Task<StaffMember?> GetByApplicationUserIdAsync(string applicationUserId)
+        {
+            return await _context.StaffMembers
+                .Include(s => s.ApplicationUser)
+                .FirstOrDefaultAsync(s => s.ApplicationUserId == applicationUserId);
+        }
+
     }
 }

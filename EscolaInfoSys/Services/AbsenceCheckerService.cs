@@ -1,4 +1,5 @@
 ﻿using EscolaInfoSys.Data;
+using EscolaInfoSys.Data.Repositories.Interfaces;
 using EscolaInfoSys.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -6,28 +7,35 @@ namespace EscolaInfoSys.Services
 {
     public class AbsenceCheckerService
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ISubjectRepository _subjectRepo;
+        private readonly IAbsenceRepository _absenceRepo;
+        private readonly IStudentExclusionRepository _exclusionRepo;
+        private readonly ISystemSettingsRepository _settingsRepo;
 
-        public AbsenceCheckerService(ApplicationDbContext context)
+        public AbsenceCheckerService(
+            ISubjectRepository subjectRepo,
+            IAbsenceRepository absenceRepo,
+            IStudentExclusionRepository exclusionRepo,
+            ISystemSettingsRepository settingsRepo)
         {
-            _context = context;
+            _subjectRepo = subjectRepo;
+            _absenceRepo = absenceRepo;
+            _exclusionRepo = exclusionRepo;
+            _settingsRepo = settingsRepo;
         }
 
         public async Task CheckExclusionAsync(int studentId, int subjectId)
         {
-            var subject = await _context.Subjects.FindAsync(subjectId);
+            var subject = await _subjectRepo.GetByIdAsync(subjectId);
             if (subject == null || subject.TotalLessons == 0)
                 return;
 
-            var absences = await _context.Absences
-                .CountAsync(a => a.StudentId == studentId && a.SubjectId == subjectId);
+            var absences = await _absenceRepo.CountByStudentAndSubjectAsync(studentId, subjectId);
+            var settings = await _settingsRepo.GetSettingsAsync();
 
-            var settings = await _context.SystemSettings.FirstAsync();
             double percentage = (double)absences / subject.TotalLessons * 100.0;
 
-            var exclusion = await _context.StudentExclusions
-                .FirstOrDefaultAsync(e => e.StudentId == studentId && e.SubjectId == subjectId);
-
+            var exclusion = await _exclusionRepo.GetByStudentAndSubjectAsync(studentId, subjectId);
             if (exclusion == null)
             {
                 exclusion = new StudentExclusion
@@ -35,11 +43,11 @@ namespace EscolaInfoSys.Services
                     StudentId = studentId,
                     SubjectId = subjectId
                 };
-                _context.StudentExclusions.Add(exclusion);
+                await _exclusionRepo.AddAsync(exclusion);
             }
 
             exclusion.IsExcluded = percentage >= settings.MaxAbsencePercentage;
-            await _context.SaveChangesAsync();
+            await _exclusionRepo.SaveAsync();
         }
     }
 

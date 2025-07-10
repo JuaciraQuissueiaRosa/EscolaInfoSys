@@ -1,4 +1,5 @@
 ﻿using EscolaInfoSys.Data;
+using EscolaInfoSys.Data.Repositories.Interfaces;
 using EscolaInfoSys.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -10,15 +11,19 @@ namespace EscolaInfoSys.Controllers
     [Authorize(Roles = "StaffMember")]
     public class AlertsController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IAlertRepository _alertRepository;
+        private readonly IStaffMemberRepository _staffRepository;
         private readonly UserManager<ApplicationUser> _userManager;
 
-        public AlertsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+        public AlertsController(
+            IAlertRepository alertRepository,
+            IStaffMemberRepository staffRepository,
+            UserManager<ApplicationUser> userManager)
         {
-            _context = context;
+            _alertRepository = alertRepository;
+            _staffRepository = staffRepository;
             _userManager = userManager;
         }
-
 
         [HttpGet]
         public IActionResult Create() => View();
@@ -30,10 +35,7 @@ namespace EscolaInfoSys.Controllers
             {
                 var userId = _userManager.GetUserId(User);
 
-                var staffMember = await _context.StaffMembers
-                    .Include(s => s.ApplicationUser)
-                    .FirstOrDefaultAsync(s => s.ApplicationUserId == userId);
-
+                var staffMember = await _staffRepository.GetByApplicationUserIdAsync(userId);
                 if (staffMember == null)
                 {
                     ModelState.AddModelError("", "Staff member not found.");
@@ -41,21 +43,14 @@ namespace EscolaInfoSys.Controllers
                 }
 
                 alert.StaffId = staffMember.Id;
-                alert.StaffMember = staffMember; 
+                alert.StaffMember = staffMember;
                 alert.CreatedAt = DateTime.Now;
 
-                _context.Alerts.Add(alert);
-                await _context.SaveChangesAsync();
-
+                await _alertRepository.AddAsync(alert);
                 return RedirectToAction("Index", "Home");
             }
 
             return View(alert);
         }
-
-
-
-
-
     }
 }

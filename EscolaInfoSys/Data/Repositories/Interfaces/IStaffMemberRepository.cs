@@ -10,5 +10,8 @@ namespace EscolaInfoSys.Data.Repositories.Interfaces
         Task UpdateAsync(StaffMember staff);
         Task DeleteAsync(StaffMember staff);
         Task<bool> ExistsAsync(int id);
+
+        Task<StaffMember?> GetByApplicationUserIdAsync(string applicationUserId);
+
     }
 }

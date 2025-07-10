@@ -10,5 +10,7 @@ namespace EscolaInfoSys.Data.Repositories.Interfaces
         Task UpdateAsync(Absence absence);
         Task DeleteAsync(Absence absence);
         Task<bool> ExistsAsync(int id);
+
+        Task<int> CountByStudentAndSubjectAsync(int studentId, int subjectId);
     }
 }

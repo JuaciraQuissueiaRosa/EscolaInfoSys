@@ -10,29 +10,29 @@ using System.Text;
 
 namespace EscolaInfoSys.Controllers
 {
+   
+
+    [Authorize]
     public class AccountController : Controller
     {
-        private readonly SignInManager<ApplicationUser> _signInManager;
-        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IAccountService _accountService;
         private readonly IWebHostEnvironment _webHostEnvironment;
-        private readonly IEmailSender _emailSender;
 
-
-        public AccountController(SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager, IWebHostEnvironment webHostEnvironment,
-            IEmailSender emailSender)
+        public AccountController(IAccountService accountService, IWebHostEnvironment webHostEnvironment)
         {
-            _signInManager = signInManager;
-            _userManager = userManager;
+            _accountService = accountService;
             _webHostEnvironment = webHostEnvironment;
-            _emailSender = emailSender;
         }
 
+        [AllowAnonymous]
         [HttpGet]
         public IActionResult Login(string returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
             return View();
         }
+
+        [AllowAnonymous]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel model, string returnUrl = null)
@@ -40,29 +40,24 @@ namespace EscolaInfoSys.Controllers
             if (!ModelState.IsValid)
                 return View(model);
 
-            var user = await _userManager.FindByEmailAsync(model.Email);
-            if (user == null)
+            var user = await _accountService.FindByEmailAsync(model.Email);
+            if (user == null || !await _accountService.IsEmailConfirmedAsync(user))
             {
-                ModelState.AddModelError("", "Invalid login attempt.");
+                ModelState.AddModelError("", "Invalid login attempt or email not confirmed.");
                 return View(model);
             }
 
-           
-            if (!await _userManager.IsEmailConfirmedAsync(user))
-            {
-                ModelState.AddModelError("", "You must confirm your email before logging in.");
-                return View(model);
-            }
-
-            var result = await _signInManager.PasswordSignInAsync(user.UserName, model.Password, false, false);
+            var result = await _accountService.PasswordSignInAsync(user.UserName, model.Password);
 
             if (result.Succeeded)
             {
-                if (await _userManager.IsInRoleAsync(user, "Administrator"))
+                var roles = await _accountService.GetRolesAsync(user);
+
+                if (roles.Contains("Administrator"))
                     return RedirectToAction("Index", "FormGroups");
-                if (await _userManager.IsInRoleAsync(user, "StaffMember"))
+                if (roles.Contains("StaffMember"))
                     return RedirectToAction("Index", "Students");
-                if (await _userManager.IsInRoleAsync(user, "Student"))
+                if (roles.Contains("Student"))
                     return RedirectToAction("Index", "Home");
 
                 return RedirectToAction("Index", "Home");
@@ -72,108 +67,48 @@ namespace EscolaInfoSys.Controllers
             return View(model);
         }
 
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {
-            await _signInManager.SignOutAsync();
-            return RedirectToAction("Login", "Account");
+            await _accountService.SignOutAsync();
+            return RedirectToAction("Login");
         }
 
-
-        [HttpGet]
         [AllowAnonymous]
-        public IActionResult RegisterConfirmation()
-        {
-            return View();
-        }
-
-
-
         [HttpGet]
-        public IActionResult Register()
-        {
-            return View();
-        }
+        public IActionResult RegisterConfirmation() => View();
 
+        [AllowAnonymous]
+        [HttpGet]
+        public IActionResult Register() => View();
+
+        [AllowAnonymous]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
-            if (ModelState.IsValid)
-            {
-                var user = new ApplicationUser
-                {
-                    UserName = model.Email,
-                    Email = model.Email,
-                    EmailConfirmed = false,
-                    Name = model.FullName,
-                    ProfilePhoto = null
-                };
+            if (!ModelState.IsValid)
+                return View(model);
 
-                var result = await _userManager.CreateAsync(user, model.Password);
-                if (result.Succeeded)
-                {
-                    await _userManager.AddToRoleAsync(user, "Student");
+            string BuildUrl(string userId, string token) => Url.Action("ConfirmEmail", "Account", new { userId, token }, Request.Scheme);
 
-                    // Gera e codifica o token de forma segura
-                    var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                    var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
+            var result = await _accountService.RegisterAsync(model, Request.Scheme, BuildUrl);
 
-                    var confirmationLink = Url.Action("ConfirmEmail", "Account", new
-                    {
-                        userId = user.Id,
-                        token = encodedToken
-                    }, Request.Scheme);
-
-                    await _emailSender.SendEmailAsync(user.Email, "Confirm your email",
-                        $"Please confirm your account by clicking <a href='{confirmationLink}'>here</a>.");
-
-                    return RedirectToAction("RegisterConfirmation");
-                }
-
-                foreach (var error in result.Errors)
-                {
-                    ModelState.AddModelError(string.Empty, error.Description);
-                }
-            }
-
-            return View(model);
-        }
-
-
-        [HttpGet]
-        public IActionResult ResetPassword(string token, string email)
-        {
-            return View(new ResetPasswordViewModel { Token = token, Email = email });
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ResetPassword(ResetPasswordViewModel model)
-        {
-            if (!ModelState.IsValid) return View(model);
-
-            var user = await _userManager.FindByEmailAsync(model.Email);
-            if (user == null) return RedirectToAction("ResetPasswordConfirmation");
-
-            var result = await _userManager.ResetPasswordAsync(user, model.Token, model.NewPassword);
             if (result.Succeeded)
-                return RedirectToAction("Login");
+                return RedirectToAction("RegisterConfirmation");
 
             foreach (var error in result.Errors)
-                ModelState.AddModelError(string.Empty, error.Description);
+                ModelState.AddModelError(string.Empty, error);
 
             return View(model);
         }
 
+        [AllowAnonymous]
         [HttpGet]
-        public IActionResult ForgotPassword()
-        {
-            return View();
-        }
+        public IActionResult ForgotPassword() => View();
 
+        [AllowAnonymous]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ForgotPassword(ForgotPasswordViewModel model)
@@ -181,70 +116,62 @@ namespace EscolaInfoSys.Controllers
             if (!ModelState.IsValid)
                 return View(model);
 
-            var user = await _userManager.FindByEmailAsync(model.Email);
-            if (user == null || !(await _userManager.IsEmailConfirmedAsync(user)))
-            {
-              
+            string BuildUrl(string token, string email, string scheme) =>
+                Url.Action("ResetPassword", "Account", new { token, email }, scheme);
+
+            var resetLink = await _accountService.GenerateResetPasswordLinkAsync(model.Email, Request.Scheme, BuildUrl);
+
+            if (resetLink != null)
                 return RedirectToAction("ForgotPasswordConfirmation");
-            }
 
-            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-            var callbackUrl = Url.Action("ResetPassword", "Account", new { token, email = user.Email }, Request.Scheme);
+            return View(model);
+        }
 
-            await _emailSender.SendEmailAsync(user.Email, "Reset your password",
-                $"You requested to reset your password. Click <a href='{callbackUrl}'>here</a> to reset it.");
+        [AllowAnonymous]
+        [HttpGet]
+        public IActionResult ResetPassword(string token, string email) =>
+            View(new ResetPasswordViewModel { Token = token, Email = email });
 
-            return RedirectToAction("ForgotPasswordConfirmation");
+        [AllowAnonymous]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResetPassword(ResetPasswordViewModel model)
+        {
+            if (!ModelState.IsValid) return View(model);
+
+            var result = await _accountService.ResetPasswordAsync(model);
+
+            if (result.Succeeded)
+                return RedirectToAction("Login");
+
+            foreach (var error in result.Errors)
+                ModelState.AddModelError(string.Empty, error);
+
+            return View(model);
+        }
+
+        [AllowAnonymous]
+        [HttpGet]
+        public IActionResult ConfirmEmailError() => View();
+
+        [AllowAnonymous]
+        [HttpGet]
+        public async Task<IActionResult> ConfirmEmail(string userId, string token)
+        {
+            var result = await _accountService.ConfirmEmailAsync(userId, token);
+
+            if (result.Success)
+                return View("ConfirmEmail");
+
+            ViewBag.Message = result.Message;
+            return RedirectToAction("ConfirmEmailError");
         }
 
         [HttpGet]
-        public IActionResult SetPassword(string userId, string token)
-        {
-            if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(token))
-                return RedirectToAction("Login", "Account");
-
-            var model = new SetPasswordViewModel
-            {
-                UserId = userId,
-                Token = token
-            };
-
-            return View(model);
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> SetPassword(SetPasswordViewModel model)
-        {
-            if (!ModelState.IsValid)
-                return View(model);
-
-            var user = await _userManager.FindByIdAsync(model.UserId);
-            if (user == null)
-                return NotFound();
-
-            var decodedToken = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(model.Token));
-            var result = await _userManager.ResetPasswordAsync(user, decodedToken, model.Password);
-
-            if (result.Succeeded)
-            {
-                user.EmailConfirmed = true;
-                await _userManager.UpdateAsync(user);
-                TempData["Success"] = "Senha definida com sucesso! Agora pode iniciar sessão.";
-                return RedirectToAction("Login", "Account");
-            }
-
-            foreach (var error in result.Errors)
-                ModelState.AddModelError(string.Empty, error.Description);
-
-            return View(model);
-        }
-
-        [Authorize]
         public async Task<IActionResult> Profile()
         {
-            var user = await _userManager.GetUserAsync(User);
-            var roles = await _userManager.GetRolesAsync(user);
+            var user = await _accountService.GetCurrentUserAsync(User);
+            var roles = await _accountService.GetRolesAsync(user);
 
             var model = new ProfileViewModel
             {
@@ -260,8 +187,7 @@ namespace EscolaInfoSys.Controllers
         [HttpGet]
         public async Task<IActionResult> EditProfile()
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null) return NotFound();
+            var user = await _accountService.GetCurrentUserAsync(User);
 
             var model = new EditProfileViewModel
             {
@@ -277,29 +203,14 @@ namespace EscolaInfoSys.Controllers
         {
             if (!ModelState.IsValid) return View(model);
 
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null) return NotFound();
+            var user = await _accountService.GetCurrentUserAsync(User);
 
-            user.Name= model.FullName;
+            var result = await _accountService.UpdateProfileAsync(user, model.FullName, model.NewPhoto, _webHostEnvironment.WebRootPath);
 
-            if (model.NewPhoto != null && model.NewPhoto.Length > 0)
-            {
-                var fileName = Guid.NewGuid() + Path.GetExtension(model.NewPhoto.FileName);
-                var filePath = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", fileName);
-
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                {
-                    await model.NewPhoto.CopyToAsync(stream);
-                }
-
-                user.ProfilePhoto = fileName;
-            }
-
-            var result = await _userManager.UpdateAsync(user);
             if (!result.Succeeded)
             {
                 foreach (var error in result.Errors)
-                    ModelState.AddModelError("", error.Description);
+                    ModelState.AddModelError("", error);
 
                 return View(model);
             }
@@ -307,85 +218,62 @@ namespace EscolaInfoSys.Controllers
             return RedirectToAction("Profile");
         }
 
-
         [HttpGet]
-        [Authorize]
-        public IActionResult ChangePassword()
-        {
-            return View();
-        }
-
-
-        [HttpGet]
-        [AllowAnonymous]
-        public IActionResult ConfirmEmailError()
-        {
-            return View();
-        }
+        public IActionResult ChangePassword() => View();
 
         [HttpPost]
-        [Authorize]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
         {
             if (!ModelState.IsValid) return View(model);
 
-            var user = await _userManager.GetUserAsync(User);
-            var result = await _userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
+            var user = await _accountService.GetCurrentUserAsync(User);
+            var result = await _accountService.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
 
             if (result.Succeeded)
                 return RedirectToAction("Profile");
 
             foreach (var error in result.Errors)
-                ModelState.AddModelError("", error.Description);
+                ModelState.AddModelError("", error);
 
             return View(model);
         }
 
-        [HttpGet]
         [AllowAnonymous]
-        public async Task<IActionResult> ConfirmEmail(string userId, string token)
+        [HttpGet]
+        public IActionResult SetPassword(string userId, string token) =>
+            View(new SetPasswordViewModel { UserId = userId, Token = token });
+
+        [AllowAnonymous]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SetPassword(SetPasswordViewModel model)
         {
-            if (userId == null || token == null)
-                return RedirectToAction("Index", "Home");
+            if (!ModelState.IsValid) return View(model);
 
-            var user = await _userManager.FindByIdAsync(userId);
-            if (user == null)
-                return NotFound();
+            var user = await _accountService.GetCurrentUserAsync(User);
+            var decodedToken = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(model.Token));
 
-            try
+            var result = await _accountService.ResetPasswordAsync(new ResetPasswordViewModel
             {
-                // Decodifica o token
-                var decodedTokenBytes = WebEncoders.Base64UrlDecode(token);
-                var decodedToken = Encoding.UTF8.GetString(decodedTokenBytes);
+                Email = user.Email,
+                Token = decodedToken,
+                NewPassword = model.Password
+            });
 
-                // Tenta confirmar
-                var result = await _userManager.ConfirmEmailAsync(user, decodedToken);
-
-                if (result.Succeeded)
-                {
-                    return View("ConfirmEmail"); // sucesso na confirmação
-                }
-
-                // Se falhou mas o e-mail já está confirmado, exibe view informativa
-                if (await _userManager.IsEmailConfirmedAsync(user))
-                {
-                    ViewBag.Message = "Your email is already confirmed.";
-                    return View("ConfirmEmail");
-                }
-
-                return RedirectToAction("ConfirmEmailError", "Account");
-            }
-            catch
+            if (result.Succeeded)
             {
-                return RedirectToAction("ConfirmEmailError", "Account");
+                user.EmailConfirmed = true;
+                await _accountService.UpdateProfileAsync(user, user.Name, null, _webHostEnvironment.WebRootPath);
+                TempData["Success"] = "Senha definida com sucesso! Agora pode iniciar sessão.";
+                return RedirectToAction("Login");
             }
+
+            foreach (var error in result.Errors)
+                ModelState.AddModelError("", error);
+
+            return View(model);
         }
-
-
-
-
-
-
     }
+
 }

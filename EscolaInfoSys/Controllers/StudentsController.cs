@@ -12,58 +12,55 @@ using Microsoft.AspNetCore.Identity;
 using EscolaInfoSys.Services;
 using Microsoft.AspNetCore.WebUtilities;
 using System.Text;
+using EscolaInfoSys.Data.Repositories.Interfaces;
 
 namespace EscolaInfoSys.Controllers
 {
     public class StudentsController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IStudentRepository _studentRepo;
+        private readonly IFormGroupRepository _formGroupRepo;
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IEmailSender _emailSender;
 
-        public StudentsController(ApplicationDbContext context, IWebHostEnvironment webHostEnvironment, UserManager<ApplicationUser> userManager, IEmailSender emailSender)
+        public StudentsController(
+            IStudentRepository studentRepo,
+            IFormGroupRepository formGroupRepo,
+            IWebHostEnvironment webHostEnvironment,
+            UserManager<ApplicationUser> userManager,
+            IEmailSender emailSender)
         {
-            _context = context;
+            _studentRepo = studentRepo;
+            _formGroupRepo = formGroupRepo;
             _webHostEnvironment = webHostEnvironment;
             _userManager = userManager;
             _emailSender = emailSender;
         }
 
-        // GET: Students
         public async Task<IActionResult> Index()
         {
-            var students = _context.Students.Include(s => s.FormGroup);
-            return View(await students.ToListAsync());
+            var students = await _studentRepo.GetAllAsync();
+            return View(students);
         }
 
-        // GET: Students/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();
 
-            var student = await _context.Students
-                .Include(s => s.Absences)
-                .Include(s => s.Marks)
-                .Include(s => s.FormGroup)
-                .FirstOrDefaultAsync(m => m.Id == id);
-
+            var student = await _studentRepo.GetFullByIdAsync(id.Value);
             if (student == null) return NotFound();
 
-            var exclusions = await _context.StudentExclusions
-                .Where(e => e.StudentId == student.Id)
-                .Include(e => e.Subject)
-                .ToListAsync();
-
+            var exclusions = await _studentRepo.GetExclusionsAsync(student.Id);
             ViewBag.Exclusions = exclusions;
 
             return View(student);
         }
 
-        // GET: Students/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            ViewData["FormGroupId"] = new SelectList(_context.FormGroups, "Id", "Name");
+            var formGroups = await _formGroupRepo.GetAllAsync();
+            ViewData["FormGroupId"] = new SelectList(formGroups, "Id", "Name");
             return View();
         }
 
@@ -74,25 +71,24 @@ namespace EscolaInfoSys.Controllers
             if (ModelState.IsValid)
             {
                 // Upload de fotos
-                if (ProfilePhotoFile != null && ProfilePhotoFile.Length > 0)
+                if (ProfilePhotoFile != null)
                 {
-                    var fileName = Guid.NewGuid().ToString() + Path.GetExtension(ProfilePhotoFile.FileName);
-                    var filePath = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", fileName);
-                    using var stream = new FileStream(filePath, FileMode.Create);
+                    var fileName = Guid.NewGuid() + Path.GetExtension(ProfilePhotoFile.FileName);
+                    var path = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", fileName);
+                    using var stream = new FileStream(path, FileMode.Create);
                     await ProfilePhotoFile.CopyToAsync(stream);
                     student.ProfilePhoto = fileName;
                 }
 
-                if (DocumentPhotoFile != null && DocumentPhotoFile.Length > 0)
+                if (DocumentPhotoFile != null)
                 {
-                    var fileName = Guid.NewGuid().ToString() + Path.GetExtension(DocumentPhotoFile.FileName);
-                    var filePath = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", fileName);
-                    using var stream = new FileStream(filePath, FileMode.Create);
+                    var fileName = Guid.NewGuid() + Path.GetExtension(DocumentPhotoFile.FileName);
+                    var path = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", fileName);
+                    using var stream = new FileStream(path, FileMode.Create);
                     await DocumentPhotoFile.CopyToAsync(stream);
                     student.DocumentPhoto = fileName;
                 }
 
-                // Criar usuário Identity
                 var user = new ApplicationUser
                 {
                     UserName = student.Email,
@@ -104,53 +100,49 @@ namespace EscolaInfoSys.Controllers
                 if (!result.Succeeded)
                 {
                     foreach (var error in result.Errors)
-                        ModelState.AddModelError(string.Empty, error.Description);
+                        ModelState.AddModelError("", error.Description);
 
-                    ViewData["FormGroupId"] = new SelectList(_context.FormGroups, "Id", "Name", student.FormGroupId);
+                    var formGroups = await _formGroupRepo.GetAllAsync();
+                    ViewData["FormGroupId"] = new SelectList(formGroups, "Id", "Name", student.FormGroupId);
                     return View(student);
                 }
 
-                // Atribuir role de "Student"
                 await _userManager.AddToRoleAsync(user, "Student");
+                student.ApplicationUserId = user.Id;
 
-                // Salvar aluno
-                _context.Students.Add(student);
-                await _context.SaveChangesAsync();
+                await _studentRepo.AddAsync(student);
 
-                // Enviar email com link de definição de senha
                 var token = await _userManager.GeneratePasswordResetTokenAsync(user);
                 var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
                 var callbackUrl = Url.Action("SetPassword", "Account", new { userId = user.Id, token = encodedToken }, Request.Scheme);
 
-                var message = $@"
-            <p>Olá {student.FullName},</p>
-            <p>Sua conta foi criada na plataforma EscolaInfoSys.</p>
-            <p>Para definir sua senha, clique no link abaixo:</p>
-            <p><a href='{callbackUrl}'>Definir Senha</a></p>";
+                var body = $@"<p>Olá {student.FullName},</p>
+                            <p>Sua conta foi criada. Para definir sua senha, clique no link abaixo:</p>
+                            <p><a href='{callbackUrl}'>Definir Senha</a></p>";
 
-                await _emailSender.SendEmailAsync(student.Email, "Definir senha - EscolaInfoSys", message);
+                await _emailSender.SendEmailAsync(user.Email, "Definir senha - EscolaInfoSys", body);
 
-                TempData["Success"] = "Aluno criado e email de definição de senha enviado com sucesso!";
+                TempData["Success"] = "Aluno criado com sucesso. Link de senha enviado por e-mail.";
                 return RedirectToAction(nameof(Index));
             }
 
-            ViewData["FormGroupId"] = new SelectList(_context.FormGroups, "Id", "Name", student.FormGroupId);
+            var fg = await _formGroupRepo.GetAllAsync();
+            ViewData["FormGroupId"] = new SelectList(fg, "Id", "Name", student.FormGroupId);
             return View(student);
         }
 
-        // GET: Students/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) return NotFound();
 
-            var student = await _context.Students.FindAsync(id);
+            var student = await _studentRepo.GetByIdAsync(id.Value);
             if (student == null) return NotFound();
 
-            ViewData["FormGroupId"] = new SelectList(_context.FormGroups, "Id", "Name", student.FormGroupId);
+            var formGroups = await _formGroupRepo.GetAllAsync();
+            ViewData["FormGroupId"] = new SelectList(formGroups, "Id", "Name", student.FormGroupId);
             return View(student);
         }
 
-        // POST: Students/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Student student, IFormFile ProfilePhotoFile, IFormFile DocumentPhotoFile)
@@ -161,73 +153,60 @@ namespace EscolaInfoSys.Controllers
             {
                 try
                 {
-                    // Atualizar fotos se novas forem fornecidas
-                    if (ProfilePhotoFile != null && ProfilePhotoFile.Length > 0)
+                    if (ProfilePhotoFile != null)
                     {
-                        var fileName = Guid.NewGuid().ToString() + Path.GetExtension(ProfilePhotoFile.FileName);
-                        var filePath = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", fileName);
-                        using (var stream = new FileStream(filePath, FileMode.Create))
-                        {
-                            await ProfilePhotoFile.CopyToAsync(stream);
-                        }
+                        var fileName = Guid.NewGuid() + Path.GetExtension(ProfilePhotoFile.FileName);
+                        var path = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", fileName);
+                        using var stream = new FileStream(path, FileMode.Create);
+                        await ProfilePhotoFile.CopyToAsync(stream);
                         student.ProfilePhoto = fileName;
                     }
 
-                    if (DocumentPhotoFile != null && DocumentPhotoFile.Length > 0)
+                    if (DocumentPhotoFile != null)
                     {
-                        var fileName = Guid.NewGuid().ToString() + Path.GetExtension(DocumentPhotoFile.FileName);
-                        var filePath = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", fileName);
-                        using (var stream = new FileStream(filePath, FileMode.Create))
-                        {
-                            await DocumentPhotoFile.CopyToAsync(stream);
-                        }
+                        var fileName = Guid.NewGuid() + Path.GetExtension(DocumentPhotoFile.FileName);
+                        var path = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", fileName);
+                        using var stream = new FileStream(path, FileMode.Create);
+                        await DocumentPhotoFile.CopyToAsync(stream);
                         student.DocumentPhoto = fileName;
                     }
 
-                    _context.Update(student);
-                    await _context.SaveChangesAsync();
+                    await _studentRepo.UpdateAsync(student);
                 }
-                catch (DbUpdateConcurrencyException)
+                catch
                 {
-                    if (!StudentExists(student.Id)) return NotFound();
-                    else throw;
+                    if (!await _studentRepo.ExistsAsync(student.Id))
+                        return NotFound();
+                    else
+                        throw;
                 }
                 return RedirectToAction(nameof(Index));
             }
 
-            ViewData["FormGroupId"] = new SelectList(_context.FormGroups, "Id", "Name", student.FormGroupId);
+            var formGroups = await _formGroupRepo.GetAllAsync();
+            ViewData["FormGroupId"] = new SelectList(formGroups, "Id", "Name", student.FormGroupId);
             return View(student);
         }
 
-        // GET: Students/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null) return NotFound();
 
-            var student = await _context.Students
-                .Include(s => s.FormGroup)
-                .FirstOrDefaultAsync(m => m.Id == id);
-
+            var student = await _studentRepo.GetWithFormGroupAsync(id.Value);
             if (student == null) return NotFound();
 
             return View(student);
         }
 
-        // POST: Students/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var student = await _context.Students.FindAsync(id);
-            if (student != null) _context.Students.Remove(student);
-            await _context.SaveChangesAsync();
+            var student = await _studentRepo.GetByIdAsync(id);
+            if (student != null)
+                await _studentRepo.DeleteAsync(student);
+
             return RedirectToAction(nameof(Index));
         }
-
-        private bool StudentExists(int id)
-        {
-            return _context.Students.Any(e => e.Id == id);
-        }
     }
-
 }

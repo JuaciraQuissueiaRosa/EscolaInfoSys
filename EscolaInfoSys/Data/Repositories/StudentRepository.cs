@@ -37,6 +37,29 @@ namespace EscolaInfoSys.Data.Repositories
             await _context.SaveChangesAsync();
         }
 
+        public async Task<Student?> GetFullByIdAsync(int id)
+        {
+            return await _context.Students
+                .Include(s => s.Absences)
+                .Include(s => s.Marks)
+                .Include(s => s.FormGroup)
+                .FirstOrDefaultAsync(s => s.Id == id);
+        }
+
+        public async Task<Student?> GetWithFormGroupAsync(int id)
+        {
+            return await _context.Students
+                .Include(s => s.FormGroup)
+                .FirstOrDefaultAsync(s => s.Id == id);
+        }
+
+        public async Task<IEnumerable<StudentExclusion>> GetExclusionsAsync(int studentId)
+        {
+            return await _context.StudentExclusions
+                .Include(e => e.Subject)
+                .Where(e => e.StudentId == studentId)
+                .ToListAsync();
+        }
         public async Task DeleteAsync(Student student)
         {
             _context.Students.Remove(student);

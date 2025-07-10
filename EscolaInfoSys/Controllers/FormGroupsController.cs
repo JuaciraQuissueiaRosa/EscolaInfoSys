@@ -16,6 +16,7 @@ namespace EscolaInfoSys.Controllers
         }
 
         // GET: FormGroups
+        [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
             var formGroups = await _repository.GetAllAsync();
@@ -23,6 +24,7 @@ namespace EscolaInfoSys.Controllers
         }
 
         // GET: FormGroups/Details/5
+        [AllowAnonymous]
         public async Task<IActionResult> Details(int id)
         {
             var group = await _repository.GetByIdAsync(id);

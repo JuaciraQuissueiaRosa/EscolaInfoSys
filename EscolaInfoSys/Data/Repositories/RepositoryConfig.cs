@@ -1,4 +1,5 @@
 ﻿using EscolaInfoSys.Data.Repositories.Interfaces;
+using EscolaInfoSys.Services;
 
 namespace EscolaInfoSys.Data.Repositories
 {
@@ -13,7 +14,12 @@ namespace EscolaInfoSys.Data.Repositories
             services.AddScoped<IStaffMemberRepository, StaffMemberRepository>();
             services.AddScoped<IMarkRepository, MarkRepository>();
             services.AddScoped<IAbsenceRepository, AbsenceRepository>();
-
+            services.AddScoped<IEmailSender, SmtpEmailSender>();
+            services.AddScoped<AbsenceCheckerService>();
+            services.AddScoped<IStudentExclusionRepository, StudentExclusionRepository>();
+            services.AddScoped<ISystemSettingsRepository, SystemSettingsRepository>();
+            services.AddScoped<IAlertRepository, AlertRepository>();
+            services.AddScoped<IAccountService, AccountService>();
             return services;
         }
     }

@@ -1,5 +1,6 @@
 using EscolaInfoSys.Data;
 using EscolaInfoSys.Data.Repositories;
+using EscolaInfoSys.Data.Repositories.Interfaces;
 using EscolaInfoSys.Models;
 using EscolaInfoSys.Services;
 using Microsoft.AspNetCore.Identity;
@@ -20,14 +21,21 @@ builder.Services.AddIdentityCore<ApplicationUser>(options =>
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddSignInManager()
 .AddDefaultTokenProviders();
-builder.Services.AddScoped<IEmailSender, SmtpEmailSender>();
-builder.Services.AddScoped<AbsenceCheckerService>();
+
+
 // Authentication setup for Identity (cookie-based)
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultScheme = IdentityConstants.ApplicationScheme;
 })
 .AddCookie(IdentityConstants.ApplicationScheme);
+
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/Account/Login";
+    options.AccessDeniedPath = "/Error/403"; 
+});
+
 
 builder.Services.RegisterRepositories();
 
@@ -36,11 +44,17 @@ builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
-//if (!app.Environment.IsDevelopment())
+if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Error/GenericError");
-    app.UseStatusCodePagesWithReExecute("/Error/{0}");
+    app.UseExceptionHandler("/Error/500"); 
 }
+else
+{
+    app.UseDeveloperExceptionPage(); 
+}
+
+app.UseStatusCodePagesWithReExecute("/Error/{0}"); 
+
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 

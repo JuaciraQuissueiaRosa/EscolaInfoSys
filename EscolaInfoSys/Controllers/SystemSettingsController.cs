@@ -1,4 +1,5 @@
 ﻿using EscolaInfoSys.Data;
+using EscolaInfoSys.Data.Repositories.Interfaces;
 using EscolaInfoSys.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -9,23 +10,23 @@ namespace EscolaInfoSys.Controllers
     [Authorize(Roles = "Administrator")]
     public class SystemSettingsController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ISystemSettingsRepository _settingsRepo;
 
-        public SystemSettingsController(ApplicationDbContext context)
+        public SystemSettingsController(ISystemSettingsRepository settingsRepo)
         {
-            _context = context;
+            _settingsRepo = settingsRepo;
         }
 
         [HttpGet]
         public async Task<IActionResult> Edit()
         {
-            var settings = await _context.SystemSettings.FirstOrDefaultAsync();
+            var settings = await _settingsRepo.GetSettingsAsync();
 
+            // Se não existir, cria novo
             if (settings == null)
             {
                 settings = new SystemSettings();
-                _context.SystemSettings.Add(settings);
-                await _context.SaveChangesAsync();
+                await _settingsRepo.UpdateAsync(settings); // Adiciona novo
             }
 
             return View(settings);
@@ -35,9 +36,13 @@ namespace EscolaInfoSys.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(SystemSettings model)
         {
-            var settings = await _context.SystemSettings.FirstAsync();
+            var settings = await _settingsRepo.GetSettingsAsync();
+            if (settings == null)
+                return NotFound();
+
             settings.MaxAbsencePercentage = model.MaxAbsencePercentage;
-            await _context.SaveChangesAsync();
+
+            await _settingsRepo.SaveAsync();
             return RedirectToAction("Dashboard", "Home");
         }
     }

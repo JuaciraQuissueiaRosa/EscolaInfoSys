@@ -51,5 +51,12 @@ namespace EscolaInfoSys.Data.Repositories
         {
             return await _context.Absences.AnyAsync(a => a.Id == id);
         }
+
+        public async Task<int> CountByStudentAndSubjectAsync(int studentId, int subjectId)
+        {
+            return await _context.Absences
+                .CountAsync(a => a.StudentId == studentId && a.SubjectId == subjectId);
+        }
+
     }
 }

@@ -7,184 +7,138 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using EscolaInfoSys.Data;
 using EscolaInfoSys.Models;
+using EscolaInfoSys.Data.Repositories.Interfaces;
 
 namespace EscolaInfoSys.Controllers
 {
     public class MarksController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IMarkRepository _markRepo;
+        private readonly IStudentRepository _studentRepo;
+        private readonly ISubjectRepository _subjectRepo;
+        private readonly IStaffMemberRepository _staffRepo;
+        private readonly IStudentExclusionRepository _exclusionRepo;
 
-        public MarksController(ApplicationDbContext context)
+        public MarksController(
+            IMarkRepository markRepo,
+            IStudentRepository studentRepo,
+            ISubjectRepository subjectRepo,
+            IStaffMemberRepository staffRepo,
+            IStudentExclusionRepository exclusionRepo)
         {
-            _context = context;
+            _markRepo = markRepo;
+            _studentRepo = studentRepo;
+            _subjectRepo = subjectRepo;
+            _staffRepo = staffRepo;
+            _exclusionRepo = exclusionRepo;
         }
 
-        // GET: Marks
         public async Task<IActionResult> Index()
         {
-            var marks = await _context.Marks
-       .Include(m => m.StaffMember)
-       .Include(m => m.Student)
-       .Include(m => m.Subject)
-       .ToListAsync();
+            var marks = await _markRepo.GetAllAsync();
 
             var studentIds = marks.Select(m => m.StudentId).Distinct();
             var subjectIds = marks.Select(m => m.SubjectId).Distinct();
+            var exclusions = await _exclusionRepo.GetAllAsync();
 
-            var exclusions = await _context.StudentExclusions
+            ViewBag.Exclusions = exclusions
                 .Where(e => studentIds.Contains(e.StudentId) && subjectIds.Contains(e.SubjectId))
-                .ToListAsync();
-
-            ViewBag.Exclusions = exclusions;
+                .ToList();
 
             return View(marks);
         }
 
-        // GET: Marks/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
-            var mark = await _context.Marks
-                .Include(m => m.StaffMember)
-                .Include(m => m.Student)
-                .Include(m => m.Subject)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (mark == null)
-            {
-                return NotFound();
-            }
+            var mark = await _markRepo.GetByIdAsync(id.Value);
+            if (mark == null) return NotFound();
 
             return View(mark);
         }
 
-        // GET: Marks/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            ViewData["StaffMemberId"] = new SelectList(_context.StaffMembers, "Id", "Email");
-            ViewData["StudentId"] = new SelectList(_context.Students, "Id", "Email");
-            ViewData["SubjectId"] = new SelectList(_context.Subjects, "Id", "Id");
+            ViewData["StudentId"] = new SelectList(await _studentRepo.GetAllAsync(), "Id", "Email");
+            ViewData["SubjectId"] = new SelectList(await _subjectRepo.GetAllAsync(), "Id", "Name");
+            ViewData["StaffMemberId"] = new SelectList(await _staffRepo.GetAllAsync(), "Id", "Email");
             return View();
         }
 
-        // POST: Marks/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Value,Date,StudentId,SubjectId,EvaluationType,StaffMemberId")] Mark mark)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(mark);
-                await _context.SaveChangesAsync();
+                await _markRepo.AddAsync(mark);
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["StaffMemberId"] = new SelectList(_context.StaffMembers, "Id", "Email", mark.StaffMemberId);
-            ViewData["StudentId"] = new SelectList(_context.Students, "Id", "Email", mark.StudentId);
-            ViewData["SubjectId"] = new SelectList(_context.Subjects, "Id", "Id", mark.SubjectId);
+
+            ViewData["StudentId"] = new SelectList(await _studentRepo.GetAllAsync(), "Id", "Email", mark.StudentId);
+            ViewData["SubjectId"] = new SelectList(await _subjectRepo.GetAllAsync(), "Id", "Name", mark.SubjectId);
+            ViewData["StaffMemberId"] = new SelectList(await _staffRepo.GetAllAsync(), "Id", "Email", mark.StaffMemberId);
             return View(mark);
         }
 
-        // GET: Marks/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
-            var mark = await _context.Marks.FindAsync(id);
-            if (mark == null)
-            {
-                return NotFound();
-            }
-            ViewData["StaffMemberId"] = new SelectList(_context.StaffMembers, "Id", "Email", mark.StaffMemberId);
-            ViewData["StudentId"] = new SelectList(_context.Students, "Id", "Email", mark.StudentId);
-            ViewData["SubjectId"] = new SelectList(_context.Subjects, "Id", "Id", mark.SubjectId);
+            var mark = await _markRepo.GetByIdAsync(id.Value);
+            if (mark == null) return NotFound();
+
+            ViewData["StudentId"] = new SelectList(await _studentRepo.GetAllAsync(), "Id", "Email", mark.StudentId);
+            ViewData["SubjectId"] = new SelectList(await _subjectRepo.GetAllAsync(), "Id", "Name", mark.SubjectId);
+            ViewData["StaffMemberId"] = new SelectList(await _staffRepo.GetAllAsync(), "Id", "Email", mark.StaffMemberId);
             return View(mark);
         }
 
-        // POST: Marks/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Value,Date,StudentId,SubjectId,EvaluationType,StaffMemberId")] Mark mark)
         {
-            if (id != mark.Id)
-            {
-                return NotFound();
-            }
+            if (id != mark.Id) return NotFound();
 
             if (ModelState.IsValid)
             {
-                try
-                {
-                    _context.Update(mark);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!MarkExists(mark.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+                await _markRepo.UpdateAsync(mark);
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["StaffMemberId"] = new SelectList(_context.StaffMembers, "Id", "Email", mark.StaffMemberId);
-            ViewData["StudentId"] = new SelectList(_context.Students, "Id", "Email", mark.StudentId);
-            ViewData["SubjectId"] = new SelectList(_context.Subjects, "Id", "Id", mark.SubjectId);
+
+            ViewData["StudentId"] = new SelectList(await _studentRepo.GetAllAsync(), "Id", "Email", mark.StudentId);
+            ViewData["SubjectId"] = new SelectList(await _subjectRepo.GetAllAsync(), "Id", "Name", mark.SubjectId);
+            ViewData["StaffMemberId"] = new SelectList(await _staffRepo.GetAllAsync(), "Id", "Email", mark.StaffMemberId);
             return View(mark);
         }
 
-        // GET: Marks/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
-            var mark = await _context.Marks
-                .Include(m => m.StaffMember)
-                .Include(m => m.Student)
-                .Include(m => m.Subject)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (mark == null)
-            {
-                return NotFound();
-            }
+            var mark = await _markRepo.GetByIdAsync(id.Value);
+            if (mark == null) return NotFound();
 
             return View(mark);
         }
 
-        // POST: Marks/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var mark = await _context.Marks.FindAsync(id);
+            var mark = await _markRepo.GetByIdAsync(id);
             if (mark != null)
             {
-                _context.Marks.Remove(mark);
+                await _markRepo.DeleteAsync(mark);
             }
-
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool MarkExists(int id)
+        private async Task<bool> MarkExists(int id)
         {
-            return _context.Marks.Any(e => e.Id == id);
+            return await _markRepo.ExistsAsync(id);
         }
     }
+
 }

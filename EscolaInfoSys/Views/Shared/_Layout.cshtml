@@ -149,6 +149,28 @@
                 {
                     <a class="nav-link px-3" asp-controller="Account" asp-action="Login">Login</a>
                     <a class="nav-link px-3" asp-controller="Account" asp-action="Register">Register</a>
+                    <div class="dropdown mt-2">
+                        <button class="btn btn-outline-info dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="fa fa-eye me-1"></i> Browse Information
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a class="dropdown-item" asp-controller="Courses" asp-action="Index">
+                                    <i class="fa fa-book me-2"></i> View Courses
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" asp-controller="FormGroups" asp-action="Index">
+                                    <i class="fa fa-layer-group me-2"></i> View Form Groups
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" asp-controller="Subjects" asp-action="Index">
+                                    <i class="fa fa-list me-2"></i> View Subjects
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                 }
             </div>
 
