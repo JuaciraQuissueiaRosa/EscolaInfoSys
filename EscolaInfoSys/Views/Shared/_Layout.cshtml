@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="~/EscolaInfoSys.styles.css" asp-append-version="true" />
     <link href="https://unpkg.com/tabler@1.0.0/dist/css/tabler.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://cdn.syncfusion.com/ej2/23.1.36/bootstrap5.css" rel="stylesheet" />
     @RenderSection("Styles", required: false)
     <style>
         .navbar-brand {
@@ -104,15 +105,16 @@
                                 <a asp-controller="Courses" asp-action="Index" class="dropdown-item">
                                     <i class="fa fa-book me-2"></i> Manage Courses
                                 </a>
+                                <a asp-controller="Students" asp-action="Index" class="dropdown-item">
+                                    <i class="fa fa-user-graduate me-2"></i> My Students
+                                </a>
                               
                             }
 
                             @if (isStaff)
                             {
                                 <div class="dropdown-divider"></div>
-                                <a asp-controller="Students" asp-action="Index" class="dropdown-item">
-                                    <i class="fa fa-user-graduate me-2"></i> My Students
-                                </a>
+                              
                                 <a asp-controller="Marks" asp-action="Index" class="dropdown-item">
                                     <i class="fa fa-pen me-2"></i> Enter Marks
                                 </a>
@@ -127,12 +129,19 @@
                             @if (isStudent)
                             {
                                 <div class="dropdown-divider"></div>
-                                <a asp-controller="Marks" asp-action="Index" class="dropdown-item">
+                             
+                             
+
+                                <a asp-controller="StudentPortal" asp-action="Index" class="dropdown-item">
+                                    <i class="fa fa-home me-2"></i> My Dashboard
+                                </a>
+                                <a asp-controller="StudentPortal" asp-action="MyMarks" class="dropdown-item">
                                     <i class="fa fa-file-alt me-2"></i> My Marks
                                 </a>
-                                <a asp-controller="Absences" asp-action="Index" class="dropdown-item">
+                                <a asp-controller="StudentPortal" asp-action="MyAbsences" class="dropdown-item">
                                     <i class="fa fa-calendar-check me-2"></i> My Absences
                                 </a>
+
                             }
 
 
@@ -148,7 +157,6 @@
                 else
                 {
                     <a class="nav-link px-3" asp-controller="Account" asp-action="Login">Login</a>
-                    <a class="nav-link px-3" asp-controller="Account" asp-action="Register">Register</a>
                     <div class="dropdown mt-2">
                         <button class="btn btn-outline-info dropdown-toggle" type="button" data-bs-toggle="dropdown">
                             <i class="fa fa-eye me-1"></i> Browse Information
@@ -200,6 +208,7 @@
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.syncfusion.com/ej2/23.1.36/dist/ej2.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
     <script>

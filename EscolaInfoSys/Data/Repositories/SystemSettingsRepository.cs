@@ -7,6 +7,7 @@ namespace EscolaInfoSys.Data.Repositories
     public class SystemSettingsRepository : ISystemSettingsRepository
     {
         private readonly ApplicationDbContext _context;
+
         public SystemSettingsRepository(ApplicationDbContext context)
         {
             _context = context;
@@ -14,6 +15,7 @@ namespace EscolaInfoSys.Data.Repositories
 
         public async Task<SystemSettings> GetSettingsAsync()
         {
+           
             return await _context.SystemSettings.FirstOrDefaultAsync();
         }
 
@@ -28,6 +30,7 @@ namespace EscolaInfoSys.Data.Repositories
             await _context.SaveChangesAsync();
         }
     }
+
 
 
 }

@@ -9,4 +9,5 @@ namespace EscolaInfoSys.Data.Repositories.Interfaces
         Task UpdateAsync(SystemSettings settings);
     }
 
+
 }

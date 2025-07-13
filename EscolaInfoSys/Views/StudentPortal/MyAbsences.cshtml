@@ -1,0 +1,54 @@
+﻿@model IEnumerable<EscolaInfoSys.Models.Absence>
+
+@{
+    ViewData["Title"] = "My Absences";
+    var percentage = (double)ViewBag.AbsencePercentage;
+    var limit = ViewBag.AbsenceLimit;
+}
+
+<h2 class="mb-4"><i class="fa fa-calendar-times me-2 text-danger"></i> My Absences</h2>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-success">No absences recorded. Keep up the good attendance!</div>
+}
+else
+{
+    @if (percentage >= 100)
+    {
+        <div class="alert alert-danger">
+            <strong>Warning:</strong> You have exceeded the allowed absence limit of @limit absences!
+        </div>
+    }
+
+    <ejs-progressbar id="absenceProgress" type="Linear"
+                     value="@percentage"
+                     showProgressValue="true"
+                     height="30px"
+                     minimum="0" maximum="100"
+                     trackThickness="24" progressThickness="24"
+                     trackColor="#f3f3f3">
+        <e-progressbar-annotations>
+            <e-progressbar-annotation content="@(percentage + "% of limit (" + limit + " absences)")">
+            </e-progressbar-annotation>
+        </e-progressbar-annotations>
+    </ejs-progressbar>
+
+    <div class="mt-4">
+        <ejs-grid id="AbsencesGrid" dataSource="@Model" allowPaging="true" allowSorting="true">
+            <e-grid-columns>
+                <e-grid-column field="Subject.Name" headerText="Subject" width="150"></e-grid-column>
+                <e-grid-column field="Date" headerText="Date" type="date" format="dd/MM/yyyy" width="150"></e-grid-column>
+                <e-grid-column headerText="Reason" template="@("<span>${Justified ? 'Justified' : 'Unjustified'}</span>")" width="150"></e-grid-column>
+            </e-grid-columns>
+        </ejs-grid>
+    </div>
+}
+
+@section Scripts {
+    <script src="https://cdn.syncfusion.com/ej2/24.2.3/dist/ej2.min.js"></script>
+    <link href="https://cdn.syncfusion.com/ej2/24.2.3/material.css" rel="stylesheet" />
+    <script>
+        ej.base.enableRipple(true);
+    </script>
+}

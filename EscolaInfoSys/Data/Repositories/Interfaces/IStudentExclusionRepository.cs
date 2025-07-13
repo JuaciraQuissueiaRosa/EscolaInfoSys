@@ -2,13 +2,12 @@
 
 namespace EscolaInfoSys.Data.Repositories.Interfaces
 {
-    public interface IStudentExclusionRepository
+    public interface IStudentExclusionRepository : IGenericRepository<StudentExclusion>
     {
         Task<StudentExclusion?> GetByStudentAndSubjectAsync(int studentId, int subjectId);
-        Task AddAsync(StudentExclusion exclusion);
-        Task SaveAsync();
 
-        Task<IEnumerable<StudentExclusion>> GetAllAsync();
+     
     }
+
 
 }

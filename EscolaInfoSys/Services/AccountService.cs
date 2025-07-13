@@ -27,7 +27,8 @@ namespace EscolaInfoSys.Services
             _userManager.IsEmailConfirmedAsync(user);
 
         public Task<SignInResult> PasswordSignInAsync(string username, string password) =>
-            _signInManager.PasswordSignInAsync(username, password, false, false);
+       _signInManager.PasswordSignInAsync(username, password, false, false);
+
 
         public Task SignOutAsync() =>
             _signInManager.SignOutAsync();
@@ -122,6 +123,10 @@ namespace EscolaInfoSys.Services
         {
             return await _userManager.GetRolesAsync(user);
         }
+
+        public Task<ApplicationUser?> FindByIdAsync(string userId) =>
+        _userManager.FindByIdAsync(userId);
+
     }
 
 }

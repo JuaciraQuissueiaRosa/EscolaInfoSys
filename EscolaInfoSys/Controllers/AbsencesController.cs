@@ -9,9 +9,11 @@ using EscolaInfoSys.Data;
 using EscolaInfoSys.Models;
 using EscolaInfoSys.Services;
 using EscolaInfoSys.Data.Repositories.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 
 namespace EscolaInfoSys.Controllers
 {
+    [Authorize(Roles = "StaffMember")]
     public class AbsencesController : Controller
     {
         private readonly IAbsenceRepository _absenceRepo;

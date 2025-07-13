@@ -20,6 +20,8 @@ namespace EscolaInfoSys.Services
         Task<(bool Success, string? Message)> ConfirmEmailAsync(string userId, string token);
 
         Task<IList<string>> GetRolesAsync(ApplicationUser user);
+        Task<ApplicationUser?> FindByIdAsync(string userId);
+
     }
 
 }

@@ -26,7 +26,7 @@ namespace EscolaInfoSys.Controllers
             if (settings == null)
             {
                 settings = new SystemSettings();
-                await _settingsRepo.UpdateAsync(settings); // Adiciona novo
+                await _settingsRepo.UpdateAsync(settings); 
             }
 
             return View(settings);

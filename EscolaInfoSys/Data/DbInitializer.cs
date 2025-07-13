@@ -1,8 +1,9 @@
 ﻿using EscolaInfoSys.Models;
 using Microsoft.AspNetCore.Identity;
 
-namespace EscolaInfoSys.Data
-{
+
+  namespace EscolaInfoSys.Data
+    {
     public static class DbInitializer
     {
         public static async Task SeedRolesAndUsersAsync(IServiceProvider serviceProvider)
@@ -16,30 +17,39 @@ namespace EscolaInfoSys.Data
             foreach (var roleName in roleNames)
             {
                 if (!await roleManager.RoleExistsAsync(roleName))
-                {
                     await roleManager.CreateAsync(new IdentityRole(roleName));
-                }
             }
 
-            // Admin
-            var adminEmail = "admin@school.com";
-            var adminPassword = "Admin123!";
-            await CreateUserIfNotExists(userManager, context, adminEmail, adminPassword, "Administrator");
+            
+            FormGroup formGroup;
+            if (!context.FormGroups.Any())
+            {
+                formGroup = new FormGroup { Name = "1º A" };
+                context.FormGroups.Add(formGroup);
+                await context.SaveChangesAsync();
+            }
+            else
+            {
+                formGroup = context.FormGroups.First();
+            }
 
-            // Staff
-            var staffEmail = "staff@school.com";
-            var staffPassword = "Staff123!";
-            await CreateUserIfNotExists(userManager, context, staffEmail, staffPassword, "StaffMember");
+          
+            await CreateUserIfNotExists(userManager, context, "admin@school.com", "Admin123!", "Administrator", "Admin User");
+            await CreateUserIfNotExists(userManager, context, "staff@school.com", "Staff123!", "StaffMember", "Prof. João da Silva");
+            await CreateUserIfNotExists(userManager, context, "student@school.com", "Student123!", "Student", "Maria Silva", "STU001", formGroup.Id);
 
-            // Student
-            var studentEmail = "student@school.com";
-            var studentPassword = "Student123!";
-            await CreateUserIfNotExists(userManager, context, studentEmail, studentPassword, "Student");
-
-            await context.SaveChangesAsync(); // Salva tudo no final
+            await context.SaveChangesAsync();
         }
 
-        private static async Task CreateUserIfNotExists(UserManager<ApplicationUser> userManager, ApplicationDbContext context, string email, string password, string role)
+        private static async Task CreateUserIfNotExists(
+            UserManager<ApplicationUser> userManager,
+            ApplicationDbContext context,
+            string email,
+            string password,
+            string role,
+            string fullName,
+            string? pupilNumber = null,
+            int? formGroupId = null)
         {
             var user = await userManager.FindByEmailAsync(email);
             if (user == null)
@@ -48,39 +58,49 @@ namespace EscolaInfoSys.Data
                 {
                     UserName = email,
                     Email = email,
+                    Name = fullName,
                     EmailConfirmed = true
                 };
 
                 var result = await userManager.CreateAsync(user, password);
-                if (result.Succeeded)
-                {
-                    await userManager.AddToRoleAsync(user, role);
+                if (!result.Succeeded)
+                    throw new Exception($"Erro ao criar {email}: {string.Join(", ", result.Errors.Select(e => e.Description))}");
 
-                    // Adicionar à tabela StaffMembers ou Students
-                    if (role == "StaffMember" && !context.StaffMembers.Any(s => s.ApplicationUserId == user.Id))
+                await userManager.AddToRoleAsync(user, role);
+
+                if (role == "StaffMember")
+                {
+                    context.StaffMembers.Add(new StaffMember
                     {
-                        context.StaffMembers.Add(new StaffMember
-                        {
-                            FullName = "Prof. João da Silva",
-                            Email = email,
-                            ApplicationUserId = user.Id
-                        });
-                    }
-                    else if (role == "Student" && !context.Students.Any(s => s.ApplicationUserId == user.Id))
+                        FullName = fullName,
+                        Email = email,
+                        ApplicationUserId = user.Id
+                    });
+                }
+                else if (role == "Student")
+                {
+                    if (string.IsNullOrEmpty(pupilNumber) || formGroupId == null)
+                        throw new Exception("Student requer PupilNumber e FormGroupId");
+
+                    context.Students.Add(new Student
                     {
-                        context.Students.Add(new Student
-                        {
-                            FullName = "Maria Silva",
-                            Email = "student@school.com",
-                            PupilNumber = "STU001", 
-                            FormGroupId = 1
-                        });
-                    }
+                        FullName = fullName,
+                        Email = email,
+                        PupilNumber = pupilNumber,
+                        FormGroupId = formGroupId.Value,
+                        ApplicationUserId = user.Id
+                    });
                 }
             }
         }
     }
 
 }
+
+
+
+
+
+
 
 

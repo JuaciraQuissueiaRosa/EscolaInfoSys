@@ -12,9 +12,11 @@ using Microsoft.AspNetCore.WebUtilities;
 using System.Text;
 using EscolaInfoSys.Services;
 using EscolaInfoSys.Data.Repositories.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 
 namespace EscolaInfoSys.Controllers
 {
+    [Authorize(Roles = "Administrator")]
     public class StaffMembersController : Controller
     {
         private readonly IStaffMemberRepository _staffRepo;

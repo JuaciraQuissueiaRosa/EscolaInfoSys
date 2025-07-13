@@ -1,12 +1,12 @@
 using EscolaInfoSys.Data;
 using EscolaInfoSys.Data.Repositories;
-using EscolaInfoSys.Data.Repositories.Interfaces;
-using EscolaInfoSys.Models;
-using EscolaInfoSys.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
+
+
 var builder = WebApplication.CreateBuilder(args);
+Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("Ngo9BigBOggjHTQxAR8/V1JEaF5cXmRCf1FpRmJGdld5fUVHYVZUTXxaS00DNHVRdkdmWXhfcXVdR2NZVk1yX0RWYEk=");
 
 // Add services to the container.
 
@@ -23,7 +23,7 @@ builder.Services.AddIdentityCore<ApplicationUser>(options =>
 .AddDefaultTokenProviders();
 
 
-// Authentication setup for Identity (cookie-based)
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultScheme = IdentityConstants.ApplicationScheme;

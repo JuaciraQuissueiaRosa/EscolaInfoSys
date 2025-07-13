@@ -8,9 +8,11 @@ using Microsoft.EntityFrameworkCore;
 using EscolaInfoSys.Data;
 using EscolaInfoSys.Models;
 using EscolaInfoSys.Data.Repositories.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 
 namespace EscolaInfoSys.Controllers
 {
+    [Authorize(Roles = "StaffMember")]
     public class MarksController : Controller
     {
         private readonly IMarkRepository _markRepo;

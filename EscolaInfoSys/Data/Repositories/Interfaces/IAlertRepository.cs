@@ -2,10 +2,9 @@
 
 namespace EscolaInfoSys.Data.Repositories.Interfaces
 {
-    public interface IAlertRepository
+    public interface IAlertRepository : IGenericRepository<Alert>
     {
-        Task AddAsync(Alert alert);
-        Task<IEnumerable<Alert>> GetAllAsync();
-        Task<Alert?> GetByIdAsync(int id);
+        
     }
+
 }

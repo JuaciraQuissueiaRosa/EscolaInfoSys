@@ -13,9 +13,11 @@ using EscolaInfoSys.Services;
 using Microsoft.AspNetCore.WebUtilities;
 using System.Text;
 using EscolaInfoSys.Data.Repositories.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 
 namespace EscolaInfoSys.Controllers
 {
+    [Authorize(Roles = "Administrator")]
     public class StudentsController : Controller
     {
         private readonly IStudentRepository _studentRepo;

@@ -4,46 +4,15 @@ using Microsoft.EntityFrameworkCore;
 
 namespace EscolaInfoSys.Data.Repositories
 {
-    public class StudentRepository : IStudentRepository
+    public class StudentRepository : GenericRepository<Student>, IStudentRepository
     {
-        private readonly ApplicationDbContext _context;
+        public StudentRepository(ApplicationDbContext context) : base(context) { }
 
-        public StudentRepository(ApplicationDbContext context)
-        {
-            _context = context;
-        }
-
-        public async Task<IEnumerable<Student>> GetAllAsync()
-        {
-            return await _context.Students.Include(s => s.FormGroup).ToListAsync();
-        }
-
-        public async Task<Student?> GetByIdAsync(int id)
+        public async Task<IEnumerable<Student>> GetWithFormGroupAsync()
         {
             return await _context.Students
                 .Include(s => s.FormGroup)
-                .FirstOrDefaultAsync(s => s.Id == id);
-        }
-
-        public async Task AddAsync(Student student)
-        {
-            _context.Add(student);
-            await _context.SaveChangesAsync();
-        }
-
-        public async Task UpdateAsync(Student student)
-        {
-            _context.Update(student);
-            await _context.SaveChangesAsync();
-        }
-
-        public async Task<Student?> GetFullByIdAsync(int id)
-        {
-            return await _context.Students
-                .Include(s => s.Absences)
-                .Include(s => s.Marks)
-                .Include(s => s.FormGroup)
-                .FirstOrDefaultAsync(s => s.Id == id);
+                .ToListAsync();
         }
 
         public async Task<Student?> GetWithFormGroupAsync(int id)
@@ -53,22 +22,33 @@ namespace EscolaInfoSys.Data.Repositories
                 .FirstOrDefaultAsync(s => s.Id == id);
         }
 
+        public async Task<Student?> GetFullByIdAsync(int id)
+        {
+            return await _context.Students
+                .Include(s => s.FormGroup)
+                .Include(s => s.Marks)
+                    .ThenInclude(m => m.Subject)
+                .Include(s => s.Absences)
+                    .ThenInclude(a => a.Subject)
+                .FirstOrDefaultAsync(s => s.Id == id);
+        }
+
         public async Task<IEnumerable<StudentExclusion>> GetExclusionsAsync(int studentId)
         {
             return await _context.StudentExclusions
-                .Include(e => e.Subject)
                 .Where(e => e.StudentId == studentId)
+                .Include(e => e.Subject)
                 .ToListAsync();
         }
-        public async Task DeleteAsync(Student student)
+
+        public async Task<Student?> GetByApplicationUserIdAsync(string applicationUserId)
         {
-            _context.Students.Remove(student);
-            await _context.SaveChangesAsync();
+            return await _context.Students
+                .Include(s => s.FormGroup)
+                .FirstOrDefaultAsync(s => s.ApplicationUserId == applicationUserId);
         }
 
-        public async Task<bool> ExistsAsync(int id)
-        {
-            return await _context.Students.AnyAsync(s => s.Id == id);
-        }
     }
+
+
 }

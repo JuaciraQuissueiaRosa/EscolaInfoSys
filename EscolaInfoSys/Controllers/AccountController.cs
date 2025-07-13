@@ -10,7 +10,7 @@ using System.Text;
 
 namespace EscolaInfoSys.Controllers
 {
-   
+
 
     [Authorize]
     public class AccountController : Controller
@@ -82,27 +82,6 @@ namespace EscolaInfoSys.Controllers
         [AllowAnonymous]
         [HttpGet]
         public IActionResult Register() => View();
-
-        [AllowAnonymous]
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register(RegisterViewModel model)
-        {
-            if (!ModelState.IsValid)
-                return View(model);
-
-            string BuildUrl(string userId, string token) => Url.Action("ConfirmEmail", "Account", new { userId, token }, Request.Scheme);
-
-            var result = await _accountService.RegisterAsync(model, Request.Scheme, BuildUrl);
-
-            if (result.Succeeded)
-                return RedirectToAction("RegisterConfirmation");
-
-            foreach (var error in result.Errors)
-                ModelState.AddModelError(string.Empty, error);
-
-            return View(model);
-        }
 
         [AllowAnonymous]
         [HttpGet]
@@ -249,10 +228,26 @@ namespace EscolaInfoSys.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SetPassword(SetPasswordViewModel model)
         {
-            if (!ModelState.IsValid) return View(model);
+            if (!ModelState.IsValid)
+                return View(model);
 
-            var user = await _accountService.GetCurrentUserAsync(User);
-            var decodedToken = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(model.Token));
+            var user = await _accountService.FindByIdAsync(model.UserId);
+            if (user == null)
+            {
+                ModelState.AddModelError("", "Utilizador não encontrado.");
+                return View(model);
+            }
+
+            string decodedToken;
+            try
+            {
+                decodedToken = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(model.Token));
+            }
+            catch
+            {
+                ModelState.AddModelError("", "Token inválido ou corrompido.");
+                return View(model);
+            }
 
             var result = await _accountService.ResetPasswordAsync(new ResetPasswordViewModel
             {
@@ -265,6 +260,7 @@ namespace EscolaInfoSys.Controllers
             {
                 user.EmailConfirmed = true;
                 await _accountService.UpdateProfileAsync(user, user.Name, null, _webHostEnvironment.WebRootPath);
+
                 TempData["Success"] = "Senha definida com sucesso! Agora pode iniciar sessão.";
                 return RedirectToAction("Login");
             }

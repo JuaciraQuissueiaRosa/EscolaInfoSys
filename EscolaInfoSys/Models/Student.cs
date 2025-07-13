@@ -34,7 +34,7 @@ namespace EscolaInfoSys.Models
         public ICollection<Mark>? Marks { get; set; }
         public ICollection<Absence>? Absences { get; set; }
 
-        public string ApplicationUserId { get; set; }
-        public ApplicationUser ApplicationUser { get; set; }
+        public string? ApplicationUserId { get; set; }
+        public ApplicationUser? ApplicationUser { get; set; }
     }
 }

@@ -1,0 +1,34 @@
+﻿@model IEnumerable<Mark>
+
+@{
+    ViewData["Title"] = "My Marks";
+}
+
+<h2 class="mb-4"><i class="fa fa-file-alt me-2 text-primary"></i> My Marks</h2>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">No marks available yet.</div>
+}
+else
+{
+    <table class="table table-striped table-bordered">
+        <thead class="table-light">
+            <tr>
+                <th>Subject</th>
+                <th>Mark</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var mark in Model)
+            {
+                <tr>
+                    <td>@mark.Subject?.Name</td>
+                    <td>@mark.Value</td>
+                    <td>@mark.Date.ToShortDateString()</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

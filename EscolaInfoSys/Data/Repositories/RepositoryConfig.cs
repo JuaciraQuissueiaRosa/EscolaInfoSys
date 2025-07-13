@@ -20,6 +20,7 @@ namespace EscolaInfoSys.Data.Repositories
             services.AddScoped<ISystemSettingsRepository, SystemSettingsRepository>();
             services.AddScoped<IAlertRepository, AlertRepository>();
             services.AddScoped<IAccountService, AccountService>();
+            services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             return services;
         }
     }

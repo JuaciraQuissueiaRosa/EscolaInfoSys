@@ -4,22 +4,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace EscolaInfoSys.Data.Repositories
 {
-    public class AlertRepository : IAlertRepository
+    public class AlertRepository : GenericRepository<Alert>, IAlertRepository
     {
-        private readonly ApplicationDbContext _context;
+        public AlertRepository(ApplicationDbContext context) : base(context) { }
 
-        public AlertRepository(ApplicationDbContext context)
-        {
-            _context = context;
-        }
-
-        public async Task AddAsync(Alert alert)
-        {
-            _context.Alerts.Add(alert);
-            await _context.SaveChangesAsync();
-        }
-
-        public async Task<IEnumerable<Alert>> GetAllAsync()
+        public override async Task<IEnumerable<Alert>> GetAllAsync()
         {
             return await _context.Alerts
                 .Include(a => a.StaffMember)
@@ -28,7 +17,7 @@ namespace EscolaInfoSys.Data.Repositories
                 .ToListAsync();
         }
 
-        public async Task<Alert?> GetByIdAsync(int id)
+        public override async Task<Alert?> GetByIdAsync(int id)
         {
             return await _context.Alerts
                 .Include(a => a.StaffMember)
@@ -36,4 +25,5 @@ namespace EscolaInfoSys.Data.Repositories
                 .FirstOrDefaultAsync(a => a.Id == id);
         }
     }
+
 }
