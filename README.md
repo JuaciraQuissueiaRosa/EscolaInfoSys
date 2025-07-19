@@ -54,3 +54,10 @@ The solution follows a layered and service-oriented architecture:
 
 ```bash
 git clone https://github.com/JuaciraQuissueiaRosa/EscolaInfoSys.git
+
+
+##  Video Demonstration
+
+Click below to watch the full demo:
+
+[▶️ Watch Demo](https://drive.google.com/file/d/SEU-LINK-DO-VIDEO/view?usp=sharing)
