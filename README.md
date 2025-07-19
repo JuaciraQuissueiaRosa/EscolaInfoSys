@@ -4,7 +4,7 @@ A modern and modular school management system developed with **ASP.NET Core MVC*
 
 ---
 
-## 📐 Architecture Overview
+##  Architecture Overview
 
 The solution follows a layered and service-oriented architecture:
 
@@ -16,7 +16,7 @@ The solution follows a layered and service-oriented architecture:
 
 ---
 
-## 🚀 Features
+## Features
 
 - ✅ User authentication & registration with email confirmation  
 - ✅ Role-based access (Administrator, Staff, Student)  
@@ -35,7 +35,7 @@ The solution follows a layered and service-oriented architecture:
 
 ---
 
-## 🛠 Technologies Used
+##  Technologies Used
 
 - ASP.NET Core MVC (.NET 8)  
 - Entity Framework Core  
@@ -48,7 +48,7 @@ The solution follows a layered and service-oriented architecture:
 
 ---
 
-## 🧪 How to Run
+## How to Run
 
 ### 1. Clone the repository:
 
