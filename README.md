@@ -42,7 +42,6 @@ The solution follows a layered and service-oriented architecture:
 - ASP.NET Identity  
 - SignalR  
 - SQL Server + Azure  
-- .NET MAUI (optional client)  
 - Syncfusion (UI components)  
 - Git & GitHub
 
