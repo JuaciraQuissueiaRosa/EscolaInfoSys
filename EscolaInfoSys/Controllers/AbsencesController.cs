@@ -10,6 +10,8 @@ using EscolaInfoSys.Models;
 using EscolaInfoSys.Services;
 using EscolaInfoSys.Data.Repositories.Interfaces;
 using Microsoft.AspNetCore.Authorization;
+using EscolaInfoSys.Hubs;
+using Microsoft.AspNetCore.SignalR;
 
 namespace EscolaInfoSys.Controllers
 {
@@ -20,17 +22,20 @@ namespace EscolaInfoSys.Controllers
         private readonly IStudentRepository _studentRepo;
         private readonly ISubjectRepository _subjectRepo;
         private readonly AbsenceCheckerService _absenceChecker;
+        private readonly IHubContext<NotificationHub> _hubContext;
 
         public AbsencesController(
             IAbsenceRepository absenceRepo,
             IStudentRepository studentRepo,
             ISubjectRepository subjectRepo,
-            AbsenceCheckerService absenceChecker)
+            AbsenceCheckerService absenceChecker,
+            IHubContext<NotificationHub> hubContext)
         {
             _absenceRepo = absenceRepo;
             _studentRepo = studentRepo;
             _subjectRepo = subjectRepo;
             _absenceChecker = absenceChecker;
+            _hubContext = hubContext;
         }
 
         public async Task<IActionResult> Index()
@@ -55,7 +60,6 @@ namespace EscolaInfoSys.Controllers
             ViewData["SubjectId"] = new SelectList(await _subjectRepo.GetAllAsync(), "Id", "Name");
             return View();
         }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Date,StudentId,SubjectId,Justified")] Absence absence)
@@ -64,6 +68,10 @@ namespace EscolaInfoSys.Controllers
             {
                 await _absenceRepo.AddAsync(absence);
                 await _absenceChecker.CheckExclusionAsync(absence.StudentId, absence.SubjectId);
+
+               
+                await _hubContext.Clients.All.SendAsync("ReceiveNotification", "Falta registada com sucesso!", "info");
+
                 return RedirectToAction(nameof(Index));
             }
 
@@ -71,6 +79,7 @@ namespace EscolaInfoSys.Controllers
             ViewData["SubjectId"] = new SelectList(await _subjectRepo.GetAllAsync(), "Id", "Name", absence.SubjectId);
             return View(absence);
         }
+
 
         public async Task<IActionResult> Edit(int? id)
         {

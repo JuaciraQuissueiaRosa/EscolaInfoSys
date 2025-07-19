@@ -56,7 +56,7 @@ namespace EscolaInfoSys.Controllers
                 if (roles.Contains("Administrator"))
                     return RedirectToAction("Index", "FormGroups");
                 if (roles.Contains("StaffMember"))
-                    return RedirectToAction("Index", "Students");
+                    return RedirectToAction("Index", "Absences");
                 if (roles.Contains("Student"))
                     return RedirectToAction("Index", "Home");
 

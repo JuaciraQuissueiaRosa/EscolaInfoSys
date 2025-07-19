@@ -1,28 +1,60 @@
 ﻿@model IEnumerable<EscolaInfoSys.Models.Student>
-@using Syncfusion.EJ2.Grids
+
 @{
     ViewData["Title"] = "Students";
 }
 
-<h2><i class="fa fa-users"></i> Students</h2>
-<a asp-action="Create" class="btn btn-primary mb-3"><i class="fa fa-user-plus"></i> Create New Student</a>
+<h2 class="page-title"><i class="fa fa-user-graduate"></i> Students</h2>
+<p>
+    <a asp-action="Create" class="btn btn-primary"><i class="fa fa-plus"></i> Create New</a>
+</p>
 
-<ejs-grid id="StudentsGrid" dataSource="@Model" allowPaging="true" allowSorting="true" allowFiltering="true" toolbar="@(new List<string>() { "Search" })">
-    <e-grid-columns>
-        <e-grid-column field="FullName" headerText="Name" width="150"></e-grid-column>
-        <e-grid-column field="PupilNumber" headerText="Pupil #" width="120"></e-grid-column>
-        <e-grid-column field="Email" headerText="Email" width="180"></e-grid-column>
-        <e-grid-column field="FormGroup.Name" headerText="Form Group" width="130"></e-grid-column>
-        <e-grid-column headerText="Actions" width="150" template="#actionTemplate"></e-grid-column>
-    </e-grid-columns>
-</ejs-grid>
-
-<script id="actionTemplate" type="text/x-template">
-    <a href="/Students/Edit/${Id}" class="btn btn-sm btn-warning me-1"><i class="fa fa-edit"></i></a>
-    <a href="/Students/Details/${Id}" class="btn btn-sm btn-info me-1"><i class="fa fa-eye"></i></a>
-    <a href="/Students/Delete/${Id}" class="btn btn-sm btn-danger"><i class="fa fa-trash"></i></a>
-</script>
-
-@section Scripts {
-    <ejs-scripts></ejs-scripts>
-}
+<table class="table table-hover card">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Pupil #</th>
+            <th>Form Group</th>
+            <th>Profile Photo</th>
+            <th>Document Photo</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var student in Model)
+        {
+                <tr>
+                    <td>@student.FullName</td>
+                    <td>@student.Email</td>
+                    <td>@student.PupilNumber</td>
+                    <td>@student.FormGroup?.Name</td>
+                    <td>
+                    @if (!string.IsNullOrEmpty(student.ProfilePhoto))
+                    {
+                                <img src="~/uploads/@student.ProfilePhoto" alt="Profile Photo" width="50" height="50" class="rounded-circle" />
+                    }
+                    else
+                    {
+                                <span class="text-muted">No photo</span>
+                    }
+                    </td>
+                    <td>
+                    @if (!string.IsNullOrEmpty(student.DocumentPhoto))
+                    {
+                                <img src="~/uploads/@student.DocumentPhoto" alt="Document Photo" width="50" height="50" class="border" />
+                    }
+                    else
+                    {
+                                <span class="text-muted">No photo</span>
+                    }
+                    </td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@student.Id" class="btn btn-sm btn-warning"><i class="fa fa-edit"></i></a>
+                        <a asp-action="Details" asp-route-id="@student.Id" class="btn btn-sm btn-info"><i class="fa fa-eye"></i></a>
+                        <a asp-action="Delete" asp-route-id="@student.Id" class="btn btn-sm btn-danger"><i class="fa fa-trash"></i></a>
+                    </td>
+                </tr>
+        }
+    </tbody>
+</table>

@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Identity;
 
 
   namespace EscolaInfoSys.Data
-    {
+  {
     public static class DbInitializer
     {
         public static async Task SeedRolesAndUsersAsync(IServiceProvider serviceProvider)
@@ -95,7 +95,7 @@ using Microsoft.AspNetCore.Identity;
         }
     }
 
-}
+  }
 
 
 

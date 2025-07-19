@@ -1,21 +1,28 @@
 ﻿@model IEnumerable<EscolaInfoSys.Models.Course>
-
 @{
     ViewData["Title"] = "Courses";
 }
+
 <h2 class="page-title"><i class="fa fa-book"></i> Courses</h2>
 
 <div class="card">
-    <div class="card-header">
-        <a asp-action="Create" class="btn btn-primary"><i class="fa fa-plus"></i> Create New</a>
-    </div>
+    @if (User.Identity?.IsAuthenticated == true && User.IsInRole("Administrator"))
+    {
+        <div class="card-header">
+            <a asp-action="Create" class="btn btn-primary"><i class="fa fa-plus"></i> Create New</a>
+        </div>
+    }
+
     <div class="table-responsive">
         <table class="table table-vcenter">
             <thead>
                 <tr>
                     <th>@Html.DisplayNameFor(model => model.Name)</th>
                     <th>@Html.DisplayNameFor(model => model.Description)</th>
-                    <th></th>
+                    @if (User.Identity?.IsAuthenticated == true && User.IsInRole("Administrator"))
+                    {
+                        <th>Actions</th>
+                    }
                 </tr>
             </thead>
             <tbody>
@@ -24,17 +31,21 @@
                     <tr>
                         <td>@Html.DisplayFor(modelItem => item.Name)</td>
                         <td>@Html.DisplayFor(modelItem => item.Description)</td>
-                        <td>
-                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning"><i class="fa fa-edit"></i> Edit</a>
-                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info"><i class="fa fa-info-circle"></i> Details</a>
-                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger"><i class="fa fa-trash"></i> Delete</a>
-                        </td>
+                        @if (User.Identity?.IsAuthenticated == true && User.IsInRole("Administrator"))
+                        {
+                            <td>
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning"><i class="fa fa-edit"></i> Edit</a>
+                                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info"><i class="fa fa-info-circle"></i> Details</a>
+                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger"><i class="fa fa-trash"></i> Delete</a>
+                            </td>
+                        }
                     </tr>
                 }
             </tbody>
         </table>
     </div>
 </div>
+
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");

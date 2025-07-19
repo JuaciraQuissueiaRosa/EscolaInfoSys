@@ -17,7 +17,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace EscolaInfoSys.Controllers
 {
-    [Authorize(Roles = "Administrator")]
+    [Authorize(Roles = "Administrator,StaffMember")]
     public class StudentsController : Controller
     {
         private readonly IStudentRepository _studentRepo;
@@ -42,9 +42,11 @@ namespace EscolaInfoSys.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var students = await _studentRepo.GetAllAsync();
+            var students = await _studentRepo.GetWithFormGroupAsync(); 
             return View(students);
         }
+
+
 
         public async Task<IActionResult> Details(int? id)
         {

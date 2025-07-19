@@ -6,6 +6,8 @@ namespace EscolaInfoSys.Data.Repositories.Interfaces
     {
         Task<Student?> GetWithFormGroupAsync(int id);
         Task<Student?> GetFullByIdAsync(int id);
+
+        Task<IEnumerable<Student>> GetWithFormGroupAsync();
         Task<IEnumerable<StudentExclusion>> GetExclusionsAsync(int studentId);
 
         Task<Student?> GetByApplicationUserIdAsync(string applicationUserId);

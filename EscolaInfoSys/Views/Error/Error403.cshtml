@@ -1,8 +1,15 @@
 ﻿@{
     ViewData["Title"] = "Access Denied";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
-<div class="container text-center py-5">
+
+<div class="container d-flex flex-column justify-content-center align-items-center text-center py-5" style="min-height: 80vh;">
+    <svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" fill="currentColor" class="text-warning mb-4" viewBox="0 0 16 16">
+        <path d="M8 0a8 8 0 1 0 8 8A8.011 8.011 0 0 0 8 0Zm1 12H7v-2h2Zm0-4H7V4h2Z" />
+    </svg>
     <h1 class="display-4 text-warning">403</h1>
-    <p class="lead">You do not have permission to access this resource.</p>
-    <a href="/" class="btn btn-primary">Back to Home</a>
+    <p class="lead">Access Denied – You don't have permission to view this page.</p>
+    <a href="/" class="btn btn-primary mt-3">
+        <i class="fa fa-home me-1"></i> Go to Homepage
+    </a>
 </div>

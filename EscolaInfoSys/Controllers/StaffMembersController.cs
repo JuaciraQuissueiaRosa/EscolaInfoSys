@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using EscolaInfoSys.Data;
 using EscolaInfoSys.Models;
@@ -83,6 +78,17 @@ namespace EscolaInfoSys.Controllers
             TempData["Success"] = "Funcionário criado com sucesso. O link de acesso foi enviado por e-mail.";
             return RedirectToAction(nameof(Index));
         }
+
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null) return NotFound();
+
+            var staff = await _staffRepo.GetByIdAsync(id.Value);
+            if (staff == null) return NotFound();
+
+            return View(staff); 
+        }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]

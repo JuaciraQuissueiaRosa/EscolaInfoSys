@@ -11,50 +11,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link href="https://cdn.syncfusion.com/ej2/23.1.36/bootstrap5.css" rel="stylesheet" />
     @RenderSection("Styles", required: false)
-    <style>
-        .navbar-brand {
-            font-weight: bold;
-            font-size: 1.5rem;
-        }
-
-        .avatar {
-            border-radius: 50%;
-        }
-
-        .nav-link {
-            color: #1f2937;
-        }
-
-            .nav-link:hover {
-                color: #0d6efd;
-            }
-
-        .dropdown-menu {
-            min-width: 200px;
-        }
-
-        footer {
-            background-color: #f8f9fa;
-            padding: 1rem 0;
-        }
-
-        html, body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-        }
-
-        .page-wrapper {
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-
-        main {
-            flex: 1;
-        }
-
-    </style>
+   
 </head>
 <body class="layout-boxed">
     <header class="navbar navbar-expand-md d-print-none navbar-light bg-white shadow-sm">
@@ -124,6 +81,9 @@
                                 <a asp-controller="Alerts" asp-action="Create" class="dropdown-item">
                                     <i class="fa fa-bullhorn me-2 text-danger"></i> Send Alert
                                 </a>
+                                <a asp-controller="Students" asp-action="Index" class="dropdown-item">
+                                    <i class="fa fa-user-graduate me-2"></i> My Students
+                                </a>
                             }
 
                             @if (isStudent)
@@ -168,11 +128,6 @@
                                 </a>
                             </li>
                             <li>
-                                <a class="dropdown-item" asp-controller="FormGroups" asp-action="Index">
-                                    <i class="fa fa-layer-group me-2"></i> View Form Groups
-                                </a>
-                            </li>
-                            <li>
                                 <a class="dropdown-item" asp-controller="Subjects" asp-action="Index">
                                     <i class="fa fa-list me-2"></i> View Subjects
                                 </a>
@@ -192,24 +147,24 @@
             @await Component.InvokeAsync("Alerts")
         </div>
     }
-    <main class="main-content">
+
+    <div id="notificationArea" class="position-fixed top-0 end-0 p-3" style="z-index: 1055;"></div>
+    <main class="main-content" style="padding-bottom: 120px;">
         <div class="container-xl mt-4">
             @RenderBody()
         </div>
     </main>
 
-  @*   <footer class="footer text-muted border-top text-center">
-        <div class="container">
-            &copy; 2025 - EscolaInfoSys - <a asp-area="" asp-controller="Home" asp-action="About" class="text-muted">About</a>
-        </div>
-    </footer>
-    *@
+
+
 
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.syncfusion.com/ej2/23.1.36/dist/ej2.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="https://unpkg.com/tabler@1.0.0/dist/js/tabler.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
     <script>
         function toggleDropdown() {
@@ -226,8 +181,54 @@
             }
         });
     </script>
+    <script>
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/notificationHub")
+            .build();
 
-    <script src="https://unpkg.com/tabler@1.0.0/dist/js/tabler.min.js"></script>
+        connection.on("ReceiveNotification", function (message, type) {
+            const alertTypes = {
+                success: "alert-success",
+                error: "alert-danger",
+                warning: "alert-warning",
+                info: "alert-info"
+            };
+
+            const icons = {
+                success: "fa-check-circle",
+                error: "fa-times-circle",
+                warning: "fa-exclamation-triangle",
+                info: "fa-info-circle"
+            };
+
+            const alertClass = alertTypes[type] || "alert-info";
+            const iconClass = icons[type] || "fa-info-circle";
+
+            const toast = document.createElement("div");
+            toast.className = `alert ${alertClass} alert-dismissible fade show shadow mb-2`;
+            toast.role = "alert";
+            toast.innerHTML = `
+                <div class="d-flex align-items-center">
+                    <i class="fa ${iconClass} me-2"></i>
+                    <div>${message}</div>
+                    <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            `;
+
+            document.getElementById("notificationArea").appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.remove("show");
+                toast.classList.add("hide");
+                setTimeout(() => toast.remove(), 300);
+            }, 5000);
+        });
+
+        connection.start().catch(function (err) {
+            return console.error(err.toString());
+        });
+    </script>
+   
 </body>
 </html>
 

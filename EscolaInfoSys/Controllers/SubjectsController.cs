@@ -12,7 +12,7 @@ using EscolaInfoSys.Data.Repositories.Interfaces;
 
 namespace EscolaInfoSys.Controllers
 {
-    [Authorize(Roles = "Administrator")]
+    [Authorize(Roles = "Administrator,StaffMember")]
     public class SubjectsController : Controller
     {
         private readonly ISubjectRepository _subjectRepo;

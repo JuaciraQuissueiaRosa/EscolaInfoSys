@@ -1,17 +1,14 @@
-﻿
-
-@model EscolaInfoSys.Models.Student
-
+﻿@model EscolaInfoSys.Models.Student
 @{
     ViewData["Title"] = "Edit Student";
 }
 
-<h2 class="page-title"><i class="fa fa-user-edit text-warning me-2"></i> Edit Student</h2>
+<h2 class="page-title"><i class="fa fa-edit"></i> Edit Student</h2>
 
-<form asp-action="Edit" method="post" class="card p-4">
-    <input type="hidden" asp-for="Id" />
-
+<form asp-action="Edit" method="post" enctype="multipart/form-data" class="card p-4">
+    @Html.AntiForgeryToken()
     <div asp-validation-summary="All" class="alert alert-danger"></div>
+    <input type="hidden" asp-for="Id" />
 
     <div class="mb-3">
         <label asp-for="FullName" class="form-label"></label>
@@ -32,30 +29,36 @@
     </div>
 
     <div class="mb-3">
-        <label asp-for="FormGroupId" class="form-label"></label>
-        <select asp-for="FormGroupId" asp-items="ViewBag.FormGroupId" class="form-select"></select>
+        <label asp-for="FormGroupId" class="form-label">Form Group</label>
+        <select asp-for="FormGroupId" class="form-select" asp-items="ViewBag.FormGroupId"></select>
         <span asp-validation-for="FormGroupId" class="text-danger"></span>
     </div>
 
     <div class="mb-3">
-        <label asp-for="ProfilePhoto" class="form-label"></label>
-        <input asp-for="ProfilePhoto" class="form-control" />
-        <span asp-validation-for="ProfilePhoto" class="text-danger"></span>
+        <label class="form-label">Profile Photo</label>
+        @if (!string.IsNullOrEmpty(Model.ProfilePhoto))
+        {
+            <div class="mb-2">
+                <img src="~/uploads/@Model.ProfilePhoto" alt="Profile" width="100" class="rounded" />
+            </div>
+        }
+        <input type="file" name="ProfilePhotoFile" class="form-control" />
     </div>
 
     <div class="mb-3">
-        <label asp-for="DocumentPhoto" class="form-label"></label>
-        <input asp-for="DocumentPhoto" class="form-control" />
-        <span asp-validation-for="DocumentPhoto" class="text-danger"></span>
+        <label class="form-label">Document Photo</label>
+        @if (!string.IsNullOrEmpty(Model.DocumentPhoto))
+        {
+            <div class="mb-2">
+                <img src="~/uploads/@Model.DocumentPhoto" alt="Document" width="100" class="rounded" />
+            </div>
+        }
+        <input type="file" name="DocumentPhotoFile" class="form-control" />
     </div>
 
     <div class="mt-4">
-        <button type="submit" class="btn btn-warning">
-            <i class="fa fa-save me-1"></i> Save Changes
-        </button>
-        <a asp-action="Index" class="btn btn-secondary">
-            <i class="fa fa-arrow-left me-1"></i> Back
-        </a>
+        <button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> Save</button>
+        <a asp-action="Index" class="btn btn-secondary"><i class="fa fa-times"></i> Cancel</a>
     </div>
 </form>
 

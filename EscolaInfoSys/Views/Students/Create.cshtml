@@ -6,9 +6,8 @@
 
 <h2 class="page-title"><i class="fa fa-user-plus"></i> Create Student</h2>
 
-<form asp-action="Create" method="post" enctype="multipart/form-data" class="card p-4">
-    <div asp-validation-summary="All" class="alert alert-danger"></div>
-
+<form asp-action="Create" method="post" enctype="multipart/form-data" class="card p-4 main-content">
+      <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-5"></div>
     <div class="mb-3">
         <label asp-for="FullName" class="form-label"></label>
         <input asp-for="FullName" class="form-control" />
@@ -46,11 +45,12 @@
         <span asp-validation-for="FormGroupId" class="text-danger"></span>
     </div>
 
-    <div class="mt-4">
+        <div class="mt-4 sticky-bottom bg-white py-3">
         <button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> Create</button>
         <a asp-action="Index" class="btn btn-secondary"><i class="fa fa-arrow-left"></i> Cancel</a>
     </div>
 </form>
+
 
 @section Scripts {
     @{
