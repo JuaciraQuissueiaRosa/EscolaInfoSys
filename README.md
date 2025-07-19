@@ -41,7 +41,7 @@ The solution follows a layered and service-oriented architecture:
 - Entity Framework Core  
 - ASP.NET Identity  
 - SignalR  
-- SQL Server + Azure  
+- SQL Server + Somee
 - Syncfusion (UI components)  
 - Git & GitHub
 
