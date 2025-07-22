@@ -1,53 +1,89 @@
-# EscolaInfoSys – School Management System
+EscolaInfoSys – School Management System
 
-A modern and modular school management system developed with **ASP.NET Core MVC** and **Entity Framework Core**, featuring full user authentication, role-based access, dashboards, email confirmation, notifications via SignalR, and student exclusion logic based on attendance.
+A modern and modular school management system developed with ASP.NET Core MVC and Entity Framework Core, featuring full user authentication, role-based access, dashboards, email confirmation, real-time SignalR notifications, and automated student exclusion logic based on attendance.
+---
+
+Architecture Overview
+
+The solution follows a clean, layered and service-oriented architecture:
+
+Frontend: ASP.NET Core MVC with custom layout using Tabler and Font Awesome (no Bootstrap themes)
+
+Backend: ASP.NET Core MVC + Identity + RESTful endpoints
+
+Database: SQL Server (hosted on Somee)
+
+Real-Time Communication: SignalR
+
+Image/File Uploads: Handled via IFormFile in Razor views
+
+Mobile Support: Compatible with .NET MAUI (via API) – (optional, external project)
+---
+
+Features
+✅ Full user authentication (login, password reset, email confirmation)
+✅ Role-based access control (Administrator, StaffMember, Student)
+✅ Student exclusion logic based on attendance threshold
+✅ Dashboards personalised per role
+✅ Upload and display of student profile photo and document image
+✅ Real-time notifications using SignalR (alerts, new marks, absences)
+✅ Syncfusion DataGrid and ProgressBar
+✅ Modern UI with Tabler UI and Font Awesome 6.4.0
+✅ Fully responsive views (no Blazor used)
+✅ Email sending via SMTP
+✅ Custom 403, 404, and 500 error pages
+✅ API endpoint:
+GET /api/students/by-formgroup?id=1
 
 ---
 
-##  Architecture Overview
+Technologies Used
 
-The solution follows a layered and service-oriented architecture:
+.Backend
+ASP.NET Core MVC (.NET 8)
 
-- **Frontend:** ASP.NET Core MVC with custom layout (no external CSS frameworks)
-- **Backend:** ASP.NET Core Web API (RESTful)
-- **Database:** SQL Server (hosted on Azure)
-- **Real-Time Communication:** SignalR
-- **Mobile Support:** .NET MAUI (optional, separate project)
+Entity Framework Core
 
----
+ASP.NET Identity (User/Role management)
 
-## Features
+SignalR (real-time notifications)
 
-- ✅ User authentication & registration with email confirmation  
-- ✅ Role-based access (Administrator, Staff, Student)  
-- ✅ CRUD operations for:
-  - Students (with profile & document photo upload)
-  - Staff Members
-  - Courses & Subjects
-  - Form Groups & Marks
-  - Alerts & Absences
-- ✅ Real-time notifications via SignalR
-- ✅ Automatic student exclusion based on system-configured absence threshold
-- ✅ Dashboards tailored per role
-- ✅ Custom 403, 404, and 500 error pages
-- ✅ Modern UI built with Tabler & Font Awesome
-- ✅ API endpoint: `/api/students/by-formgroup?id=1`
+SMTP (email services)
+
+RESTful Web API (basic endpoint)
 
 ---
+.Database
+SQL Server
 
-##  Technologies Used
+Migrations with EF Core (Code-First)
 
-- ASP.NET Core MVC (.NET 8)  
-- Entity Framework Core  
-- ASP.NET Identity  
-- SignalR  
-- SQL Server + Somee
-- Syncfusion (UI components)  
-- Git & GitHub
+Hosted on Somee
 
----
+----
+.Frontend
 
-## How to Run
+Razor Views (CSHTML)
+
+Tabler UI Framework (CSS/JS)
+
+Font Awesome (icons)
+
+Bootstrap 5 (basic grid and layout support)
+
+Syncfusion (Community License – DataGrid, ProgressBar)
+
+jQuery and custom JavaScript
+
+.File Uploads
+
+Student profile picture
+
+Document photo (e.g. ID card)
+
+Stored in /wwwroot/uploads
+
+.How to Run
 
 ### 1. Clone the repository:
 
