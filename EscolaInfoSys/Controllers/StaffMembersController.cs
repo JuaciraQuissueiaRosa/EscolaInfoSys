@@ -27,19 +27,19 @@ namespace EscolaInfoSys.Controllers
 
         public async Task<IActionResult> Index()
         {
-            return View(await _staffRepo.GetAllAsync());
+            var staffWithUser = await _staffRepo.GetAllWithUserAsync();
+            return View(staffWithUser);
         }
 
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();
 
-            var staff = await _staffRepo.GetByIdAsync(id.Value);
+            var staff = await _staffRepo.GetByIdWithUserAsync(id.Value);
             if (staff == null) return NotFound();
 
             return View(staff);
         }
-
         public IActionResult Create() => View();
 
         [HttpPost]
@@ -72,10 +72,10 @@ namespace EscolaInfoSys.Controllers
             var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
             var callbackUrl = Url.Action("SetPassword", "Account", new { userId = user.Id, token = encodedToken }, protocol: Request.Scheme);
 
-            var body = $"<h3>Bem-vindo à plataforma!</h3><p>Por favor <a href='{callbackUrl}'>clique aqui</a> para definir sua senha de acesso.</p>";
-            await _emailSender.SendEmailAsync(user.Email, "Definir senha de acesso", body);
+            var body = $"<h3>Welcome to the platform!</h3><p>Please <a href='{callbackUrl}'>click here</a> to set your password.</p>";
+            await _emailSender.SendEmailAsync(user.Email, "Set your access password", body);
 
-            TempData["Success"] = "Funcionário criado com sucesso. O link de acesso foi enviado por e-mail.";
+            TempData["Success"] = "Employee created successfully. The access link has been sent by e-mail.";
             return RedirectToAction(nameof(Index));
         }
 

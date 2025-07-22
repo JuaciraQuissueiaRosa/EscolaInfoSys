@@ -48,6 +48,13 @@ namespace EscolaInfoSys.Data.Repositories
                 .FirstOrDefaultAsync(s => s.ApplicationUserId == applicationUserId);
         }
 
+        public async Task<Student?> GetByUserIdAsync(string userId)
+        {
+            return await _context.Students
+                .FirstOrDefaultAsync(s => s.ApplicationUserId == userId);
+        }
+
+
     }
 
 

@@ -19,6 +19,8 @@ namespace EscolaInfoSys.Services
         Task<(bool Succeeded, IEnumerable<string> Errors)> UpdateProfileAsync(ApplicationUser user, string fullName, IFormFile? newPhoto, string wwwRootPath);
         Task<(bool Success, string? Message)> ConfirmEmailAsync(string userId, string token);
 
+        Task<bool> SendResetPasswordEmailAsync(string email, string scheme, Func<string, string, string, string> urlBuilder);
+
         Task<IList<string>> GetRolesAsync(ApplicationUser user);
         Task<ApplicationUser?> FindByIdAsync(string userId);
 

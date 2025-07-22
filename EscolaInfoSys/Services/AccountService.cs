@@ -66,8 +66,11 @@ namespace EscolaInfoSys.Services
                 return null;
 
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-            return urlBuilder(token, user.Email, scheme);
+            var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
+
+            return urlBuilder(encodedToken, user.Email, scheme);
         }
+
 
         public async Task<(bool Succeeded, IEnumerable<string> Errors)> ResetPasswordAsync(ResetPasswordViewModel model)
         {
@@ -126,6 +129,22 @@ namespace EscolaInfoSys.Services
 
         public Task<ApplicationUser?> FindByIdAsync(string userId) =>
         _userManager.FindByIdAsync(userId);
+
+        public async Task<bool> SendResetPasswordEmailAsync(string email, string scheme, Func<string, string, string, string> urlBuilder)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null || !await _userManager.IsEmailConfirmedAsync(user))
+                return false;
+
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
+            var resetLink = urlBuilder(encodedToken, user.Email, scheme);
+
+            await _emailSender.SendEmailAsync(email, "Password Reset",
+                $"Click <a href='{resetLink}'>here</a> to reset your password.");
+
+            return true;
+        }
 
     }
 

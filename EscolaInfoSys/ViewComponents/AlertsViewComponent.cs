@@ -1,4 +1,5 @@
 ﻿using EscolaInfoSys.Data;
+using EscolaInfoSys.Data.Repositories.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -6,24 +7,23 @@ namespace EscolaInfoSys.ViewComponents
 {
     public class AlertsViewComponent : ViewComponent
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IAlertRepository _alertRepository;
 
-        public AlertsViewComponent(ApplicationDbContext context)
+        public AlertsViewComponent(IAlertRepository alertRepository)
         {
-            _context = context;
+            _alertRepository = alertRepository;
         }
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            var alerts = await _context.Alerts
-                .Include(a => a.StaffMember) 
-                .ThenInclude(sm => sm.ApplicationUser) 
+            var pendingAlerts = (await _alertRepository.GetAllAsync())
+                .Where(a => !a.IsResolved && string.IsNullOrEmpty(a.AdminResponse))
                 .OrderByDescending(a => a.CreatedAt)
                 .Take(5)
-                .ToListAsync();
-
-            return View(alerts);
+                .ToList(); 
+            return View(pendingAlerts);
         }
 
     }
+
 }

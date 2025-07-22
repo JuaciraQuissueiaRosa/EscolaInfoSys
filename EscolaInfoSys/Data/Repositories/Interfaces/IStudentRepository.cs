@@ -12,6 +12,9 @@ namespace EscolaInfoSys.Data.Repositories.Interfaces
 
         Task<Student?> GetByApplicationUserIdAsync(string applicationUserId);
 
+        Task<Student?> GetByUserIdAsync(string userId);
+
+
     }
 
 }

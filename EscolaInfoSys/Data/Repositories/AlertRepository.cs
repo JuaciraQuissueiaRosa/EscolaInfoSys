@@ -8,7 +8,7 @@ namespace EscolaInfoSys.Data.Repositories
     {
         public AlertRepository(ApplicationDbContext context) : base(context) { }
 
-        public override async Task<IEnumerable<Alert>> GetAllAsync()
+        public async Task<IEnumerable<Alert>> GetAllWithStaffAsync()
         {
             return await _context.Alerts
                 .Include(a => a.StaffMember)
@@ -17,13 +17,24 @@ namespace EscolaInfoSys.Data.Repositories
                 .ToListAsync();
         }
 
-        public override async Task<Alert?> GetByIdAsync(int id)
+        public async Task<Alert?> GetByIdWithStaffAsync(int id)
         {
             return await _context.Alerts
                 .Include(a => a.StaffMember)
                 .ThenInclude(s => s.ApplicationUser)
                 .FirstOrDefaultAsync(a => a.Id == id);
         }
+
+        public async Task<IEnumerable<Alert>> GetByStaffIdAsync(int staffId)
+        {
+            return await _context.Alerts
+                .Where(a => a.StaffId == staffId)
+                .Include(a => a.StaffMember)
+                .ThenInclude(s => s.ApplicationUser)
+                .OrderByDescending(a => a.CreatedAt)
+                .ToListAsync();
+        }
     }
+
 
 }

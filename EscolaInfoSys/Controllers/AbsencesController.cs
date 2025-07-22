@@ -70,7 +70,7 @@ namespace EscolaInfoSys.Controllers
                 await _absenceChecker.CheckExclusionAsync(absence.StudentId, absence.SubjectId);
 
                
-                await _hubContext.Clients.All.SendAsync("ReceiveNotification", "Falta registada com sucesso!", "info");
+                await _hubContext.Clients.All.SendAsync("ReceiveNotification", "Absence successfully registered!", "info");
 
                 return RedirectToAction(nameof(Index));
             }

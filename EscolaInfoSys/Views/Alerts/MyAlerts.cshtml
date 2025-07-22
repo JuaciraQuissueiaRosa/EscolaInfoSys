@@ -1,0 +1,52 @@
+﻿@model IEnumerable<Alert>
+
+<h2 class="page-title">
+    <i class="fa fa-bullhorn text-primary me-2"></i> My Alerts
+</h2>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        <i class="fa fa-info-circle me-2"></i> You have not sent any alerts yet.
+    </div>
+}
+else
+{
+    foreach (var alert in Model)
+    {
+        <div class="card mb-3 shadow-sm">
+            <div class="card-header d-flex justify-content-between">
+                <span><strong>@alert.Title</strong></span>
+                <span class="text-muted">@alert.CreatedAt.ToString("dd/MM/yyyy HH:mm")</span>
+            </div>
+            <div class="card-body">
+                <p>@alert.Message</p>
+
+                <p>
+                    <strong>Status:</strong>
+                    @if (alert.IsResolved)
+                    {
+                        <span class="badge bg-success"><i class="fa fa-check me-1"></i>Done</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-warning text-dark"><i class="fa fa-clock me-1"></i>Pending</span>
+                    }
+                </p>
+
+                @if (!string.IsNullOrEmpty(alert.AdminResponse))
+                {
+                    <div class="alert alert-info mt-3">
+                        <strong>Admin Response:</strong><br />
+                        @alert.AdminResponse
+                    </div>
+                }
+            </div>
+        </div>
+    }
+}
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

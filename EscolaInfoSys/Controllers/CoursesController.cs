@@ -26,17 +26,16 @@ namespace EscolaInfoSys.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
-            var courses = await _courseRepository.GetAllAsync();
+            var courses = await _courseRepository.GetAllWithSubjectsAsync();
             return View(courses);
         }
-
         // GET: Courses/Details/5
         [AllowAnonymous]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();
 
-            var course = await _courseRepository.GetByIdAsync(id.Value);
+            var course = await _courseRepository.GetByIdWithSubjectsAsync(id.Value);
             if (course == null) return NotFound();
 
             return View(course);

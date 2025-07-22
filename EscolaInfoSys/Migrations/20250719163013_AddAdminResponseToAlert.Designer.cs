@@ -4,6 +4,7 @@ using EscolaInfoSys.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EscolaInfoSys.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250719163013_AddAdminResponseToAlert")]
+    partial class AddAdminResponseToAlert
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -119,7 +122,7 @@ namespace EscolaInfoSys.Migrations
 
                     b.HasIndex("SubjectId");
 
-                    b.ToTable("Absences", (string)null);
+                    b.ToTable("Absences");
                 });
 
             modelBuilder.Entity("EscolaInfoSys.Models.Alert", b =>
@@ -157,7 +160,7 @@ namespace EscolaInfoSys.Migrations
 
                     b.HasIndex("StaffMemberId");
 
-                    b.ToTable("Alerts", (string)null);
+                    b.ToTable("Alerts");
                 });
 
             modelBuilder.Entity("EscolaInfoSys.Models.Course", b =>
@@ -178,7 +181,7 @@ namespace EscolaInfoSys.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Courses", (string)null);
+                    b.ToTable("Courses");
                 });
 
             modelBuilder.Entity("EscolaInfoSys.Models.FormGroup", b =>
@@ -195,7 +198,7 @@ namespace EscolaInfoSys.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("FormGroups", (string)null);
+                    b.ToTable("FormGroups");
                 });
 
             modelBuilder.Entity("EscolaInfoSys.Models.Mark", b =>
@@ -232,7 +235,7 @@ namespace EscolaInfoSys.Migrations
 
                     b.HasIndex("SubjectId");
 
-                    b.ToTable("Marks", (string)null);
+                    b.ToTable("Marks");
                 });
 
             modelBuilder.Entity("EscolaInfoSys.Models.StaffMember", b =>
@@ -259,7 +262,7 @@ namespace EscolaInfoSys.Migrations
 
                     b.HasIndex("ApplicationUserId");
 
-                    b.ToTable("StaffMembers", (string)null);
+                    b.ToTable("StaffMembers");
                 });
 
             modelBuilder.Entity("EscolaInfoSys.Models.Student", b =>
@@ -300,7 +303,7 @@ namespace EscolaInfoSys.Migrations
 
                     b.HasIndex("FormGroupId");
 
-                    b.ToTable("Students", (string)null);
+                    b.ToTable("Students");
                 });
 
             modelBuilder.Entity("EscolaInfoSys.Models.StudentExclusion", b =>
@@ -326,7 +329,7 @@ namespace EscolaInfoSys.Migrations
 
                     b.HasIndex("SubjectId");
 
-                    b.ToTable("StudentExclusions", (string)null);
+                    b.ToTable("StudentExclusions");
                 });
 
             modelBuilder.Entity("EscolaInfoSys.Models.Subject", b =>
@@ -356,7 +359,7 @@ namespace EscolaInfoSys.Migrations
 
                     b.HasIndex("FormGroupId");
 
-                    b.ToTable("Subjects", (string)null);
+                    b.ToTable("Subjects");
                 });
 
             modelBuilder.Entity("EscolaInfoSys.Models.SystemSettings", b =>
@@ -372,7 +375,7 @@ namespace EscolaInfoSys.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("SystemSettings", (string)null);
+                    b.ToTable("SystemSettings");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>

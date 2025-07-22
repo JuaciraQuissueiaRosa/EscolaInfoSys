@@ -2,6 +2,7 @@
 using EscolaInfoSys.Models;
 using EscolaInfoSys.Data.Repositories.Interfaces;
 using Microsoft.AspNetCore.Authorization;
+using EscolaInfoSys.Data.Repositories;
 
 namespace EscolaInfoSys.Controllers
 {
@@ -19,19 +20,18 @@ namespace EscolaInfoSys.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
-            var formGroups = await _repository.GetAllAsync();
+            var formGroups = await _repository.GetAllWithStudentsAndSubjectsAsync();
             return View(formGroups);
         }
+
 
         // GET: FormGroups/Details/5
         [AllowAnonymous]
         public async Task<IActionResult> Details(int id)
         {
-            var group = await _repository.GetByIdAsync(id);
-            if (group == null)
-                return NotFound();
-
-            return View(group);
+            var formGroup = await _repository.GetByIdWithStudentsAndSubjectsAsync(id);
+            if (formGroup == null) return NotFound();
+            return View(formGroup);
         }
 
         // GET: FormGroups/Create

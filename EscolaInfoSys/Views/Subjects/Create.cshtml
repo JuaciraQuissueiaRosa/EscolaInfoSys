@@ -1,30 +1,42 @@
 ﻿@model EscolaInfoSys.Models.Subject
+
 @{
     ViewData["Title"] = "Create Subject";
 }
-<h2 class="page-title"><i class="fa fa-book"></i> Create Subject</h2>
 
-<div class="card">
-    <div class="card-body">
-        <form asp-action="Create">
-            <div asp-validation-summary="All" class="alert alert-danger"></div>
+<h2 class="page-title"><i class="fa fa-plus-circle me-2"></i> Create Subject</h2>
 
-            <div class="mb-3">
-                <label asp-for="Name" class="form-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
-            </div>
+<div class="card p-4">
+    <form asp-action="Create" method="post">
+        <div asp-validation-summary="All" class="alert alert-danger"></div>
 
-            <div class="mb-3">
-                <label asp-for="CourseId" class="form-label"></label>
-                <select asp-for="CourseId" class="form-select" asp-items="ViewBag.CourseId"></select>
-                <span asp-validation-for="CourseId" class="text-danger"></span>
-            </div>
+        <div class="mb-3">
+            <label asp-for="Name" class="form-label"></label>
+            <input asp-for="Name" class="form-control" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
 
-            <button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> Create</button>
-            <a asp-action="Index" class="btn btn-link"><i class="fa fa-arrow-left"></i> Back</a>
-        </form>
-    </div>
+        <div class="mb-3">
+            <label asp-for="CourseId" class="form-label">Course</label>
+            <select asp-for="CourseId" class="form-select" asp-items="ViewBag.CourseId">
+                <option value="">-- Select a course --</option>
+            </select>
+            <span asp-validation-for="CourseId" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="TotalLessons" class="form-label"></label>
+            <input asp-for="TotalLessons" class="form-control" type="number" min="1" />
+            <span asp-validation-for="TotalLessons" class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn btn-success">
+            <i class="fa fa-save me-1"></i> Save
+        </button>
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="fa fa-arrow-left me-1"></i> Back
+        </a>
+    </form>
 </div>
 
 @section Scripts {

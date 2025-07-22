@@ -1,9 +1,11 @@
 ﻿using EscolaInfoSys.Data;
+using EscolaInfoSys.Data.Repositories.Interfaces;
 using EscolaInfoSys.Models.ViewModels;
 using EscolaInfoSys.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
 using System.Text;
@@ -17,11 +19,15 @@ namespace EscolaInfoSys.Controllers
     {
         private readonly IAccountService _accountService;
         private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly IStudentRepository _studentRepo;
 
-        public AccountController(IAccountService accountService, IWebHostEnvironment webHostEnvironment)
+        public AccountController(IAccountService accountService, IWebHostEnvironment webHostEnvironment, IStudentRepository studentRepo)
         {
             _accountService = accountService;
             _webHostEnvironment = webHostEnvironment;
+            _studentRepo = studentRepo;
+
+
         }
 
         [AllowAnonymous]
@@ -85,6 +91,13 @@ namespace EscolaInfoSys.Controllers
 
         [AllowAnonymous]
         [HttpGet]
+        public IActionResult ForgotPasswordConfirmation()
+        {
+            return View();
+        }
+
+        [AllowAnonymous]
+        [HttpGet]
         public IActionResult ForgotPassword() => View();
 
         [AllowAnonymous]
@@ -98,10 +111,11 @@ namespace EscolaInfoSys.Controllers
             string BuildUrl(string token, string email, string scheme) =>
                 Url.Action("ResetPassword", "Account", new { token, email }, scheme);
 
-            var resetLink = await _accountService.GenerateResetPasswordLinkAsync(model.Email, Request.Scheme, BuildUrl);
+            var emailSent = await _accountService.SendResetPasswordEmailAsync(model.Email, Request.Scheme, BuildUrl);
 
-            if (resetLink != null)
+            if (emailSent)
                 return RedirectToAction("ForgotPasswordConfirmation");
+
 
             return View(model);
         }
@@ -111,6 +125,7 @@ namespace EscolaInfoSys.Controllers
         public IActionResult ResetPassword(string token, string email) =>
             View(new ResetPasswordViewModel { Token = token, Email = email });
 
+
         [AllowAnonymous]
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -118,16 +133,36 @@ namespace EscolaInfoSys.Controllers
         {
             if (!ModelState.IsValid) return View(model);
 
-            var result = await _accountService.ResetPasswordAsync(model);
+            string decodedToken;
+            try
+            {
+                decodedToken = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(model.Token));
+            }
+            catch
+            {
+                ModelState.AddModelError("", "Invalid or corrupted token.");
+                return View(model);
+            }
+
+            var result = await _accountService.ResetPasswordAsync(new ResetPasswordViewModel
+            {
+                Email = model.Email,
+                Token = decodedToken,
+                NewPassword = model.NewPassword
+            });
 
             if (result.Succeeded)
+            {
+                TempData["Success"] = "Password successfully reset! You can now log in.";
                 return RedirectToAction("Login");
+            }
 
             foreach (var error in result.Errors)
                 ModelState.AddModelError(string.Empty, error);
 
             return View(model);
         }
+
 
         [AllowAnonymous]
         [HttpGet]
@@ -145,19 +180,28 @@ namespace EscolaInfoSys.Controllers
             ViewBag.Message = result.Message;
             return RedirectToAction("ConfirmEmailError");
         }
-
         [HttpGet]
         public async Task<IActionResult> Profile()
         {
             var user = await _accountService.GetCurrentUserAsync(User);
             var roles = await _accountService.GetRolesAsync(user);
 
+            string? photoPath = user.ProfilePhoto;
+
+           
+            if (roles.Contains("Student"))
+            {
+                var student = await _studentRepo.GetByUserIdAsync(user.Id); 
+                if (student != null && !string.IsNullOrEmpty(student.ProfilePhoto))
+                    photoPath = student.ProfilePhoto;
+            }
+
             var model = new ProfileViewModel
             {
                 Email = user.Email,
                 FullName = user.Name,
                 Role = roles.FirstOrDefault(),
-                ProfilePhoto = user.ProfilePhoto
+                ProfilePhoto = photoPath 
             };
 
             return View(model);
@@ -234,7 +278,7 @@ namespace EscolaInfoSys.Controllers
             var user = await _accountService.FindByIdAsync(model.UserId);
             if (user == null)
             {
-                ModelState.AddModelError("", "Utilizador não encontrado.");
+                ModelState.AddModelError("", "User not found.");
                 return View(model);
             }
 
@@ -245,7 +289,7 @@ namespace EscolaInfoSys.Controllers
             }
             catch
             {
-                ModelState.AddModelError("", "Token inválido ou corrompido.");
+                ModelState.AddModelError("", "Invalid or corrupted token.");
                 return View(model);
             }
 
@@ -261,7 +305,7 @@ namespace EscolaInfoSys.Controllers
                 user.EmailConfirmed = true;
                 await _accountService.UpdateProfileAsync(user, user.Name, null, _webHostEnvironment.WebRootPath);
 
-                TempData["Success"] = "Senha definida com sucesso! Agora pode iniciar sessão.";
+                TempData["Success"] = "Password set successfully! You can now log in.";
                 return RedirectToAction("Login");
             }
 

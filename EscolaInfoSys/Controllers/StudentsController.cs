@@ -120,13 +120,13 @@ namespace EscolaInfoSys.Controllers
                 var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
                 var callbackUrl = Url.Action("SetPassword", "Account", new { userId = user.Id, token = encodedToken }, Request.Scheme);
 
-                var body = $@"<p>Olá {student.FullName},</p>
-                            <p>Sua conta foi criada. Para definir sua senha, clique no link abaixo:</p>
-                            <p><a href='{callbackUrl}'>Definir Senha</a></p>";
+                var body = $@"<p>Hello {student.FullName},</p>
+                            <p>Your account has been created. To set your password, click on the link below:</p>
+                            <p><a href='{callbackUrl}'>Set Password</a></p>";
 
-                await _emailSender.SendEmailAsync(user.Email, "Definir senha - EscolaInfoSys", body);
+                await _emailSender.SendEmailAsync(user.Email, "Set Password - EscolaInfoSys", body);
 
-                TempData["Success"] = "Aluno criado com sucesso. Link de senha enviado por e-mail.";
+                TempData["Success"] = "Student created successfully. Password link sent by e-mail";
                 return RedirectToAction(nameof(Index));
             }
 

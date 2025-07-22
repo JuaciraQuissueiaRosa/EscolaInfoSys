@@ -1,0 +1,143 @@
+﻿@model IEnumerable<EscolaInfoSys.Models.Alert>
+
+@{
+    ViewData["Title"] = "All Alerts";
+}
+
+<h2 class="page-title"><i class="fa fa-bullhorn text-danger me-2"></i> Alerts Panel</h2>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-vcenter table-striped">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Message</th>
+                    <th>From</th>
+                    <th>Created</th>
+                    <th>Status</th>
+                    <th>Respond</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var alert in Model)
+                {
+                    <tr id="alert-row-@alert.Id">
+                        <td>@alert.Title</td>
+                        <td>@alert.Message</td>
+                        <td>@alert.StaffMember?.ApplicationUser?.Name ?? alert.StaffMember?.ApplicationUser?.UserName ?? "Unknown"</td>
+                        <td>@alert.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td>
+                            @if (alert.IsResolved)
+                            {
+                                <span class="badge bg-success"><i class="fa fa-check"></i> Done</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-warning text-dark"><i class="fa fa-clock"></i> Pending</span>
+                            }
+                        </td>
+                        <td>
+                            <!-- Button to open modal -->
+                            <button class="btn btn-sm btn-secondary" data-bs-toggle="modal" data-bs-target="#replyModal-@alert.Id">
+                                <i class="fa fa-reply"></i> Respond
+                            </button>
+
+                            <!-- Modal -->
+                            <div class="modal fade" id="replyModal-@alert.Id" tabindex="-1" aria-labelledby="replyModalLabel-@alert.Id" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <form onsubmit="sendAdminResponse(event, @alert.Id)">
+                                            @Html.AntiForgeryToken()
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Respond to Alert</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Your Response</label>
+                                                    <textarea id="response-@alert.Id" class="form-control" rows="4" required></textarea>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="submit" class="btn btn-primary">
+                                                    <i class="fa fa-paper-plane me-1"></i> Send
+                                                </button>
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <a asp-action="ToggleStatus" asp-route-id="@alert.Id" class="btn btn-sm @(alert.IsResolved ? "btn-warning" : "btn-success")">
+                                <i class="fa @(alert.IsResolved ? "fa-undo" : "fa-check")"></i>
+                                @(alert.IsResolved ? "Undo" : "Mark as Done")
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+              function sendAdminResponse(e, id) {
+            e.preventDefault();
+
+            const responseText = document.getElementById(`response-${id}`).value;
+            const token = document.querySelector(`#replyModal-${id} input[name="__RequestVerificationToken"]`).value;
+
+            const formData = new URLSearchParams();
+            formData.append('id', id);
+            formData.append('adminResponse', responseText);
+
+            fetch('/Alerts/Respond', {
+                method: 'POST',
+                headers: {
+                    'RequestVerificationToken': token,
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById(`alert-row-${id}`).remove();
+
+                    const modalEl = document.getElementById(`replyModal-${id}`);
+                    const modal = bootstrap.Modal.getInstance(modalEl);
+                    modal.hide();
+
+                    showNotification("Response sent and alert marked as done!", "success");
+                }
+                else {
+                    showNotification("Failed to send response.", "danger");
+                }
+            })
+            .catch(() => showNotification("Error sending response.", "danger"));
+        }
+
+
+        function showNotification(message, type) {
+            const toast = document.createElement("div");
+            toast.className = `alert alert-${type} alert-dismissible fade show shadow mb-2`;
+            toast.innerHTML = `
+                <div class="d-flex align-items-center">
+                    <i class="fa fa-check-circle me-2"></i>
+                    <div>${message}</div>
+                    <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            `;
+
+            const area = document.getElementById("notificationArea");
+            if (area) area.appendChild(toast);
+
+            setTimeout(() => toast.remove(), 5000);
+        }
+    </script>
+}

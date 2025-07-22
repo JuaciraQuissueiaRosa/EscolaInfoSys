@@ -27,15 +27,16 @@ namespace EscolaInfoSys.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
-            var subjects = await _subjectRepo.GetAllAsync();
+            var subjects = await _subjectRepo.GetAllWithCourseAsync();
             return View(subjects);
         }
+
 
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();
 
-            var subject = await _subjectRepo.GetByIdAsync(id.Value);
+            var subject = await _subjectRepo.GetByIdWithCourseAsync(id.Value);
             if (subject == null) return NotFound();
 
             return View(subject);
@@ -50,7 +51,7 @@ namespace EscolaInfoSys.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,CourseId")] Subject subject)
+        public async Task<IActionResult> Create(Subject subject)
         {
             if (ModelState.IsValid)
             {
@@ -77,7 +78,7 @@ namespace EscolaInfoSys.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,CourseId")] Subject subject)
+        public async Task<IActionResult> Edit(int id, Subject subject)
         {
             if (id != subject.Id) return NotFound();
 

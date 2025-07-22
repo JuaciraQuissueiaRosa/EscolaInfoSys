@@ -4,6 +4,8 @@ using EscolaInfoSys.Hubs;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Azure.SignalR;
+using EscolaInfoSys.Hubs.SignalR;
+using Microsoft.AspNetCore.SignalR;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,10 +39,13 @@ builder.Services.ConfigureApplicationCookie(options =>
 builder.Services.RegisterRepositories();
 
 
-builder.Services.AddSignalR();
+//builder.Services.AddSignalR();
+
+
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddSignalR().AddAzureSignalR(builder.Configuration["Azure:SignalR:ConnectionString"]!);
+//builder.Services.AddSingleton<IUserIdProvider, NameUserIdProvider>();
 
 var app = builder.Build();
 

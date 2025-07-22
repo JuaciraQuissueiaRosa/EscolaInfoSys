@@ -8,14 +8,14 @@ namespace EscolaInfoSys.Data.Repositories
     {
         public SubjectRepository(ApplicationDbContext context) : base(context) { }
 
-        public override async Task<IEnumerable<Subject>> GetAllAsync()
+        public async Task<IEnumerable<Subject>> GetAllWithCourseAsync()
         {
             return await _context.Subjects
                 .Include(s => s.Course)
                 .ToListAsync();
         }
 
-        public override async Task<Subject?> GetByIdAsync(int id)
+        public async Task<Subject?> GetByIdWithCourseAsync(int id)
         {
             return await _context.Subjects
                 .Include(s => s.Course)

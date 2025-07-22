@@ -4,34 +4,37 @@
     ViewData["Title"] = "Staff Members";
 }
 
+<h2 class="page-title"><i class="fa fa-users text-primary me-2"></i> Staff Members</h2>
 
-<h2 class="page-title"><i class="fa fa-users"></i> Staff Members</h2>
 <p>
-    <a asp-action="Create" class="btn btn-primary"><i class="fa fa-plus"></i> Create New</a>
+    <a asp-action="Create" class="btn btn-primary">
+        <i class="fa fa-plus"></i> Create New
+    </a>
 </p>
-<table class="table table-hover card">
-    <thead>
-        <tr>
-            <th>@Html.DisplayNameFor(m => m.First().FullName)</th>
-            <th>@Html.DisplayNameFor(m => m.First().Email)</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>@Html.DisplayFor(m => item.FullName)</td>
-                <td>@Html.DisplayFor(m => item.Email)</td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.Id"><i class="fa fa-edit"></i> Edit</a> |
-                    <a asp-action="Details" asp-route-id="@item.Id"><i class="fa fa-eye"></i> Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.Id"><i class="fa fa-trash"></i> Delete</a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+
+<div class="row">
+    @foreach (var item in Model)
+    {
+        var user = item.ApplicationUser;
+        <div class="col-md-4 mb-4">
+            <div class="card shadow">
+                <div class="card-body text-center">
+                    <img src="@(string.IsNullOrEmpty(user?.ProfilePhoto) ? "/img/avatar-placeholder.png" : "/uploads/" + user.ProfilePhoto)"
+                         class="rounded-circle mb-3 shadow" width="100" height="100" style="object-fit: cover;" alt="Profile Picture" />
+
+                    <h5 class="card-title">@user?.Name  </h5>
+                    <p class="text-muted">@user?.Email</p>
+
+                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-primary btn-sm">
+                        <i class="fa fa-eye me-1"></i> View Details
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+
 
 @section Scripts {
     @{

@@ -8,7 +8,7 @@ namespace EscolaInfoSys.Data.Repositories
     {
         public FormGroupRepository(ApplicationDbContext context) : base(context) { }
 
-        public override async Task<IEnumerable<FormGroup>> GetAllAsync()
+        public async Task<IEnumerable<FormGroup>> GetAllWithStudentsAndSubjectsAsync()
         {
             return await _context.FormGroups
                 .Include(f => f.Students)
@@ -16,7 +16,7 @@ namespace EscolaInfoSys.Data.Repositories
                 .ToListAsync();
         }
 
-        public override async Task<FormGroup?> GetByIdAsync(int id)
+        public async Task<FormGroup?> GetByIdWithStudentsAndSubjectsAsync(int id)
         {
             return await _context.FormGroups
                 .Include(f => f.Students)
@@ -24,5 +24,6 @@ namespace EscolaInfoSys.Data.Repositories
                 .FirstOrDefaultAsync(f => f.Id == id);
         }
     }
+
 
 }

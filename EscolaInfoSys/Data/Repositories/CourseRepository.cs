@@ -8,17 +8,20 @@ namespace EscolaInfoSys.Data.Repositories
     {
         public CourseRepository(ApplicationDbContext context) : base(context) { }
 
-        public override async Task<IEnumerable<Course>> GetAllAsync()
+        public async Task<IEnumerable<Course>> GetAllWithSubjectsAsync()
         {
-            return await _context.Courses.Include(c => c.Subjects).ToListAsync();
+            return await _context.Courses
+                .Include(c => c.Subjects)
+                .ToListAsync();
         }
 
-        public override async Task<Course?> GetByIdAsync(int id)
+        public async Task<Course?> GetByIdWithSubjectsAsync(int id)
         {
             return await _context.Courses
                 .Include(c => c.Subjects)
                 .FirstOrDefaultAsync(c => c.Id == id);
         }
     }
+
 
 }

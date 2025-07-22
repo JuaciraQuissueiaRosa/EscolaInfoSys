@@ -63,9 +63,16 @@
                                     <i class="fa fa-book me-2"></i> Manage Courses
                                 </a>
                                 <a asp-controller="Students" asp-action="Index" class="dropdown-item">
-                                    <i class="fa fa-user-graduate me-2"></i> My Students
+                                    <i class="fa fa-user-graduate me-2"></i> Manage Students
                                 </a>
-                              
+                                <a asp-controller="Subjects" asp-action="Index" class="dropdown-item">
+                                    <i class="fa fa-list me-2"></i> Manage Subjects
+                                </a>
+                                <a asp-controller="Alerts" asp-action="Index" class="dropdown-item">
+                                    <i class="fa fa-bullhorn me-2 text-danger"></i> View Alerts (Admin)
+                                </a>
+
+
                             }
 
                             @if (isStaff)
@@ -82,16 +89,21 @@
                                     <i class="fa fa-bullhorn me-2 text-danger"></i> Send Alert
                                 </a>
                                 <a asp-controller="Students" asp-action="Index" class="dropdown-item">
-                                    <i class="fa fa-user-graduate me-2"></i> My Students
+                                    <i class="fa fa-user-graduate me-2"></i> Manage Students
                                 </a>
+                                <a asp-controller="Subjects" asp-action="Index" class="dropdown-item">
+                                    <i class="fa fa-list me-2"></i> Manage Subjects
+                                </a>
+                                <a asp-controller="Alerts" asp-action="MyAlerts" class="dropdown-item">
+                                    <i class="fa fa-bullhorn me-2 text-primary"></i> My Alerts
+                                </a>
+
                             }
 
                             @if (isStudent)
                             {
                                 <div class="dropdown-divider"></div>
                              
-                             
-
                                 <a asp-controller="StudentPortal" asp-action="Index" class="dropdown-item">
                                     <i class="fa fa-home me-2"></i> My Dashboard
                                 </a>
@@ -154,8 +166,6 @@
             @RenderBody()
         </div>
     </main>
-
-
 
 
 
