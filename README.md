@@ -83,12 +83,26 @@ Document photo (e.g. ID card)
 
 Stored in /wwwroot/uploads
 
+uploads
+
 .How to Run
-
-### 1. Clone the repository:
-
-```bash
+bash
+Copy
 git clone https://github.com/JuaciraQuissueiaRosa/EscolaInfoSys.git
+Open solution in Visual Studio 2022+
+
+Update appsettings.json with your local SMTP/email or Somee DB connection
+
+Run the project (F5)
+
+Seeded users:
+
+🛠️ Admin: admin@school.com / Admin123!
+
+👨‍🏫 Staff: staff@school.com / Staff123!
+
+👩‍🎓 Student: student@school.com / Student123!
+
 
 
 ##  Video Demonstration
