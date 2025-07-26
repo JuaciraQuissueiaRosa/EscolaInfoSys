@@ -18,19 +18,23 @@ namespace EscolaInfoSys.API
         }
 
         // GET: api/students/by-formgroup?id=1
-        [HttpGet("by-formgroup")]
+        [HttpGet("by-formgroup/{id}")]
         public async Task<ActionResult<IEnumerable<Student>>> GetStudentsByFormGroup(int id)
         {
-            var formGroup = await _context.FormGroups
-                .Include(f => f.Students)
-                .FirstOrDefaultAsync(f => f.Id == id);
+            var students = await _context.Students
+                .Include(s => s.FormGroup)
+                .Include(s => s.Course)
+                .Where(s => s.FormGroupId == id)
+                .ToListAsync();
 
-            if (formGroup == null)
+            if (students == null || students.Count == 0)
             {
-                return NotFound($"FormGroup with ID {id} not found.");
+                return NotFound($"No students found for FormGroup ID {id}");
             }
 
-            return Ok(formGroup.Students);
+            return Ok(students);
         }
+
+
     }
 }

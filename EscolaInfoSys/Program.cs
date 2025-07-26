@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Azure.SignalR;
 using EscolaInfoSys.Hubs.SignalR;
 using Microsoft.AspNetCore.SignalR;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -43,7 +44,13 @@ builder.Services.RegisterRepositories();
 
 
 
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+        options.JsonSerializerOptions.WriteIndented = true; // (opcional: resposta formatada)
+    });
+
 builder.Services.AddSignalR().AddAzureSignalR(builder.Configuration["Azure:SignalR:ConnectionString"]!);
 //builder.Services.AddSingleton<IUserIdProvider, NameUserIdProvider>();
 

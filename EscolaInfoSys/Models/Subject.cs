@@ -16,6 +16,7 @@ namespace EscolaInfoSys.Models
         public Course? Course { get; set; }
 
         [Required]
+        [Display(Name = "Total Lessons")]
         [Range(1, int.MaxValue, ErrorMessage = "Total lessons must be at least 1.")]
         public int TotalLessons { get; set; }
 
