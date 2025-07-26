@@ -28,12 +28,14 @@ namespace EscolaInfoSys.Models
         [Display(Name = "Document Photo")]
         public string? DocumentPhoto { get; set; }
 
+        [Display(Name = "Form Group")]
         public int FormGroupId { get; set; }
 
   
         public FormGroup? FormGroup { get; set; }
 
 
+        [Display(Name = "Course")]
         public int? CourseId{ get; set; }
 
         public Course? Course { get; set; }

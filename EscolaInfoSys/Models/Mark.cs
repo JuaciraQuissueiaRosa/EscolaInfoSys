@@ -11,15 +11,18 @@ namespace EscolaInfoSys.Models
         public float Value { get; set; }
         public DateTime Date { get; set; }
 
+        [Display(Name = "Student")]
         public int? StudentId { get; set; }
         public Student? Student { get; set; }
 
+        [Display(Name = "Subject")]
         public int? SubjectId { get; set; }
         public Subject? Subject { get; set; }
 
         [Display(Name = "Evaluation Type")]
         public EvaluationType EvaluationType { get; set; }
 
+        [Display(Name = "StaffMember")]
         public int? StaffMemberId { get; set; }
         public StaffMember? StaffMember { get; set; }
     }

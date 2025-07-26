@@ -9,13 +9,13 @@
 <form asp-action="Create" method="post" enctype="multipart/form-data" class="card p-4 main-content">
       <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-5"></div>
     <div class="mb-3">
-        <label asp-for="FullName" class="form-label"></label>
+        <label asp-for="FullName" class="form-label">Full Name</label>
         <input asp-for="FullName" class="form-control" />
         <span asp-validation-for="FullName" class="text-danger"></span>
     </div>
 
     <div class="mb-3">
-        <label asp-for="PupilNumber" class="form-label"></label>
+        <label asp-for="PupilNumber" class="form-label">Student Number</label>
         <input asp-for="PupilNumber" class="form-control" />
         <span asp-validation-for="PupilNumber" class="text-danger"></span>
     </div>
@@ -38,14 +38,14 @@
     </div>
 
     <div class="mb-3">
-        <label asp-for="FormGroupId" class="form-label"></label>
+        <label asp-for="FormGroupId" class="form-label"> FormGroup</label>
         <select asp-for="FormGroupId" asp-items="ViewBag.FormGroupId" class="form-select">
             <option value="">-- Select Form Group --</option>
         </select>
         <span asp-validation-for="FormGroupId" class="text-danger"></span>
     </div>
     <div class="mb-3">
-        <label asp-for="CourseId" class="form-label"></label>
+        <label asp-for="CourseId" class="form-label">Course</label>
         <select asp-for="CourseId" asp-items="ViewBag.CourseId" class="form-select">
             <option value="">-- Select one Course to Include the Student --</option>
         </select>
