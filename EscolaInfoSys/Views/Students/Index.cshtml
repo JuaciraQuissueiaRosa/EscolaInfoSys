@@ -31,7 +31,11 @@
                 <td>
                     @if (!string.IsNullOrEmpty(student.ProfilePhoto))
                     {
-                        <img src="@student.ProfilePhoto" alt="Profile Photo" class="rounded-circle" style="width:40px; height:40px; object-fit:cover;" />
+                        <img src="@(string.IsNullOrEmpty(student.ProfilePhoto) ? "~/images/default.png" : student.ProfilePhoto)"
+                             alt="Profile Photo"
+                             class="rounded-circle"
+                             style="width:40px; height:40px; object-fit:cover;" />
+
                     }
                     else
                     {

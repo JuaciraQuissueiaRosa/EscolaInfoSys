@@ -25,7 +25,7 @@
                 {
                     <tr>
                         <td>@item.Name</td>
-                        <td>@item.Students?.Count() ?? 0</td>
+                        <td>@item.Students?.Count() </td>
                         <td>
                             @if (item.Subjects != null && item.Subjects.Any())
                             {
@@ -33,10 +33,10 @@
                             }
                             else
                             {
-                                <span class="text-muted">No subjects</span>
+                                <span class="text-muted"> </span>
                             }
                         </td>
-                        <td>@item.Course?.Name  "<span class='text-muted'>No course</span>"</td> 
+                        <td>@item.Course?.Name <span class='text-muted'></span></td> 
                         <td class="text-end">
                             <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary"><i class="fa fa-edit"></i></a>
                             <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary"><i class="fa fa-eye"></i></a>

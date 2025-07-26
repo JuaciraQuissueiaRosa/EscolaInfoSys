@@ -12,7 +12,7 @@
             <dd class="col-sm-9">@Model.Name</dd>
 
             <dt class="col-sm-3">Number of Students</dt>
-            <dd class="col-sm-9">@Model.Students?.Count() ?? 0</dd>
+            <dd class="col-sm-9">@Model.Students?.Count()</dd>
 
             <dt class="col-sm-3">Subjects</dt>
             <dd class="col-sm-9">
@@ -27,12 +27,12 @@
                 }
                 else
                 {
-                    <span class="text-muted">No subjects assigned</span>
+                    <span class="text-muted"></span>
                 }
             </dd>
 
             <dt class="col-sm-3">Course</dt>
-            <dd class="col-sm-9">@Model.Course?.Name "<span class='text-muted'>No course assigned</span>"</dd>
+            <dd class="col-sm-9">@Model.Course?.Name <span class='text-muted'></span></dd>
         </dl>
 
         <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">
