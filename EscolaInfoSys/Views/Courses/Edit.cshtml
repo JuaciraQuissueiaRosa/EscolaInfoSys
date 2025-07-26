@@ -23,6 +23,13 @@
                 <span asp-validation-for="Description" class="text-danger"></span>
             </div>
 
+            <div class="mb-3">
+                <label asp-for="FormGroups" class="form-label">Form Groups</label>
+                <select asp-items="ViewBag.FormGroups" name="SelectedFormGroupIds" multiple class="form-select" size="5"></select>
+            </div>
+
+
+
             <button type="submit" class="btn btn-success"><i class="fa fa-save"></i> Save</button>
             <a asp-action="Index" class="btn btn-secondary ms-2"><i class="fa fa-arrow-left"></i> Back</a>
         </form>

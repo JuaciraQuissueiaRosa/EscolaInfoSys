@@ -12,6 +12,7 @@ namespace EscolaInfoSys.Data.Repositories
         {
             return await _context.Students
                 .Include(s => s.FormGroup)
+                   .Include(s => s.Course)
                 .ToListAsync();
         }
 
@@ -19,6 +20,7 @@ namespace EscolaInfoSys.Data.Repositories
         {
             return await _context.Students
                 .Include(s => s.FormGroup)
+                .Include(s=>s.Course)
                 .FirstOrDefaultAsync(s => s.Id == id);
         }
 
@@ -30,6 +32,7 @@ namespace EscolaInfoSys.Data.Repositories
                     .ThenInclude(m => m.Subject)
                 .Include(s => s.Absences)
                     .ThenInclude(a => a.Subject)
+                    .Include(a=>a.Course)
                 .FirstOrDefaultAsync(s => s.Id == id);
         }
 
@@ -54,6 +57,25 @@ namespace EscolaInfoSys.Data.Repositories
                 .FirstOrDefaultAsync(s => s.ApplicationUserId == userId);
         }
 
+        public async Task UpdateSelectedFieldsAsync(Student student)
+        {
+            var existing = await _context.Students.FindAsync(student.Id);
+            if (existing == null) return;
+
+            // Atualização de campos permitidos
+            existing.FullName = student.FullName;
+            existing.PupilNumber = student.PupilNumber;
+            existing.Email = student.Email;
+            existing.FormGroupId = student.FormGroupId;
+            existing.ProfilePhoto = student.ProfilePhoto;
+            existing.DocumentPhoto = student.DocumentPhoto;
+
+            // Mantém o ApplicationUserId existente (caso tenha sido apagado por acidente)
+            if (!string.IsNullOrEmpty(student.ApplicationUserId))
+                existing.ApplicationUserId = student.ApplicationUserId;
+
+            await _context.SaveChangesAsync();
+        }
 
     }
 

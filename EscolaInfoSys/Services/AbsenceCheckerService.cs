@@ -31,8 +31,10 @@ namespace EscolaInfoSys.Services
                 return;
 
             var absences = await _absenceRepo.CountByStudentAndSubjectAsync(studentId, subjectId);
-            var settings = await _settingsRepo.GetSettingsAsync();
+            if (absences == 0)
+                return; //nenhuma falta registrada
 
+            var settings = await _settingsRepo.GetSettingsAsync();
             double percentage = (double)absences / subject.TotalLessons * 100.0;
 
             var exclusion = await _exclusionRepo.GetByStudentAndSubjectAsync(studentId, subjectId);
@@ -49,6 +51,7 @@ namespace EscolaInfoSys.Services
             exclusion.IsExcluded = percentage >= settings.MaxAbsencePercentage;
             await _exclusionRepo.SaveAsync();
         }
+
     }
 
 

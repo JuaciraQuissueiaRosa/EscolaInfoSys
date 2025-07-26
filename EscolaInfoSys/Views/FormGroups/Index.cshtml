@@ -7,12 +7,16 @@
 <div class="mb-3">
     <a asp-action="Create" class="btn btn-primary"><i class="fa fa-plus-circle"></i> Create New</a>
 </div>
+
 <div class="card">
     <div class="table-responsive">
         <table class="table table-vcenter card-table">
             <thead>
                 <tr>
-                    <th>@Html.DisplayNameFor(model => model.First().Name)</th>
+                    <th>Name</th>
+                    <th>Number of Students</th>
+                    <th>Subjects</th>
+                    <th>Course</th>
                     <th></th>
                 </tr>
             </thead>
@@ -20,7 +24,19 @@
                 @foreach (var item in Model)
                 {
                     <tr>
-                        <td>@Html.DisplayFor(modelItem => item.Name)</td>
+                        <td>@item.Name</td>
+                        <td>@item.Students?.Count() ?? 0</td>
+                        <td>
+                            @if (item.Subjects != null && item.Subjects.Any())
+                            {
+                                @string.Join(", ", item.Subjects.Select(s => s.Name))
+                            }
+                            else
+                            {
+                                <span class="text-muted">No subjects</span>
+                            }
+                        </td>
+                        <td>@item.Course?.Name  "<span class='text-muted'>No course</span>"</td> 
                         <td class="text-end">
                             <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary"><i class="fa fa-edit"></i></a>
                             <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary"><i class="fa fa-eye"></i></a>
@@ -32,7 +48,6 @@
         </table>
     </div>
 </div>
-
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");

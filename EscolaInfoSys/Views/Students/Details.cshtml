@@ -20,6 +20,9 @@
         <dt class="col-sm-3">Form Group</dt>
         <dd class="col-sm-9">@Model.FormGroup?.Name</dd>
 
+        <dt class="col-sm-3">Course</dt>
+        <dd class="col-sm-9">@Model.Course?.Name</dd>
+
         <dt class="col-sm-3">Profile Photo</dt>
         <dd class="col-sm-9">
             @if (!string.IsNullOrEmpty(Model.ProfilePhoto))
@@ -43,6 +46,8 @@
                 <span class="text-muted">No document photo</span>
             }
         </dd>
+
+       
     </dl>
 
     <div class="mt-4">
@@ -50,3 +55,9 @@
         <a asp-action="Index" class="btn btn-secondary"><i class="fa fa-arrow-left"></i> Back to List</a>
     </div>
 </div>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+

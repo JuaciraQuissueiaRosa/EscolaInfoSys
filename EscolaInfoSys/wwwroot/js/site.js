@@ -4,17 +4,13 @@
 // Write your JavaScript code.
 
 function markAlertAsResolved(id) {
-    fetch(`/Alerts/MarkAsResolvedAjax`, {
-        method: "POST",
+    fetch('/Alerts/Respond', {
+        method: 'POST',
         headers: {
-            "RequestVerificationToken": document.querySelector("input[name='__RequestVerificationToken']").value
+            'Content-Type': 'application/x-www-form-urlencoded'
         },
-        body: new URLSearchParams({ id })
+        body: `__RequestVerificationToken=${token}&id=${id}&adminResponse=${encodeURIComponent(responseText)}`
     })
-        .then(res => {
-            if (res.ok) {
-                document.querySelector(`#alert-row-${id}`)?.remove(); // remove from table
-            }
-        });
+
 }
 

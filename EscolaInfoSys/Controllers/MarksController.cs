@@ -37,18 +37,16 @@ namespace EscolaInfoSys.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var marks = await _markRepo.GetAllAsync();
+            var (excludedStudentIds, excludedSubjectIds) = await _exclusionRepo.GetExcludedStudentAndSubjectIdsAsync();
 
-            var studentIds = marks.Select(m => m.StudentId).Distinct();
-            var subjectIds = marks.Select(m => m.SubjectId).Distinct();
-            var exclusions = await _exclusionRepo.GetAllAsync();
+            var marks = await _markRepo.GetValidMarksAsync(excludedStudentIds, excludedSubjectIds);
 
-            ViewBag.Exclusions = exclusions
-                .Where(e => studentIds.Contains(e.StudentId) && subjectIds.Contains(e.SubjectId))
-                .ToList();
+            ViewBag.Exclusions = await _exclusionRepo.GetAllAsync(); //disponível para exibição na View
+           
 
             return View(marks);
         }
+
 
         public async Task<IActionResult> Details(int? id)
         {
@@ -59,6 +57,7 @@ namespace EscolaInfoSys.Controllers
 
             return View(mark);
         }
+
 
         public async Task<IActionResult> Create()
         {

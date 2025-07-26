@@ -38,6 +38,16 @@ using Microsoft.AspNetCore.Identity;
             await CreateUserIfNotExists(userManager, context, "staff@school.com", "Staff123!", "StaffMember", "Prof. João da Silva");
             await CreateUserIfNotExists(userManager, context, "student@school.com", "Student123!", "Student", "Maria Silva", "STU001", formGroup.Id);
 
+            // Seed de configuração do sistema
+            if (!context.SystemSettings.Any())
+            {
+                context.SystemSettings.Add(new SystemSettings
+                {
+                    MaxAbsencePercentage = 25
+                });
+            }
+
+
             await context.SaveChangesAsync();
         }
 
@@ -80,7 +90,9 @@ using Microsoft.AspNetCore.Identity;
                 else if (role == "Student")
                 {
                     if (string.IsNullOrEmpty(pupilNumber) || formGroupId == null)
-                        throw new Exception("Student requer PupilNumber e FormGroupId");
+                        throw new Exception("Student requer StudentNumber e FormGroupId");
+
+                    user.ProfilePhoto = "default.png"; 
 
                     context.Students.Add(new Student
                     {
@@ -88,9 +100,11 @@ using Microsoft.AspNetCore.Identity;
                         Email = email,
                         PupilNumber = pupilNumber,
                         FormGroupId = formGroupId.Value,
-                        ApplicationUserId = user.Id
+                        ApplicationUserId = user.Id,
+                        ProfilePhoto = "default.png" 
                     });
                 }
+
             }
         }
     }

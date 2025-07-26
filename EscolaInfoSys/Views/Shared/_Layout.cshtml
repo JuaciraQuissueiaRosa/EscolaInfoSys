@@ -152,13 +152,25 @@
         </div>
     </header>
 
-    @* Alerts for administrator *@
-    @if (User.Identity.IsAuthenticated && User.IsInRole("Administrator"))
+  
+     @if (User.Identity.IsAuthenticated && User.IsInRole("Administrator"))
     {
         <div class="container mt-4">
             @await Component.InvokeAsync("Alerts")
         </div>
     }
+
+
+
+
+
+@* 
+     <div id="alertsContainer">
+        <p><em>Loading Alerts.....</em></p>
+    </div>  *@
+ 
+
+
 
     <div id="notificationArea" class="position-fixed top-0 end-0 p-3" style="z-index: 1055;"></div>
     <main class="main-content" style="padding-bottom: 120px;">
@@ -239,6 +251,21 @@
         });
     </script>
    
+@*     <script>
+        function fetchAlerts() {
+            fetch('/Alerts/GetNewAlerts')
+                .then(response => response.text())
+                .then(html => {
+                    document.getElementById('alertsContainer').innerHTML = html;
+                })
+                .catch(error => console.error('Erro ao buscar alertas:', error));
+        }
+
+        // Atualiza a cada 15 segundos
+        setInterval(fetchAlerts, 15000);
+        fetchAlerts(); // carregar logo ao abrir
+    </script> *@
+
 </body>
 </html>
 

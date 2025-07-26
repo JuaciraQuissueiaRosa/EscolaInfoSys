@@ -11,13 +11,13 @@
     <input type="hidden" asp-for="Id" />
 
     <div class="mb-3">
-        <label asp-for="FullName" class="form-label"></label>
+        <label asp-for="FullName" class="form-label">Full Name</label>
         <input asp-for="FullName" class="form-control" />
         <span asp-validation-for="FullName" class="text-danger"></span>
     </div>
 
     <div class="mb-3">
-        <label asp-for="PupilNumber" class="form-label"></label>
+        <label asp-for="PupilNumber" class="form-label">Student Number</label>
         <input asp-for="PupilNumber" class="form-control" />
         <span asp-validation-for="PupilNumber" class="text-danger"></span>
     </div>
@@ -35,11 +35,17 @@
     </div>
 
     <div class="mb-3">
+        <label asp-for="CourseId" class="form-label">Course</label>
+        <select asp-for="CourseId" class="form-select" asp-items="ViewBag.CourseId"></select>
+        <span asp-validation-for="CourseId" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
         <label class="form-label">Profile Photo</label>
         @if (!string.IsNullOrEmpty(Model.ProfilePhoto))
         {
             <div class="mb-2">
-                <img src="~/uploads/@Model.ProfilePhoto" alt="Profile" width="100" class="rounded" />
+                <img src="@Url.Content("~/uploads/" + Model.ProfilePhoto)" width="100" class="rounded" />
             </div>
         }
         <input type="file" name="ProfilePhotoFile" class="form-control" />
@@ -50,7 +56,7 @@
         @if (!string.IsNullOrEmpty(Model.DocumentPhoto))
         {
             <div class="mb-2">
-                <img src="~/uploads/@Model.DocumentPhoto" alt="Document" width="100" class="rounded" />
+                <img src="@Url.Content("~/uploads/" + Model.DocumentPhoto)" width="100" class="rounded" />
             </div>
         }
         <input type="file" name="DocumentPhotoFile" class="form-control" />
@@ -63,7 +69,5 @@
 </form>
 
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    @await Html.PartialAsync("_ValidationScriptsPartial")
 }

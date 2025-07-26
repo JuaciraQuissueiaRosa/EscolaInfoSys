@@ -10,13 +10,13 @@ namespace EscolaInfoSys.Models
         [DataType(DataType.Date)]
         public DateTime Date { get; set; }
 
-        [Required]
-        public int StudentId { get; set; }
-        public Student Student { get; set; }
 
-        [Required]
-        public int SubjectId { get; set; }
-        public Subject Subject { get; set; }
+        public int ? StudentId { get; set; }
+        public Student? Student { get; set; }
+
+      
+        public int? SubjectId { get; set; }
+        public Subject? Subject { get; set; }
 
         public bool Justified { get; set; }
     }

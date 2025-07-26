@@ -22,6 +22,7 @@ namespace EscolaInfoSys.Controllers
     {
         private readonly IStudentRepository _studentRepo;
         private readonly IFormGroupRepository _formGroupRepo;
+        private readonly ICourseRepository _courseRepo;
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IEmailSender _emailSender;
@@ -29,12 +30,14 @@ namespace EscolaInfoSys.Controllers
         public StudentsController(
             IStudentRepository studentRepo,
             IFormGroupRepository formGroupRepo,
-            IWebHostEnvironment webHostEnvironment,
+             ICourseRepository courseRepo,
+           IWebHostEnvironment webHostEnvironment,
             UserManager<ApplicationUser> userManager,
             IEmailSender emailSender)
         {
             _studentRepo = studentRepo;
             _formGroupRepo = formGroupRepo;
+            _courseRepo = courseRepo;
             _webHostEnvironment = webHostEnvironment;
             _userManager = userManager;
             _emailSender = emailSender;
@@ -58,6 +61,8 @@ namespace EscolaInfoSys.Controllers
             var exclusions = await _studentRepo.GetExclusionsAsync(student.Id);
             ViewBag.Exclusions = exclusions;
 
+          
+
             return View(student);
         }
 
@@ -65,6 +70,9 @@ namespace EscolaInfoSys.Controllers
         {
             var formGroups = await _formGroupRepo.GetAllAsync();
             ViewData["FormGroupId"] = new SelectList(formGroups, "Id", "Name");
+
+            var course = await _courseRepo.GetAllAsync();
+            ViewData["CourseId"] = new SelectList(course, "Id", "Name");
             return View();
         }
 
@@ -132,6 +140,8 @@ namespace EscolaInfoSys.Controllers
 
             var fg = await _formGroupRepo.GetAllAsync();
             ViewData["FormGroupId"] = new SelectList(fg, "Id", "Name", student.FormGroupId);
+            var course = await _formGroupRepo.GetAllAsync();
+            ViewData["CourseId"] = new SelectList(course, "Id", "Name", student.CourseId);
             return View(student);
         }
 
@@ -139,17 +149,22 @@ namespace EscolaInfoSys.Controllers
         {
             if (id == null) return NotFound();
 
-            var student = await _studentRepo.GetByIdAsync(id.Value);
+            var student = await _studentRepo.GetFullByIdAsync(id.Value);
             if (student == null) return NotFound();
 
-            var formGroups = await _formGroupRepo.GetAllAsync();
-            ViewData["FormGroupId"] = new SelectList(formGroups, "Id", "Name", student.FormGroupId);
+            ViewData["FormGroupId"] = new SelectList(
+                await _formGroupRepo.GetAllAsync(), "Id", "Name", student.FormGroupId
+            );
+            ViewData["CourseId"] = new SelectList(
+              await _courseRepo.GetAllAsync(), "Id", "Name", student.CourseId
+            );
+
             return View(student);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Student student, IFormFile ProfilePhotoFile, IFormFile DocumentPhotoFile)
+        public async Task<IActionResult> Edit(int id, Student student, IFormFile? ProfilePhotoFile, IFormFile? DocumentPhotoFile)
         {
             if (id != student.Id) return NotFound();
 
@@ -157,40 +172,87 @@ namespace EscolaInfoSys.Controllers
             {
                 try
                 {
+                    var existingStudent = await _studentRepo.GetByIdAsync(id);
+                    if (existingStudent == null) return NotFound();
+
+                    // Copia os campos que não vêm do formulário
+                    student.ApplicationUserId = existingStudent.ApplicationUserId;
+
+                    // Se enviou nova imagem de perfil
                     if (ProfilePhotoFile != null)
                     {
-                        var fileName = Guid.NewGuid() + Path.GetExtension(ProfilePhotoFile.FileName);
-                        var path = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", fileName);
-                        using var stream = new FileStream(path, FileMode.Create);
+                        var profileFileName = Guid.NewGuid() + Path.GetExtension(ProfilePhotoFile.FileName);
+                        var profilePath = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", profileFileName);
+                        using var stream = new FileStream(profilePath, FileMode.Create);
                         await ProfilePhotoFile.CopyToAsync(stream);
-                        student.ProfilePhoto = fileName;
+                        student.ProfilePhoto = profileFileName;
+                    }
+                    else
+                    {
+                        // Mantém a anterior se não foi enviado novo ficheiro
+                        student.ProfilePhoto = existingStudent.ProfilePhoto;
                     }
 
+                    // Se enviou novo documento
                     if (DocumentPhotoFile != null)
                     {
-                        var fileName = Guid.NewGuid() + Path.GetExtension(DocumentPhotoFile.FileName);
-                        var path = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", fileName);
-                        using var stream = new FileStream(path, FileMode.Create);
+                        var docFileName = Guid.NewGuid() + Path.GetExtension(DocumentPhotoFile.FileName);
+                        var docPath = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", docFileName);
+                        using var stream = new FileStream(docPath, FileMode.Create);
                         await DocumentPhotoFile.CopyToAsync(stream);
-                        student.DocumentPhoto = fileName;
+                        student.DocumentPhoto = docFileName;
+                    }
+                    else
+                    {
+                        student.DocumentPhoto = existingStudent.DocumentPhoto;
                     }
 
-                    await _studentRepo.UpdateAsync(student);
+                    await _studentRepo.UpdateSelectedFieldsAsync(student);
+
+                    // Atualiza imagem no Identity se necessário
+                    if (!string.IsNullOrEmpty(student.ApplicationUserId) && !string.IsNullOrEmpty(student.ProfilePhoto))
+                    {
+                        var user = await _userManager.FindByIdAsync(student.ApplicationUserId);
+                        if (user != null)
+                        {
+                            user.ProfilePhoto = student.ProfilePhoto;
+                            await _userManager.UpdateAsync(user);
+                        }
+                    }
+
+                    TempData["Success"] = "Student updated successfully.";
+                    return RedirectToAction(nameof(Index));
                 }
                 catch
                 {
                     if (!await _studentRepo.ExistsAsync(student.Id))
                         return NotFound();
-                    else
-                        throw;
+                    throw;
                 }
-                return RedirectToAction(nameof(Index));
             }
 
+            // Se ModelState for inválido, preenche o ViewData novamente
             var formGroups = await _formGroupRepo.GetAllAsync();
             ViewData["FormGroupId"] = new SelectList(formGroups, "Id", "Name", student.FormGroupId);
+
+            var course = await _formGroupRepo.GetAllAsync();
+            ViewData["CourseId"] = new SelectList(course, "Id", "Name", student.CourseId);
+
+            // Restaura imagens do BD para reexibir
+            var original = await _studentRepo.GetFullByIdAsync(student.Id);
+            if (original != null)
+            {
+                student.ProfilePhoto = original.ProfilePhoto;
+                student.DocumentPhoto = original.DocumentPhoto;
+                student.FormGroup = original.FormGroup;
+                student.ApplicationUserId = original.ApplicationUserId;
+            }
+
             return View(student);
         }
+
+
+
 
         public async Task<IActionResult> Delete(int? id)
         {

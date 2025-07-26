@@ -49,7 +49,7 @@
 
                             <td>@item.Subject?.Name</td>
                             <td>@item.EvaluationType</td>
-                            <td>@item.StaffMember?.Email</td>
+                            <td>@(item.StaffMember.FullName)</td>
                             <td class="text-end">
                                 <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning"><i class="fa fa-edit"></i> Edit</a>
                                 <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info"><i class="fa fa-info-circle"></i> Details</a>

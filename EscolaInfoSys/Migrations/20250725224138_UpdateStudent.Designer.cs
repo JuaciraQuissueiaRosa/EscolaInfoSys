@@ -4,6 +4,7 @@ using EscolaInfoSys.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EscolaInfoSys.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250725224138_UpdateStudent")]
+    partial class UpdateStudent
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -189,16 +192,11 @@ namespace EscolaInfoSys.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("CourseId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CourseId");
 
                     b.ToTable("FormGroups");
                 });
@@ -541,15 +539,6 @@ namespace EscolaInfoSys.Migrations
                     b.Navigation("StaffMember");
                 });
 
-            modelBuilder.Entity("EscolaInfoSys.Models.FormGroup", b =>
-                {
-                    b.HasOne("EscolaInfoSys.Models.Course", "Course")
-                        .WithMany("FormGroups")
-                        .HasForeignKey("CourseId");
-
-                    b.Navigation("Course");
-                });
-
             modelBuilder.Entity("EscolaInfoSys.Models.Mark", b =>
                 {
                     b.HasOne("EscolaInfoSys.Models.StaffMember", "StaffMember")
@@ -691,8 +680,6 @@ namespace EscolaInfoSys.Migrations
 
             modelBuilder.Entity("EscolaInfoSys.Models.Course", b =>
                 {
-                    b.Navigation("FormGroups");
-
                     b.Navigation("Subjects");
                 });
 

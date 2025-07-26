@@ -34,6 +34,15 @@ namespace EscolaInfoSys.Data.Repositories
                 .OrderByDescending(a => a.CreatedAt)
                 .ToListAsync();
         }
+
+        public override async Task<Alert?> GetByIdAsync(int id)
+        {
+            return await _context.Alerts
+                .Include(a => a.StaffMember)
+                    .ThenInclude(s => s.ApplicationUser)
+                .FirstOrDefaultAsync(a => a.Id == id);
+        }
+
     }
 
 

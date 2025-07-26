@@ -14,6 +14,9 @@ namespace EscolaInfoSys.Data.Repositories.Interfaces
 
         Task<Student?> GetByUserIdAsync(string userId);
 
+        Task UpdateSelectedFieldsAsync(Student student);
+
+
 
     }
 

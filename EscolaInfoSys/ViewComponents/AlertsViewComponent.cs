@@ -16,7 +16,7 @@ namespace EscolaInfoSys.ViewComponents
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            var pendingAlerts = (await _alertRepository.GetAllAsync())
+            var pendingAlerts = (await _alertRepository.GetAllWithStaffAsync())
                 .Where(a => !a.IsResolved && string.IsNullOrEmpty(a.AdminResponse))
                 .OrderByDescending(a => a.CreatedAt)
                 .Take(5)

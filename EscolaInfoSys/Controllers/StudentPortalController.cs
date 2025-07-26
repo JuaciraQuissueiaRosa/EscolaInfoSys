@@ -32,12 +32,20 @@ namespace EscolaInfoSys.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var userId = _userManager.GetUserId(User);
-            var student = await _studentRepo.GetByApplicationUserIdAsync(userId);
+            try
+            {
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null) return RedirectToAction("Login", "Account");
 
-            if (student == null) return NotFound();
+                var student = await _studentRepo.GetByApplicationUserIdAsync(user.Id);
+                if (student == null) return NotFound();
 
-            return View(student); 
+                return View(student);
+            }
+            catch (Exception ex)
+            {
+                return Content("Erro: " + ex.Message);
+            }
         }
 
         public async Task<IActionResult> MyMarks()
@@ -64,7 +72,7 @@ namespace EscolaInfoSys.Controllers
             var myAbsences = allAbsences.Where(a => a.StudentId == student.Id).ToList();
 
             var settings = await _settingsRepo.GetSettingsAsync();
-            double maxAllowedAbsences = settings?.MaxAbsencePercentage ?? 30.0; // interpretado como "30 faltas"
+            double maxAllowedAbsences = settings?.MaxAbsencePercentage ?? 15.0; // interpretado como "15 faltas"
 
             int totalAbsences = myAbsences.Count;
             double progress = maxAllowedAbsences == 0 ? 0 : (100.0 * totalAbsences / maxAllowedAbsences);

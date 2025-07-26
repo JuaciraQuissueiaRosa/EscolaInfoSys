@@ -1,0 +1,10 @@
+﻿@model IEnumerable<EscolaInfoSys.Models.Alert>
+
+@foreach (var alert in Model)
+{
+    <div class="alert alert-warning mb-2">
+        <strong>@alert.Title</strong><br />
+        @alert.Message<br />
+        <small>@alert.StaffMember.ApplicationUser.Name - @alert.CreatedAt.ToString("g")</small>
+    </div>
+}
