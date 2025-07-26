@@ -36,7 +36,9 @@ using Microsoft.AspNetCore.Identity;
           
             await CreateUserIfNotExists(userManager, context, "admin@school.com", "Admin123!", "Administrator", "Admin User");
             await CreateUserIfNotExists(userManager, context, "staff@school.com", "Staff123!", "StaffMember", "Prof. João da Silva");
-            await CreateUserIfNotExists(userManager, context, "student@school.com", "Student123!", "Student", "Maria Silva", "STU001", formGroup.Id);
+            var randomPupilNumber = GenerateRandomPupilNumber(context);
+            await CreateUserIfNotExists(userManager, context, "student@school.com", "Student123!", "Student", "Maria Silva", randomPupilNumber, formGroup.Id);
+
 
             // Seed de configuração do sistema
             if (!context.SystemSettings.Any())
@@ -107,9 +109,26 @@ using Microsoft.AspNetCore.Identity;
 
             }
         }
+
+
+        private static string GenerateRandomPupilNumber(ApplicationDbContext context)
+        {
+            var random = new Random();
+            string pupilNumber;
+
+            do
+            {
+                int number = random.Next(10000, 99999); // 5 dígitos
+                pupilNumber = $"STU-{number}";
+            }
+            while (context.Students.Any(s => s.PupilNumber == pupilNumber)); // Evita duplicados
+
+            return pupilNumber;
+        }
+
     }
 
-  }
+}
 
 
 
