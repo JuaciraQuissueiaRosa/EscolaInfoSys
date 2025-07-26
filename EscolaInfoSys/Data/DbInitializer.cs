@@ -78,8 +78,10 @@ using Microsoft.AspNetCore.Identity;
                 });
             }
 
+            await context.SaveChangesAsync();
 
-          
+
+
         }
 
         private static async Task CreateUserIfNotExists(
