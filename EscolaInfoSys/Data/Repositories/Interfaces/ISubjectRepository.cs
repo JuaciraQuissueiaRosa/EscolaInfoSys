@@ -6,6 +6,9 @@ namespace EscolaInfoSys.Data.Repositories.Interfaces
     {
         Task<IEnumerable<Subject>> GetAllWithCourseAsync();
         Task<Subject?> GetByIdWithCourseAsync(int id);
+
+        Task<IEnumerable<Subject>> GetByIdsAsync(IEnumerable<int> ids);
+
     }
 
 

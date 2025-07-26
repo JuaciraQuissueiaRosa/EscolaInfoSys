@@ -44,7 +44,13 @@
         </select>
         <span asp-validation-for="FormGroupId" class="text-danger"></span>
     </div>
-
+    <div class="mb-3">
+        <label asp-for="CourseId" class="form-label"></label>
+        <select asp-for="CourseId" asp-items="ViewBag.CourseId" class="form-select">
+            <option value="">-- Select one Course to Include the Student --</option>
+        </select>
+        <span asp-validation-for="CourseId" class="text-danger"></span>
+    </div>
         <div class="mt-4 sticky-bottom bg-white py-3">
         <button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> Create</button>
         <a asp-action="Index" class="btn btn-secondary"><i class="fa fa-arrow-left"></i> Cancel</a>

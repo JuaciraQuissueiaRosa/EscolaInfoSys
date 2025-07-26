@@ -26,7 +26,15 @@
                     <tr id="alert-row-@alert.Id">
                         <td>@alert.Title</td>
                         <td>@alert.Message</td>
-                        <td>@alert.StaffMember?.ApplicationUser?.Name ?? alert.StaffMember?.ApplicationUser?.UserName ?? "Unknown"</td>
+                        <td>
+                            @(
+                                alert.StaffMember?.FullName
+                                ?? alert.StaffMember?.ApplicationUser?.Name
+                                ?? alert.StaffMember?.ApplicationUser?.Email
+                                ?? "Unknown"
+                                )
+                        </td>
+
                         <td>@alert.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
                         <td>
                             @if (alert.IsResolved)
@@ -96,31 +104,34 @@
             formData.append('id', id);
             formData.append('adminResponse', responseText);
 
-            fetch('/Alerts/Respond', {
-                method: 'POST',
-                headers: {
-                    'RequestVerificationToken': token,
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                body: formData
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    document.getElementById(`alert-row-${id}`).remove();
+                 fetch('/Alerts/Respond', {
+            method: 'POST',
+            headers: {
+                'RequestVerificationToken': token,
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: formData.toString()
+        })
+                     .then(response => response.json()) // << importante
+        .then(data => {
+            if (data.success) {
+                document.getElementById(`alert-row-${id}`).remove();
 
-                    const modalEl = document.getElementById(`replyModal-${id}`);
-                    const modal = bootstrap.Modal.getInstance(modalEl);
-                    modal.hide();
+                const modalEl = document.getElementById(`replyModal-${id}`);
+                const modal = bootstrap.Modal.getInstance(modalEl);
+                modal.hide();
 
-                    showNotification("Response sent and alert marked as done!", "success");
-                }
-                else {
-                    showNotification("Failed to send response.", "danger");
-                }
-            })
-            .catch(() => showNotification("Error sending response.", "danger"));
-        }
+                showNotification("Response sent and alert marked as done!", "success");
+            } else {
+                const msg = data.message || "Failed to send response.";
+                showNotification(msg, "danger");
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification("An error occurred while sending the response.", "danger");
+        });
+
 
 
         function showNotification(message, type) {

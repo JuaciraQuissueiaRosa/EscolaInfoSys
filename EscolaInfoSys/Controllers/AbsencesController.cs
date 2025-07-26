@@ -23,63 +23,86 @@ namespace EscolaInfoSys.Controllers
         private readonly ISubjectRepository _subjectRepo;
         private readonly AbsenceCheckerService _absenceChecker;
         private readonly IHubContext<NotificationHub> _hubContext;
+        private readonly IStudentExclusionRepository _exclusionRepo;
+        private readonly AbsenceStatsService _absenceStats;
+
 
         public AbsencesController(
             IAbsenceRepository absenceRepo,
             IStudentRepository studentRepo,
             ISubjectRepository subjectRepo,
             AbsenceCheckerService absenceChecker,
-            IHubContext<NotificationHub> hubContext)
+            IHubContext<NotificationHub> hubContext,
+             IStudentExclusionRepository exclusionRepo,
+             AbsenceStatsService absenceStats)
         {
             _absenceRepo = absenceRepo;
             _studentRepo = studentRepo;
             _subjectRepo = subjectRepo;
             _absenceChecker = absenceChecker;
             _hubContext = hubContext;
+            _exclusionRepo = exclusionRepo;
+            _absenceStats = absenceStats;
         }
 
         public async Task<IActionResult> Index()
         {
-            var absences = await _absenceRepo.GetAllAsync();
-            return View(absences);
+            var stats = await _absenceStats.GetAbsenceStatsAsync();
+
+            ViewBag.Exclusions = stats.Exclusions;
+            ViewBag.Percentages = stats.Percentages;
+            ViewBag.MaxAbsences = stats.MaxAbsences;
+
+            return View(stats.Absences);
         }
+
+
+
+
 
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();
 
-            var absence = await _absenceRepo.GetByIdAsync(id.Value);
+            var absence = await _absenceRepo.GetByIdWithStudentAndSubjectAsync(id.Value);
             if (absence == null) return NotFound();
 
             return View(absence);
         }
 
+
         public async Task<IActionResult> Create()
         {
-            ViewData["StudentId"] = new SelectList(await _studentRepo.GetAllAsync(), "Id", "Email");
+            var students = await _studentRepo.GetAllAsync();
+            ViewData["StudentId"] = new SelectList(students, "Id", "FullName");
+
             ViewData["SubjectId"] = new SelectList(await _subjectRepo.GetAllAsync(), "Id", "Name");
-            return View();
+            return View(); 
         }
+
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Date,StudentId,SubjectId,Justified")] Absence absence)
+        public async Task<IActionResult> Create(Absence absence)
         {
             if (ModelState.IsValid)
             {
                 await _absenceRepo.AddAsync(absence);
-                await _absenceChecker.CheckExclusionAsync(absence.StudentId, absence.SubjectId);
 
-               
+                // Só chama o checker se ambos os campos estiverem preenchidos
+                if (absence.StudentId.HasValue && absence.SubjectId.HasValue)
+                {
+                    await _absenceChecker.CheckExclusionAsync(absence.StudentId.Value, absence.SubjectId.Value);
+                }
+
                 await _hubContext.Clients.All.SendAsync("ReceiveNotification", "Absence successfully registered!", "info");
-
                 return RedirectToAction(nameof(Index));
             }
 
-            ViewData["StudentId"] = new SelectList(await _studentRepo.GetAllAsync(), "Id", "Email", absence.StudentId);
+            ViewData["StudentId"] = new SelectList(await _studentRepo.GetAllAsync(), "Id", "FullName", absence.StudentId);
             ViewData["SubjectId"] = new SelectList(await _subjectRepo.GetAllAsync(), "Id", "Name", absence.SubjectId);
             return View(absence);
         }
-
 
         public async Task<IActionResult> Edit(int? id)
         {
@@ -95,7 +118,7 @@ namespace EscolaInfoSys.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Date,StudentId,SubjectId,Justified")] Absence absence)
+        public async Task<IActionResult> Edit(int id, Absence absence)
         {
             if (id != absence.Id) return NotFound();
 
@@ -114,11 +137,12 @@ namespace EscolaInfoSys.Controllers
         {
             if (id == null) return NotFound();
 
-            var absence = await _absenceRepo.GetByIdAsync(id.Value);
+            var absence = await _absenceRepo.GetByIdWithDetailsAsync(id.Value); 
             if (absence == null) return NotFound();
 
             return View(absence);
         }
+
 
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]

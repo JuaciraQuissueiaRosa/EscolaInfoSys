@@ -1,44 +1,74 @@
 ﻿@model IEnumerable<EscolaInfoSys.Models.Course>
+
 @{
     ViewData["Title"] = "Courses";
 }
 
 <h2 class="page-title"><i class="fa fa-book"></i> Courses</h2>
 
-<div class="card">
-    @if (User.Identity?.IsAuthenticated == true && User.IsInRole("Administrator"))
-    {
-        <div class="card-header">
-            <a asp-action="Create" class="btn btn-primary"><i class="fa fa-plus"></i> Create New</a>
-        </div>
-    }
+<div class="mb-3">
+    <a asp-action="Create" class="btn btn-primary"><i class="fa fa-plus-circle"></i> Create New</a>
+</div>
 
+<div class="card">
     <div class="table-responsive">
-        <table class="table table-vcenter">
-            <thead>
+        <table class="table table-striped table-hover">
+            <thead class="table-light">
                 <tr>
-                    <th>@Html.DisplayNameFor(model => model.Name)</th>
-                    <th>@Html.DisplayNameFor(model => model.Description)</th>
-                    @if (User.Identity?.IsAuthenticated == true && User.IsInRole("Administrator"))
-                    {
-                        <th>Actions</th>
-                    }
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Subjects</th>
+                    <th>Form Groups</th>
+                    <th class="text-end">Actions</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach (var item in Model)
                 {
                     <tr>
-                        <td>@Html.DisplayFor(modelItem => item.Name)</td>
-                        <td>@Html.DisplayFor(modelItem => item.Description)</td>
-                        @if (User.Identity?.IsAuthenticated == true && User.IsInRole("Administrator"))
-                        {
-                            <td>
-                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning"><i class="fa fa-edit"></i> Edit</a>
-                                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info"><i class="fa fa-info-circle"></i> Details</a>
-                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger"><i class="fa fa-trash"></i> Delete</a>
-                            </td>
-                        }
+                        <td>@item.Name</td>
+                        <td>@item.Description</td>
+                        <td>
+                            @if (item.Subjects?.Any() == true)
+                            {
+                                <ul class="mb-0 ps-3">
+                                    @foreach (var sub in item.Subjects)
+                                    {
+                                        <li>@sub.Name</li>
+                                    }
+                                </ul>
+                            }
+                            else
+                            {
+                                <span class="text-muted">None</span>
+                            }
+                        </td>
+                        <td>
+                            @if (item.FormGroups?.Any() == true)
+                            {
+                                <ul class="mb-0 ps-3">
+                                    @foreach (var fg in item.FormGroups)
+                                    {
+                                        <li>@fg.Name</li>
+                                    }
+                                </ul>
+                            }
+                            else
+                            {
+                                <span class="text-muted">None</span>
+                            }
+                        </td>
+                        <td class="text-end">
+                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">
+                                <i class="fa fa-edit"></i>
+                            </a>
+                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary">
+                                <i class="fa fa-eye"></i>
+                            </a>
+                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger">
+                                <i class="fa fa-trash"></i>
+                            </a>
+                        </td>
                     </tr>
                 }
             </tbody>

@@ -11,8 +11,9 @@ namespace EscolaInfoSys.Data.Repositories
         public async Task<IEnumerable<FormGroup>> GetAllWithStudentsAndSubjectsAsync()
         {
             return await _context.FormGroups
-                .Include(f => f.Students)
+                .Include(f => f.Students) 
                 .Include(f => f.Subjects)
+                  .Include(f => f.Course) 
                 .ToListAsync();
         }
 
@@ -21,6 +22,7 @@ namespace EscolaInfoSys.Data.Repositories
             return await _context.FormGroups
                 .Include(f => f.Students)
                 .Include(f => f.Subjects)
+                .Include(f => f.Course)
                 .FirstOrDefaultAsync(f => f.Id == id);
         }
     }

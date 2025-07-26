@@ -6,6 +6,11 @@ namespace EscolaInfoSys.Data.Repositories.Interfaces
     {
         Task<IEnumerable<Course>> GetAllWithSubjectsAsync();
         Task<Course?> GetByIdWithSubjectsAsync(int id);
+
+        Task UpdateCourseFormGroupsAsync(int courseId, IEnumerable<int> formGroupIds);
+
+        Task<int[]> GetFormGroupIdsByCourseIdAsync(int courseId);
+
     }
 
 

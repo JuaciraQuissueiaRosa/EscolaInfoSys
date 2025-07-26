@@ -17,8 +17,9 @@ namespace EscolaInfoSys.Models
         public string Email { get; set; }
 
         // FK para ApplicationUser
-        public string ApplicationUserId { get; set; }
-        public ApplicationUser ApplicationUser { get; set; }
+        public string? ApplicationUserId { get; set; }
+        public ApplicationUser? ApplicationUser { get; set; }
+
 
         public ICollection<Mark>? Marks { get; set; }
     }

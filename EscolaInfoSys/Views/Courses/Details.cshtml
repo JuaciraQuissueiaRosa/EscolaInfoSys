@@ -6,18 +6,59 @@
 
 <h2 class="page-title"><i class="fa fa-info-circle"></i> Course Details</h2>
 
-<div class="card">
+<div class="card shadow-sm">
     <div class="card-body">
         <dl class="row">
-            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Name)</dt>
-            <dd class="col-sm-9">@Html.DisplayFor(model => model.Name)</dd>
+            <dt class="col-sm-3 fw-bold text-muted">Name:</dt>
+            <dd class="col-sm-9">@Model.Name</dd>
 
-            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Description)</dt>
-            <dd class="col-sm-9">@Html.DisplayFor(model => model.Description)</dd>
+            <dt class="col-sm-3 fw-bold text-muted">Description:</dt>
+            <dd class="col-sm-9">@Model.Description</dd>
+
+            <dt class="col-sm-3 fw-bold text-muted">Subjects:</dt>
+            <dd class="col-sm-9">
+                @if (Model.Subjects != null && Model.Subjects.Any())
+                {
+                    <ul class="mb-0 ps-3">
+                        @foreach (var subject in Model.Subjects)
+                        {
+                            <li>@subject.Name</li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <span class="text-muted">No subjects assigned.</span>
+                }
+            </dd>
+
+            <dt class="col-sm-3 fw-bold text-muted">Form Groups:</dt>
+            <dd class="col-sm-9">
+                @if (Model.FormGroups != null && Model.FormGroups.Any())
+                {
+                    <ul class="mb-0 ps-3">
+                        @foreach (var fg in Model.FormGroups)
+                        {
+                            <li>@fg.Name</li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <span class="text-muted">No form groups assigned.</span>
+                }
+            </dd>
         </dl>
-        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning"><i class="fa fa-edit"></i> Edit</a>
-        <a asp-action="Index" class="btn btn-secondary ms-2"><i class="fa fa-arrow-left"></i> Back</a>
+
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
+            <i class="fa fa-edit"></i> Edit
+        </a>
+        <a asp-action="Index" class="btn btn-secondary ms-2">
+            <i class="fa fa-arrow-left"></i> Back
+        </a>
     </div>
+</div>
+
 </div>
 @section Scripts {
     @{

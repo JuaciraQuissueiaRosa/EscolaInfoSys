@@ -22,7 +22,47 @@
                 @foreach (var item in Model)
                 {
                     <tr>
-                        <td>@item.Student.FullName</td>
+                        <td>
+                            @item.Student.FullName
+
+                            @{
+                                var exclusions = ViewBag.Exclusions as List<EscolaInfoSys.Models.StudentExclusion>;
+                                var isExcluded = exclusions?.Any(e =>
+                                e.StudentId == item.StudentId &&
+                                e.SubjectId == item.SubjectId &&
+                                e.IsExcluded) ?? false;
+
+                                var percentages = ViewBag.Percentages as Dictionary<string, double>;
+                                var key = $"{item.StudentId}-{item.SubjectId}";
+                                var percent = percentages != null && percentages.ContainsKey(key) ? percentages[key] : (double?)null;
+
+                                var maxAbsences = ViewBag.MaxAbsences as Dictionary<int, int>;
+                                var max = maxAbsences != null && item.SubjectId.HasValue && maxAbsences.ContainsKey(item.SubjectId.Value)
+                                ? maxAbsences[item.SubjectId.Value]
+                                : (int?)null;
+                            }
+
+                            @if (percent != null)
+                            {
+                                <span class="ms-1 text-muted">(@percent% absences)</span>
+
+                                @if (max != null)
+                                {
+                                    <span class="ms-1 text-muted">Max: @max absences</span>
+                                }
+                            }
+
+                            @if (isExcluded)
+                            {
+                                <span class="badge bg-danger ms-1"><i class="fa fa-ban"></i> Excluded</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-success ms-1"><i class="fa fa-check-circle"></i> Active</span>
+                            }
+                        </td>
+
+
                         <td>@item.Subject.Name</td>
                         <td>@item.Date.ToShortDateString()</td>
                         <td>

@@ -63,7 +63,8 @@ namespace EscolaInfoSys.Controllers
                 return View(staffMember);
             }
 
-            await _userManager.AddToRoleAsync(user, "Staff");
+            await _userManager.AddToRoleAsync(user, "StaffMember");
+
 
             staffMember.ApplicationUserId = user.Id;
             await _staffRepo.AddAsync(staffMember);

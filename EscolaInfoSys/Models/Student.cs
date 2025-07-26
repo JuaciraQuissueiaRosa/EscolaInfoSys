@@ -20,16 +20,23 @@ namespace EscolaInfoSys.Models
         public string Email { get; set; }
 
         [Display(Name = "Profile Photo")]
+        
         public string? ProfilePhoto { get; set; }
 
         // FK to Class
+   
         [Display(Name = "Document Photo")]
         public string? DocumentPhoto { get; set; }
 
         public int FormGroupId { get; set; }
 
-        [ValidateNever]
-        public FormGroup FormGroup { get; set; }
+  
+        public FormGroup? FormGroup { get; set; }
+
+
+        public int? CourseId{ get; set; }
+
+        public Course? Course { get; set; }
 
         public ICollection<Mark>? Marks { get; set; }
         public ICollection<Absence>? Absences { get; set; }

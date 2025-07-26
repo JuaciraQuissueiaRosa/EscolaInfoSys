@@ -21,6 +21,14 @@ namespace EscolaInfoSys.Data.Repositories
                 .Include(s => s.Course)
                 .FirstOrDefaultAsync(s => s.Id == id);
         }
+
+        public async Task<IEnumerable<Subject>> GetByIdsAsync(IEnumerable<int> ids)
+        {
+            return await _context.Subjects
+                .Where(s => ids.Contains(s.Id))
+                .ToListAsync();
+        }
+
     }
 
 }

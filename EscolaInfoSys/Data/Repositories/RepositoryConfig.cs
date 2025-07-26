@@ -21,6 +21,7 @@ namespace EscolaInfoSys.Data.Repositories
             services.AddScoped<IAlertRepository, AlertRepository>();
             services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<StudentExclusionService>();
+            services.AddScoped<AbsenceStatsService>();
             services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             return services;
         }
