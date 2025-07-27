@@ -27,10 +27,10 @@
         <dd class="col-sm-9">
             @if (!string.IsNullOrEmpty(Model.ProfilePhoto))
             {
-                <img src="@(string.IsNullOrEmpty(Model.ProfilePhoto) ? "~/images/default.png" : Model.ProfilePhoto)"
+                <img src="/uploads/@Model.ProfilePhoto"
                      alt="Profile Photo"
                      class="rounded-circle"
-                     style="width:40px; height:40px; object-fit:cover;" />
+                     style="width:80px; height:80px; object-fit:cover;" />
             }
             else
             {
@@ -42,7 +42,10 @@
         <dd class="col-sm-9">
             @if (!string.IsNullOrEmpty(Model.DocumentPhoto))
             {
-                <img src="~/uploads/@Model.DocumentPhoto" width="100" height="100" class="border rounded" />
+                <img src="/uploads/@Model.DocumentPhoto"
+                     alt="Document Photo"
+                     class="border rounded"
+                     style="width:100px; height:100px; object-fit:cover;" />
             }
             else
             {
@@ -60,9 +63,9 @@
         </a>
     </div>
 </div>
+
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
 }
-

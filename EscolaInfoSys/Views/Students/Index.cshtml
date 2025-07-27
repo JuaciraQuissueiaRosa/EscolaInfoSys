@@ -31,11 +31,7 @@
                 <td>
                     @if (!string.IsNullOrEmpty(student.ProfilePhoto))
                     {
-                        <img src="@(string.IsNullOrEmpty(student.ProfilePhoto) ? "~/images/default.png" : student.ProfilePhoto)"
-                             alt="Profile Photo"
-                             class="rounded-circle"
-                             style="width:40px; height:40px; object-fit:cover;" />
-
+                        <img src="/uploads/@student.ProfilePhoto" class="rounded-circle" style="width:40px; height:40px; object-fit:cover;" />
                     }
                     else
                     {
@@ -45,7 +41,7 @@
                 <td>
                     @if (!string.IsNullOrEmpty(student.DocumentPhoto))
                     {
-                        <img src="@student.DocumentPhoto" alt="Document Photo" style="width:40px; height:40px; object-fit:cover;" />
+                        <img src="/uploads/@student.DocumentPhoto" width="100" height="100" class="border rounded" />
                     }
                     else
                     {
@@ -53,21 +49,15 @@
                     }
                 </td>
                 <td>
-                    <a asp-action="Edit" asp-route-id="@student.Id" class="btn btn-warning btn-sm me-1" title="Edit">
-                        <i class="fa fa-edit"></i>
-                    </a>
-                    <a asp-action="Details" asp-route-id="@student.Id" class="btn btn-info btn-sm me-1" title="Details">
-                        <i class="fa fa-eye"></i>
-                    </a>
-                    <a asp-action="Delete" asp-route-id="@student.Id" class="btn btn-danger btn-sm" title="Delete"
-                       onclick="return confirm('Are you sure you want to delete this student?');">
-                        <i class="fa fa-trash"></i>
-                    </a>
+                    <a asp-action="Edit" asp-route-id="@student.Id" class="btn btn-warning btn-sm me-1"><i class="fa fa-edit"></i></a>
+                    <a asp-action="Details" asp-route-id="@student.Id" class="btn btn-info btn-sm me-1"><i class="fa fa-eye"></i></a>
+                    <a asp-action="Delete" asp-route-id="@student.Id" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this student?');"><i class="fa fa-trash"></i></a>
                 </td>
             </tr>
         }
     </tbody>
 </table>
+
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
