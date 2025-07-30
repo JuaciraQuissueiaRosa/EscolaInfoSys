@@ -16,6 +16,12 @@ namespace EscolaInfoSys.Data.Repositories.Interfaces
 
         Task UpdateSelectedFieldsAsync(Student student);
 
+        Task<bool> IsStudentExcludedFromAnySubjectAsync(int studentId);
+
+     
+
+
+
 
 
     }

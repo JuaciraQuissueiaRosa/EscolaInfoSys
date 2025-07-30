@@ -27,15 +27,16 @@
                         <td>@item.Name</td>
                         <td>@item.Students?.Count() </td>
                         <td>
-                            @if (item.Subjects != null && item.Subjects.Any())
+                            @if (item.Course != null && item.Course.Subjects != null && item.Course.Subjects.Any())
                             {
-                                @string.Join(", ", item.Subjects.Select(s => s.Name))
+                                @string.Join(", ", item.Course.Subjects.Select(s => s.Name))
                             }
                             else
                             {
-                                <span class="text-muted"> </span>
+                                <span class="text-muted">No subjects</span>
                             }
                         </td>
+
                         <td>@item.Course?.Name <span class='text-muted'></span></td> 
                         <td class="text-end">
                             <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary"><i class="fa fa-edit"></i></a>

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using EscolaInfoSys.Services;
 
 namespace EscolaInfoSys.Controllers
 {
@@ -15,19 +16,22 @@ namespace EscolaInfoSys.Controllers
         private readonly IAbsenceRepository _absenceRepo;
         ISystemSettingsRepository _settingsRepo;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IStudentService _studentService;
 
         public StudentPortalController(
             IStudentRepository studentRepo,
             IMarkRepository markRepo,
             IAbsenceRepository absenceRepo,
             UserManager<ApplicationUser> userManager,
-               ISystemSettingsRepository settingsRepo)
+               ISystemSettingsRepository settingsRepo,
+               IStudentService studentService)
         {
             _studentRepo = studentRepo;
             _markRepo = markRepo;
             _absenceRepo = absenceRepo;
             _userManager = userManager;
             _settingsRepo = settingsRepo;
+            _studentService = studentService;
         }
 
         public async Task<IActionResult> Index()
@@ -64,25 +68,18 @@ namespace EscolaInfoSys.Controllers
         public async Task<IActionResult> MyAbsences()
         {
             var userId = _userManager.GetUserId(User);
-            var student = await _studentRepo.GetByApplicationUserIdAsync(userId);
 
-            if (student == null) return NotFound();
+            var (absences, isExcluded) = await _studentService.GetStudentAbsencesAndExclusionAsync(userId);
 
-            var allAbsences = await _absenceRepo.GetAllAsync();
-            var myAbsences = allAbsences.Where(a => a.StudentId == student.Id).ToList();
+            if (isExcluded)
+            {
+                TempData["ExclusionAlert"] = "You have been excluded from one or more subjects due to excessive absences.";
+            }
 
-            var settings = await _settingsRepo.GetSettingsAsync();
-            double maxAllowedAbsences = settings?.MaxAbsencePercentage ?? 15.0; // interpretado como "15 faltas"
-
-            int totalAbsences = myAbsences.Count;
-            double progress = maxAllowedAbsences == 0 ? 0 : (100.0 * totalAbsences / maxAllowedAbsences);
-            progress = Math.Min(progress, 150); // evitar quebrar layout se for muito alto
-
-            ViewBag.AbsencePercentage = Math.Round(progress, 1);
-            ViewBag.AbsenceLimit = maxAllowedAbsences;
-
-            return View(myAbsences);
+            return View(absences);
         }
+
+
 
 
 

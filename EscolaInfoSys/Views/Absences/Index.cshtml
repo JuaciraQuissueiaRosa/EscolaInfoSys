@@ -23,7 +23,7 @@
                 {
                     <tr>
                         <td>
-                            @item.Student.FullName
+                            @item.Student?.FullName
 
                             @{
                                 var exclusions = ViewBag.Exclusions as List<EscolaInfoSys.Models.StudentExclusion>;
@@ -37,9 +37,10 @@
                                 var percent = percentages != null && percentages.ContainsKey(key) ? percentages[key] : (double?)null;
 
                                 var maxAbsences = ViewBag.MaxAbsences as Dictionary<int, int>;
-                                var max = maxAbsences != null && item.SubjectId.HasValue && maxAbsences.ContainsKey(item.SubjectId.Value)
-                                ? maxAbsences[item.SubjectId.Value]
+                                var max = maxAbsences != null && maxAbsences.ContainsKey(item.SubjectId)
+                                ? maxAbsences[item.SubjectId]
                                 : (int?)null;
+
                             }
 
                             @if (percent != null)
@@ -63,7 +64,7 @@
                         </td>
 
 
-                        <td>@item.Subject.Name</td>
+                        <td>@item.Subject?.Name</td>
                         <td>@item.Date.ToShortDateString()</td>
                         <td>
                             <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning"><i class="fa fa-edit"></i></a>
@@ -78,7 +79,21 @@
 </div>
 
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    <script>
+        window.onload = function () {
+            var message = '@TempData["Message"]';
+            var messageType = '@TempData["MessageType"]' || 'info';
+
+            if (message) {
+                Swal.fire({
+                    icon: messageType,
+                    title: message,
+                    timer: 3000,
+                    timerProgressBar: true,
+                    showConfirmButton: false
+                });
+            }
+        }
+    </script>
 }
+

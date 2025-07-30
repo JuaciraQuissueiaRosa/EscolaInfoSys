@@ -15,6 +15,19 @@
 
             <dt class="col-sm-3">Date</dt>
             <dd class="col-sm-9">@Model.Date.ToShortDateString()</dd>
+
+            <div>
+                <strong>Justification:</strong>
+                @if (Model.Justified)
+                {
+                    <span class="text-success">Justified</span>
+                }
+                else
+                {
+                    <span class="text-danger">Unjustified</span>
+                }
+            </div>
+
         </dl>
         <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning"><i class="fa fa-edit"></i> Edit</a>
         <a asp-action="Index" class="btn btn-secondary ms-2">Back</a>

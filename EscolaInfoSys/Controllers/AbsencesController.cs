@@ -12,6 +12,7 @@ using EscolaInfoSys.Data.Repositories.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using EscolaInfoSys.Hubs;
 using Microsoft.AspNetCore.SignalR;
+using EscolaInfoSys.Models.ViewModels;
 
 namespace EscolaInfoSys.Controllers
 {
@@ -90,12 +91,13 @@ namespace EscolaInfoSys.Controllers
                 await _absenceRepo.AddAsync(absence);
 
                 // Só chama o checker se ambos os campos estiverem preenchidos
-                if (absence.StudentId.HasValue && absence.SubjectId.HasValue)
+                if (absence.StudentId > 0 && absence.SubjectId > 0)
                 {
-                    await _absenceChecker.CheckExclusionAsync(absence.StudentId.Value, absence.SubjectId.Value);
+                    await _absenceChecker.CheckExclusionAsync(absence.StudentId, absence.SubjectId);
                 }
 
-                await _hubContext.Clients.All.SendAsync("ReceiveNotification", "Absence successfully registered!", "info");
+                TempData["Message"] = "Absence successfully registered!";
+                TempData["MessageType"] = "info";
                 return RedirectToAction(nameof(Index));
             }
 
@@ -103,35 +105,45 @@ namespace EscolaInfoSys.Controllers
             ViewData["SubjectId"] = new SelectList(await _subjectRepo.GetAllAsync(), "Id", "Name", absence.SubjectId);
             return View(absence);
         }
-
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int id)
         {
-            if (id == null) return NotFound();
+            var model = await _absenceRepo.GetAbsenceEditViewModelAsync(id);
+            if (model == null) return NotFound();
 
-            var absence = await _absenceRepo.GetByIdAsync(id.Value);
-            if (absence == null) return NotFound();
+            ViewData["StudentId"] = new SelectList(await _studentRepo.GetAllAsync(), "Id", "Email", model.StudentId);
+            ViewData["SubjectId"] = new SelectList(await _subjectRepo.GetAllAsync(), "Id", "Name", model.SubjectId);
 
-            ViewData["StudentId"] = new SelectList(await _studentRepo.GetAllAsync(), "Id", "Email", absence.StudentId);
-            ViewData["SubjectId"] = new SelectList(await _subjectRepo.GetAllAsync(), "Id", "Name", absence.SubjectId);
-            return View(absence);
+            return View(model);
         }
+
+
+
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Absence absence)
+        public async Task<IActionResult> Edit(int id, AbsenceEditViewModel model)
         {
-            if (id != absence.Id) return NotFound();
+            if (id != model.Id) return NotFound();
 
             if (ModelState.IsValid)
             {
-                await _absenceRepo.UpdateAsync(absence);
-                return RedirectToAction(nameof(Index));
+                try
+                {
+                    await _absenceRepo.UpdateFromViewModelAsync(model);
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError("", ex.Message);
+                }
             }
 
-            ViewData["StudentId"] = new SelectList(await _studentRepo.GetAllAsync(), "Id", "Email", absence.StudentId);
-            ViewData["SubjectId"] = new SelectList(await _subjectRepo.GetAllAsync(), "Id", "Name", absence.SubjectId);
-            return View(absence);
+            ViewData["StudentId"] = new SelectList(await _studentRepo.GetAllAsync(), "Id", "Email", model.StudentId);
+            ViewData["SubjectId"] = new SelectList(await _subjectRepo.GetAllAsync(), "Id", "Name", model.SubjectId);
+            return View(model);
         }
+
 
         public async Task<IActionResult> Delete(int? id)
         {

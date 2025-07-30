@@ -31,22 +31,27 @@ namespace EscolaInfoSys.Data.Repositories
 
         public async Task<IEnumerable<Mark>> GetValidMarksAsync(IEnumerable<int> excludedStudentIds, IEnumerable<int> excludedSubjectIds)
         {
+            var excludedStudentIdsNullable = excludedStudentIds.Select(id => (int?)id).ToList();
+            var excludedSubjectIdsNullable = excludedSubjectIds.Select(id => (int?)id).ToList();
+
             var query = _context.Marks.AsQueryable();
 
-            if (excludedStudentIds.Any() && excludedSubjectIds.Any())
-            {
-                query = query.Where(m =>
-                    !(m.StudentId.HasValue && m.SubjectId.HasValue &&
-                      excludedStudentIds.Contains(m.StudentId.Value) &&
-                      excludedSubjectIds.Contains(m.SubjectId.Value)));
-            }
+            //if (excludedStudentIds.Any() || excludedSubjectIds.Any())
+            //{
+            //    query = query.Where(m =>
+            //        !excludedStudentIdsNullable.Contains(m.StudentId)
+            //        && !excludedSubjectIdsNullable.Contains(m.SubjectId)
+            //    );
+            //}
 
             return await query
                 .Include(m => m.Student)
                 .Include(m => m.Subject)
                 .Include(m => m.StaffMember)
+                    .ThenInclude(s => s.ApplicationUser)
                 .ToListAsync();
         }
+
 
     }
 

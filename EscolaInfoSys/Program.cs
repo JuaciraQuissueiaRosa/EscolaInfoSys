@@ -10,7 +10,7 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("Ngo9BigBOggjHTQxAR8/V1JEaF5cXmRCf1FpRmJGdld5fUVHYVZUTXxaS00DNHVRdkdmWXhfcXVdR2NZVk1yX0RWYEk=");
+Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("Ngo9BigBOggjHTQxAR8/V1JEaF5cXmRCf1FpRmJGdld5fUVHYVZUTXxaS00DNHVRdkdmWXhceXVSQmNfVkV0XktWYEk=");
 
 // Add services to the container.
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -51,8 +51,20 @@ builder.Services.AddControllersWithViews()
         options.JsonSerializerOptions.WriteIndented = true; // (opcional: resposta formatada)
     });
 
-builder.Services.AddSignalR().AddAzureSignalR(builder.Configuration["Azure:SignalR:ConnectionString"]!);
+//builder.Services.AddSignalR().AddAzureSignalR(builder.Configuration["Azure:SignalR:ConnectionString"]!);
 //builder.Services.AddSingleton<IUserIdProvider, NameUserIdProvider>();
+var signalRConfig = builder.Configuration.GetSection("Azure:SignalR");
+bool isSignalREnabled = signalRConfig.GetValue<bool>("Enabled");
+
+if (isSignalREnabled)
+{
+    builder.Services.AddSignalR().AddAzureSignalR(signalRConfig.GetValue<string>("ConnectionString"));
+}
+else
+{
+    builder.Services.AddSignalR();
+}
+
 
 var app = builder.Build();
 
@@ -80,7 +92,7 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-// ✅ Mapeamento do SignalR Hub
+// Mapeamento do SignalR Hub
 app.MapHub<NotificationHub>("/notificationHub");
 
 using (var scope = app.Services.CreateScope())

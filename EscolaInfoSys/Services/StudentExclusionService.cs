@@ -46,11 +46,8 @@ namespace EscolaInfoSys.Services
                 };
                 await _exclusionRepo.AddAsync(exclusion);
             }
-
-            // Notificação em tempo real para administradores
-            var message = $"Aluno {student.FullName} foi excluído na disciplina {subject.Name}.";
-            await _hubContext.Clients.All.SendAsync("ReceiveNotification", message, "warning");
         }
+
     }
 }
 

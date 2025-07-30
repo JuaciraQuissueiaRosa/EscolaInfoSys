@@ -8,38 +8,48 @@
 
 <div class="card">
     <div class="card-body">
-        <form asp-action="Edit">
+        <form asp-action="Edit" method="post">
             <input type="hidden" asp-for="Id" />
             <div asp-validation-summary="All" class="text-danger"></div>
+
             <div class="mb-3">
                 <label asp-for="Value" class="form-label"></label>
                 <input asp-for="Value" class="form-control" />
                 <span asp-validation-for="Value" class="text-danger"></span>
             </div>
+
             <div class="mb-3">
                 <label asp-for="Date" class="form-label"></label>
-                <input asp-for="Date" class="form-control" />
+                <input asp-for="Date" class="form-control" type="date" />
                 <span asp-validation-for="Date" class="text-danger"></span>
-            </div>
-            <div class="mb-3">
-                <label asp-for="StudentId" class="form-label"></label>
-                <select asp-for="StudentId" class="form-select" asp-items="ViewBag.StudentId"></select>
-                <span asp-validation-for="StudentId" class="text-danger"></span>
-            </div>
-            <div class="mb-3">
-                <label asp-for="SubjectId" class="form-label"></label>
-                <select asp-for="SubjectId" class="form-select" asp-items="ViewBag.SubjectId"></select>
-                <span asp-validation-for="SubjectId" class="text-danger"></span>
-            </div>
-            <div class="mb-3">
-                <label asp-for="EvaluationType" class="form-label"></label>
-                <select asp-for="EvaluationType" class="form-select" asp-items="Html.GetEnumSelectList<EvaluationType>()"></select>
-                <span asp-validation-for="EvaluationType" class="text-danger"></span>
             </div>
 
             <div class="mb-3">
-                <input type="hidden" asp-for="StaffMemberId" />
+                <label asp-for="StudentId" class="form-label"></label>
+                <select asp-for="StudentId" class="form-select" asp-items="ViewBag.StudentId">
+                    <option value="">-- Select Student --</option>
+                </select>
+                <span asp-validation-for="StudentId" class="text-danger"></span>
             </div>
+
+            <div class="mb-3">
+                <label asp-for="SubjectId" class="form-label"></label>
+                <select asp-for="SubjectId" class="form-select" asp-items="ViewBag.SubjectId">
+                    <option value="">-- Select Subject --</option>
+                </select>
+                <span asp-validation-for="SubjectId" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="EvaluationType" class="form-label"></label>
+                <select asp-for="EvaluationType" class="form-select" asp-items="ViewBag.EvaluationTypeList">
+                    <option value="">-- Select Evaluation Type --</option>
+                </select>
+                <span asp-validation-for="EvaluationType" class="text-danger"></span>
+            </div>
+
+            <input type="hidden" asp-for="StaffMemberId" />
+
             <button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> Save</button>
             <a asp-action="Index" class="btn btn-secondary"><i class="fa fa-times"></i> Cancel</a>
         </form>
@@ -47,5 +57,5 @@
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @await Html.PartialAsync("_ValidationScriptsPartial")
 }

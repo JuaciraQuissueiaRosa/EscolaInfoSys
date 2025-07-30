@@ -9,6 +9,9 @@ using EscolaInfoSys.Data;
 using EscolaInfoSys.Models;
 using EscolaInfoSys.Data.Repositories.Interfaces;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using EscolaInfoSys.Services;
+using EscolaInfoSys.Helper;
 
 namespace EscolaInfoSys.Controllers
 {
@@ -20,32 +23,44 @@ namespace EscolaInfoSys.Controllers
         private readonly ISubjectRepository _subjectRepo;
         private readonly IStaffMemberRepository _staffRepo;
         private readonly IStudentExclusionRepository _exclusionRepo;
+        private readonly IAccountService _accountService;
 
         public MarksController(
             IMarkRepository markRepo,
             IStudentRepository studentRepo,
             ISubjectRepository subjectRepo,
             IStaffMemberRepository staffRepo,
-            IStudentExclusionRepository exclusionRepo)
+            IStudentExclusionRepository exclusionRepo,
+            IAccountService accountService
+            )
         {
             _markRepo = markRepo;
             _studentRepo = studentRepo;
             _subjectRepo = subjectRepo;
             _staffRepo = staffRepo;
             _exclusionRepo = exclusionRepo;
+            _accountService = accountService;
         }
 
         public async Task<IActionResult> Index()
         {
+            var user = await _accountService.GetCurrentUserAsync(User);
+            var staff = await _staffRepo.GetByApplicationUserIdAsync(user.Id);
+
+            if (staff == null)
+                return Unauthorized();
+
             var (excludedStudentIds, excludedSubjectIds) = await _exclusionRepo.GetExcludedStudentAndSubjectIdsAsync();
 
-            var marks = await _markRepo.GetValidMarksAsync(excludedStudentIds, excludedSubjectIds);
+            var allMarks = await _markRepo.GetValidMarksAsync(excludedStudentIds, excludedSubjectIds);
 
-            ViewBag.Exclusions = await _exclusionRepo.GetAllAsync(); //disponível para exibição na View
-           
+            var marks = allMarks.Where(m => m.StaffMemberId == staff.Id).ToList();
+
+            ViewBag.Exclusions = await _exclusionRepo.GetAllAsync();
 
             return View(marks);
         }
+
 
 
         public async Task<IActionResult> Details(int? id)
@@ -58,28 +73,60 @@ namespace EscolaInfoSys.Controllers
             return View(mark);
         }
 
-
         public async Task<IActionResult> Create()
         {
-            ViewData["StudentId"] = new SelectList(await _studentRepo.GetAllAsync(), "Id", "Email");
-            ViewData["SubjectId"] = new SelectList(await _subjectRepo.GetAllAsync(), "Id", "Name");
-            ViewData["StaffMemberId"] = new SelectList(await _staffRepo.GetAllAsync(), "Id", "Email");
-            return View();
+            ViewBag.StudentId = new SelectList(await _studentRepo.GetAllAsync(), "Id", "Email");
+            ViewBag.SubjectId = new SelectList(await _subjectRepo.GetAllAsync(), "Id", "Name");
+
+            var user = await _accountService.GetCurrentUserAsync(User);
+            if (user == null)
+                return Unauthorized();
+
+            var staff = await _staffRepo.GetByApplicationUserIdAsync(user.Id);
+            if (staff == null)
+                return Unauthorized();
+
+            ViewBag.EvaluationTypeList = EnumHelper.GetSelectList<EvaluationType>();
+
+            // Passa o StaffMemberId e o email para a view
+            ViewBag.StaffMemberId = staff.Id;
+            ViewBag.StaffEmail = staff.ApplicationUser.Email; // email para exibir
+
+            var mark = new Mark { StaffMemberId = staff.Id };
+            return View(mark);
         }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Value,Date,StudentId,SubjectId,EvaluationType,StaffMemberId")] Mark mark)
+        public async Task<IActionResult> Create(Mark mark)
         {
+            var user = await _accountService.GetCurrentUserAsync(User);
+            if (user == null)
+                return Unauthorized();
+
+            var staff = await _staffRepo.GetByApplicationUserIdAsync(user.Id);
+            if (staff == null)
+                return Unauthorized();
+
+            // Garante que só o staff logado será atribuído
+            mark.StaffMemberId = staff.Id;
+
+            // Remove StaffMemberId do ModelState para evitar erros na validação
+            ModelState.Remove(nameof(mark.StaffMemberId));
+
             if (ModelState.IsValid)
             {
                 await _markRepo.AddAsync(mark);
                 return RedirectToAction(nameof(Index));
             }
 
-            ViewData["StudentId"] = new SelectList(await _studentRepo.GetAllAsync(), "Id", "Email", mark.StudentId);
-            ViewData["SubjectId"] = new SelectList(await _subjectRepo.GetAllAsync(), "Id", "Name", mark.SubjectId);
-            ViewData["StaffMemberId"] = new SelectList(await _staffRepo.GetAllAsync(), "Id", "Email", mark.StaffMemberId);
+            ViewBag.StudentId = new SelectList(await _studentRepo.GetAllAsync(), "Id", "Email", mark.StudentId);
+            ViewBag.SubjectId = new SelectList(await _subjectRepo.GetAllAsync(), "Id", "Name", mark.SubjectId);
+            ViewBag.StaffMemberId = staff.Id;
+            ViewBag.StaffEmail = staff.ApplicationUser.Email;
+            ViewBag.EvaluationTypeList = EnumHelper.GetSelectList<EvaluationType>();
+
             return View(mark);
         }
 
@@ -90,15 +137,20 @@ namespace EscolaInfoSys.Controllers
             var mark = await _markRepo.GetByIdAsync(id.Value);
             if (mark == null) return NotFound();
 
-            ViewData["StudentId"] = new SelectList(await _studentRepo.GetAllAsync(), "Id", "Email", mark.StudentId);
-            ViewData["SubjectId"] = new SelectList(await _subjectRepo.GetAllAsync(), "Id", "Name", mark.SubjectId);
-            ViewData["StaffMemberId"] = new SelectList(await _staffRepo.GetAllAsync(), "Id", "Email", mark.StaffMemberId);
+            ViewBag.StudentId = new SelectList(await _studentRepo.GetAllAsync(), "Id", "Email", mark.StudentId);
+            ViewBag.SubjectId = new SelectList(await _subjectRepo.GetAllAsync(), "Id", "Name", mark.SubjectId);
+
+            ViewBag.EvaluationTypeList = EnumHelper.GetSelectList<EvaluationType>();
+
+            ViewBag.StaffMemberId = mark.StaffMemberId;
+
             return View(mark);
         }
 
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Value,Date,StudentId,SubjectId,EvaluationType,StaffMemberId")] Mark mark)
+        public async Task<IActionResult> Edit(int id, Mark mark)
         {
             if (id != mark.Id) return NotFound();
 
@@ -108,9 +160,13 @@ namespace EscolaInfoSys.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            ViewData["StudentId"] = new SelectList(await _studentRepo.GetAllAsync(), "Id", "Email", mark.StudentId);
-            ViewData["SubjectId"] = new SelectList(await _subjectRepo.GetAllAsync(), "Id", "Name", mark.SubjectId);
-            ViewData["StaffMemberId"] = new SelectList(await _staffRepo.GetAllAsync(), "Id", "Email", mark.StaffMemberId);
+            ViewBag.StudentId = new SelectList(await _studentRepo.GetAllAsync(), "Id", "Email", mark.StudentId);
+            ViewBag.SubjectId = new SelectList(await _subjectRepo.GetAllAsync(), "Id", "Name", mark.SubjectId);
+
+            ViewBag.EvaluationTypeList = EnumHelper.GetSelectList<EvaluationType>();
+
+            ViewBag.StaffMemberId = mark.StaffMemberId;
+
             return View(mark);
         }
 

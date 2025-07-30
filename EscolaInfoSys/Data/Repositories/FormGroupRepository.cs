@@ -11,20 +11,21 @@ namespace EscolaInfoSys.Data.Repositories
         public async Task<IEnumerable<FormGroup>> GetAllWithStudentsAndSubjectsAsync()
         {
             return await _context.FormGroups
-                .Include(f => f.Students) 
-                .Include(f => f.Subjects)
-                  .Include(f => f.Course) 
+                .Include(fg => fg.Students)
+                .Include(fg => fg.Course)
+                    .ThenInclude(c => c.Subjects)
                 .ToListAsync();
         }
 
         public async Task<FormGroup?> GetByIdWithStudentsAndSubjectsAsync(int id)
         {
             return await _context.FormGroups
-                .Include(f => f.Students)
-                .Include(f => f.Subjects)
-                .Include(f => f.Course)
-                .FirstOrDefaultAsync(f => f.Id == id);
+                .Include(fg => fg.Students)
+                .Include(fg => fg.Course)
+                    .ThenInclude(c => c.Subjects)
+                .FirstOrDefaultAsync(fg => fg.Id == id);
         }
+
     }
 
 
