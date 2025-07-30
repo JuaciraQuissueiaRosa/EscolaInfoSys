@@ -35,7 +35,7 @@ namespace EscolaInfoSys.Controllers
         {
             if (id == null) return NotFound();
 
-            var staff = await _staffRepo.GetByIdWithUserAsync(id.Value);
+            var staff = await _staffRepo.GetByIdWithUserAsync(id.Value); 
             if (staff == null) return NotFound();
 
             return View(staff);
