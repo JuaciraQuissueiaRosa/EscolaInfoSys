@@ -29,6 +29,17 @@ namespace EscolaInfoSys.Data.Repositories
                 .ToListAsync();
         }
 
+        public async Task<int> GetTotalClassesBySubjectIdAsync(int subjectId)
+        {
+            var subject = await _context.Subjects
+                .Where(s => s.Id == subjectId)
+                .Select(s => s.TotalLessons)
+                .FirstOrDefaultAsync();
+
+            return subject;  // retorna 0 se não encontrar
+        }
+
+
     }
 
 }

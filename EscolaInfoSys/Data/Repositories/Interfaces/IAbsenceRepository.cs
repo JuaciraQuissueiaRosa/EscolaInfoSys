@@ -31,13 +31,5 @@ namespace EscolaInfoSys.Data.Repositories.Interfaces
 
 
 
-
-
-
-
-
-
-
-
     }
 }

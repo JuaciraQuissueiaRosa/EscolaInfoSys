@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Mark>
+﻿@model IEnumerable<EscolaInfoSys.Models.Dtos.StudentSubjectAverageDto>
 
 @{
     ViewData["Title"] = "My Marks";
@@ -16,17 +16,26 @@ else
         <thead class="table-light">
             <tr>
                 <th>Subject</th>
-                <th>Mark</th>
-                <th>Date</th>
+                <th>Average Mark</th>
+                <th>Status</th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var mark in Model)
+            @foreach (var avg in Model)
             {
                 <tr>
-                    <td>@mark.Subject?.Name</td>
-                    <td>@mark.Value</td>
-                    <td>@mark.Date.ToShortDateString()</td>
+                    <td>@avg.SubjectName</td>
+                    <td>@avg.Average.ToString("F2")</td>
+                    <td>
+                        @if (avg.IsPassed)
+                        {
+                            <span class="badge bg-success">Passed</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger">Failed</span>
+                        }
+                    </td>
                 </tr>
             }
         </tbody>
@@ -38,4 +47,5 @@ else
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
 }
+
 

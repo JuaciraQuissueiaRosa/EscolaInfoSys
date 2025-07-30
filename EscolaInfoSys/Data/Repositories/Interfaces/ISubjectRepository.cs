@@ -9,6 +9,8 @@ namespace EscolaInfoSys.Data.Repositories.Interfaces
 
         Task<IEnumerable<Subject>> GetByIdsAsync(IEnumerable<int> ids);
 
+        Task<int> GetTotalClassesBySubjectIdAsync(int subjectId);
+
     }
 
 

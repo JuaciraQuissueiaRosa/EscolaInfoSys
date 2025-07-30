@@ -1,5 +1,6 @@
 ﻿using EscolaInfoSys.Data.Repositories.Interfaces;
 using EscolaInfoSys.Models;
+using EscolaInfoSys.Models.Dtos;
 using Microsoft.EntityFrameworkCore;
 
 namespace EscolaInfoSys.Data.Repositories
@@ -51,6 +52,84 @@ namespace EscolaInfoSys.Data.Repositories
                     .ThenInclude(s => s.ApplicationUser)
                 .ToListAsync();
         }
+
+        public async Task UpdateIsPassedStatusAsync()
+        {
+            var groupedMarks = await _context.Marks
+                .GroupBy(m => new { m.StudentId, m.SubjectId })
+                .ToListAsync();
+
+            foreach (var group in groupedMarks)
+            {
+                var average = group.Average(m => m.Value);
+
+                foreach (var mark in group)
+                {
+                    mark.IsPassed = average >= 10;
+                }
+            }
+
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task UpdateStudentSubjectPassStatusAsync(int studentId, int subjectId)
+        {
+            // Busca as notas do aluno para a disciplina específica
+            var marks = await _context.Marks
+                .Where(m => m.StudentId == studentId && m.SubjectId == subjectId)
+                .ToListAsync();
+
+            if (!marks.Any())
+                return; // Sem notas, nada a fazer
+
+            // Calcula a média das notas
+            var average = marks.Average(m => m.Value);
+
+            // Define se passou (média >= 10)
+            bool isPassed = average >= 10;
+
+            // Atualiza o campo IsPassed em todas as notas dessa combinação
+            foreach (var mark in marks)
+            {
+                mark.IsPassed = isPassed;
+            }
+
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<List<StudentSubjectAverageDto>> GetStudentSubjectAveragesByStaffAsync(int staffId)
+        {
+            return await _context.Marks
+                .Where(m => m.StaffMemberId == staffId)
+                .GroupBy(m => new { m.StudentId, m.Student.Email, m.SubjectId, m.Subject.Name })
+                .Select(g => new StudentSubjectAverageDto
+                {
+                    StudentId = g.Key.StudentId,
+                    StudentEmail = g.Key.Email,
+                    SubjectId = g.Key.SubjectId,
+                    SubjectName = g.Key.Name,
+                    Average = g.Average(m => m.Value),
+                    IsPassed = g.Average(m => m.Value) >= 10
+                }).ToListAsync();
+        }
+
+        public async Task<List<StudentSubjectAverageDto>> GetStudentSubjectAveragesAsync(int studentId)
+        {
+            return await _context.Marks
+                .Where(m => m.StudentId == studentId)
+                .GroupBy(m => new { m.SubjectId, m.Subject.Name })
+                .Select(g => new StudentSubjectAverageDto
+                {
+                    SubjectId = g.Key.SubjectId,
+                    SubjectName = g.Key.Name,
+                    Average = g.Average(m => m.Value),
+                    IsPassed = g.Average(m => m.Value) >= 10
+                }).ToListAsync();
+        }
+
+   
+
+
 
 
     }
