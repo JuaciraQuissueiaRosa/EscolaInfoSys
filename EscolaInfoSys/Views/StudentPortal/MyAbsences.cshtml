@@ -6,14 +6,6 @@
 }
 
 
-@if (TempData["ExclusionAlert"] != null)
-{
-    <div class="alert alert-warning">
-        @TempData["ExclusionAlert"]
-    </div>
-}
-
-
 <h2 class="mb-4"><i class="fa fa-calendar-times me-2 text-danger"></i> My Absences</h2>
 
 @if (!Model.Any())

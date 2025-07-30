@@ -71,10 +71,6 @@ namespace EscolaInfoSys.Controllers
 
             var (absences, isExcluded) = await _studentService.GetStudentAbsencesAndExclusionAsync(userId);
 
-            if (isExcluded)
-            {
-                TempData["ExclusionAlert"] = "You have been excluded from one or more subjects due to excessive absences.";
-            }
 
             return View(absences);
         }
