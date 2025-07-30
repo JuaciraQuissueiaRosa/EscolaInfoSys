@@ -41,6 +41,16 @@ else
                         @alert.AdminResponse
                     </div>
                 }
+
+                @if (User.IsInRole("StaffMember") && alert.StaffId == (int)ViewBag.CurrentStaffId)
+                {
+                    <form asp-action="Delete" method="post" onsubmit="return confirm('Are you sure you want to delete this alert?');" style="display:inline-block; margin-top: 10px;">
+                        <input type="hidden" name="id" value="@alert.Id" />
+                        <button type="submit" class="btn btn-danger btn-sm">
+                            <i class="fa fa-trash"></i> Delete
+                        </button>
+                    </form>
+                }
             </div>
         </div>
     }

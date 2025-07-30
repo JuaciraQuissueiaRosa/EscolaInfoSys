@@ -113,6 +113,8 @@ namespace EscolaInfoSys.Controllers
             var staff = await _staffRepository.GetByApplicationUserIdAsync(userId);
             if (staff == null) return NotFound();
 
+            ViewBag.CurrentStaffId = staff.Id;
+
             var myAlerts = await _alertRepository.GetByStaffIdAsync(staff.Id);
             return View(myAlerts);
         }
@@ -157,6 +159,27 @@ namespace EscolaInfoSys.Controllers
         }
 
 
+        [Authorize(Roles = "StaffMember")]
+        [HttpPost]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var alert = await _alertRepository.GetByIdAsync(id);
+            if (alert == null) return NotFound();
+
+            var userId = _userManager.GetUserId(User);
+            var staff = await _staffRepository.GetByApplicationUserIdAsync(userId);
+
+            if (staff == null || alert.StaffId != staff.Id)
+            {
+                // O staff só pode deletar seus próprios alertas
+                return Forbid();
+            }
+
+            await _alertRepository.DeleteAsync(alert);
+
+            // Pode retornar Json para ajax ou redirecionar
+            return RedirectToAction(nameof(MyAlerts));
+        }
 
 
 

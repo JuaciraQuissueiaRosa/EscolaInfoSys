@@ -1,4 +1,5 @@
 ﻿using EscolaInfoSys.Data;
+using EscolaInfoSys.Data.Repositories.Interfaces;
 using EscolaInfoSys.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -10,31 +11,29 @@ namespace EscolaInfoSys.API
     [ApiController]
     public class StudentsController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IStudentRepository _studentRepo;
 
-        public StudentsController(ApplicationDbContext context)
+        public StudentsController(IStudentRepository studentRepo)
         {
-            _context = context;
+            _studentRepo = studentRepo;
         }
 
-        // GET: api/students/by-formgroup?id=1
+        // GET: api/students/by-formgroup/1
         [HttpGet("by-formgroup/{id}")]
         public async Task<ActionResult<IEnumerable<Student>>> GetStudentsByFormGroup(int id)
         {
-            var students = await _context.Students
-                .Include(s => s.FormGroup)
-                .Include(s => s.Course)
-                .Where(s => s.FormGroupId == id)
-                .ToListAsync();
+            var students = await _studentRepo.GetWithFormGroupAsync();
 
-            if (students == null || students.Count == 0)
+            var filtered = students.Where(s => s.FormGroupId == id).ToList();
+
+            if (filtered == null || filtered.Count == 0)
             {
                 return NotFound($"No students found for FormGroup ID {id}");
             }
 
-            return Ok(students);
+            return Ok(filtered);
         }
-
-
     }
+
+
 }

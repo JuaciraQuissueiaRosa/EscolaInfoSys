@@ -77,6 +77,11 @@ namespace EscolaInfoSys.Data.Repositories
             await _context.SaveChangesAsync();
         }
 
+        public async Task<bool> IsStudentExcludedFromAnySubjectAsync(int studentId)
+        {
+            return await _context.StudentExclusions.AnyAsync(se => se.StudentId == studentId);
+        }
+
     }
 
 

@@ -1,5 +1,6 @@
 ﻿using EscolaInfoSys.Data.Repositories.Interfaces;
 using EscolaInfoSys.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace EscolaInfoSys.Services
 {
@@ -50,16 +51,19 @@ namespace EscolaInfoSys.Services
 
                 var key = $"{a.StudentId}-{a.SubjectId}";
 
-                if (!result.Percentages.ContainsKey(key) && subjectDict.TryGetValue(a.SubjectId.Value, out int totalLessons) && totalLessons > 0)
+                if (!result.Percentages.ContainsKey(key) && subjectDict.TryGetValue(a.SubjectId, out int totalLessons) && totalLessons > 0)
                 {
-                    var count = await _absenceRepo.CountByStudentAndSubjectAsync(a.StudentId.Value, a.SubjectId.Value);
+                    var count = await _absenceRepo.CountByStudentAndSubjectAsync(a.StudentId, a.SubjectId);
                     double pct = (double)count / totalLessons * 100.0;
                     result.Percentages[key] = Math.Round(pct, 1);
                 }
+
             }
 
             return result;
         }
+
+       
     }
 
 

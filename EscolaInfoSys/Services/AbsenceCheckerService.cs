@@ -30,7 +30,8 @@ namespace EscolaInfoSys.Services
             if (subject == null || subject.TotalLessons == 0)
                 return;
 
-            var absences = await _absenceRepo.CountByStudentAndSubjectAsync(studentId, subjectId);
+            var absences = await _absenceRepo.CountUnjustifiedAbsencesByStudentAndSubjectAsync(studentId, subjectId);
+
             if (absences == 0)
                 return; //nenhuma falta registrada
 

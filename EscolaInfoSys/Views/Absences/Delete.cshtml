@@ -19,6 +19,20 @@
             <dd class="col-sm-9">@Model.Date.ToShortDateString()</dd>
         </dl>
 
+        <dt class="col-sm-2">
+            Justification
+        </dt>
+        <dd class="col-sm-10">
+            @if (Model.Justified)
+            {
+                <span class="text-success">Justified</span>
+            }
+            else
+            {
+                <span class="text-danger">Unjustified</span>
+            }
+        </dd>
+
         <form asp-action="Delete">
             <input type="hidden" asp-for="Id" />
             <button type="submit" class="btn btn-danger"><i class="fa fa-trash"></i> Delete</button>

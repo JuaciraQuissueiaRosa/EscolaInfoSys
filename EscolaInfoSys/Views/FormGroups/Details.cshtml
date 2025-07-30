@@ -16,10 +16,10 @@
 
             <dt class="col-sm-3">Subjects</dt>
             <dd class="col-sm-9">
-                @if (Model.Subjects != null && Model.Subjects.Any())
+                @if (Model.Course != null && Model.Course.Subjects != null && Model.Course.Subjects.Any())
                 {
                     <ul>
-                        @foreach (var subject in Model.Subjects)
+                        @foreach (var subject in Model.Course.Subjects)
                         {
                             <li>@subject.Name</li>
                         }
@@ -27,9 +27,10 @@
                 }
                 else
                 {
-                    <span class="text-muted"></span>
+                    <span class="text-muted">No subjects</span>
                 }
             </dd>
+
 
             <dt class="col-sm-3">Course</dt>
             <dd class="col-sm-9">@Model.Course?.Name <span class='text-muted'></span></dd>

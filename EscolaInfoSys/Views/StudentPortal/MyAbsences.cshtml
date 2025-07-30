@@ -1,10 +1,18 @@
-﻿@model IEnumerable<EscolaInfoSys.Models.Absence>
+﻿@model IEnumerable<EscolaInfoSys.Models.ViewModels.AbsenceViewModel>
+
 
 @{
     ViewData["Title"] = "My Absences";
-    var percentage = (double)ViewBag.AbsencePercentage;
-    var limit = ViewBag.AbsenceLimit;
 }
+
+
+@if (TempData["ExclusionAlert"] != null)
+{
+    <div class="alert alert-warning">
+        @TempData["ExclusionAlert"]
+    </div>
+}
+
 
 <h2 class="mb-4"><i class="fa fa-calendar-times me-2 text-danger"></i> My Absences</h2>
 
@@ -14,41 +22,35 @@
 }
 else
 {
-    @if (percentage >= 100)
-    {
-        <div class="alert alert-danger">
-            <strong>Warning:</strong> You have exceeded the allowed absence limit of @limit absences!
-        </div>
-    }
-
-    <ejs-progressbar id="absenceProgress" type="Linear"
-                     value="@percentage"
-                     showProgressValue="true"
-                     height="30px"
-                     minimum="0" maximum="100"
-                     trackThickness="24" progressThickness="24"
-                     trackColor="#f3f3f3">
-        <e-progressbar-annotations>
-            <e-progressbar-annotation content="@(percentage + "% of limit (" + limit + " absences)")">
-            </e-progressbar-annotation>
-        </e-progressbar-annotations>
-    </ejs-progressbar>
-
-    <div class="mt-4">
-        <ejs-grid id="AbsencesGrid" dataSource="@Model" allowPaging="true" allowSorting="true">
-            <e-grid-columns>
-                <e-grid-column field="Subject.Name" headerText="Subject" width="150"></e-grid-column>
-                <e-grid-column field="Date" headerText="Date" type="date" format="dd/MM/yyyy" width="150"></e-grid-column>
-                <e-grid-column headerText="Reason" template="@("<span>${Justified ? 'Justified' : 'Unjustified'}</span>")" width="150"></e-grid-column>
-            </e-grid-columns>
-        </ejs-grid>
-    </div>
+    <div id="AbsencesGrid"></div>
 }
 
 @section Scripts {
-    <script src="https://cdn.syncfusion.com/ej2/24.2.3/dist/ej2.min.js"></script>
-    <link href="https://cdn.syncfusion.com/ej2/24.2.3/material.css" rel="stylesheet" />
+    <link href="https://cdn.syncfusion.com/ej2/30.1.47/material.css" rel="stylesheet" />
+    <script src="https://cdn.syncfusion.com/ej2/30.1.47/dist/ej2.min.js"></script>
+
     <script>
         ej.base.enableRipple(true);
+
+        var absencesData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model));
+
+        var grid = new ej.grids.Grid({
+            dataSource: absencesData,
+            allowPaging: true,
+            allowSorting: true,
+            columns: [
+                { field: 'SubjectName', headerText: 'Subject', width: 150 },
+                { field: 'Date', headerText: 'Date', type: 'date', format: 'dd/MM/yyyy', width: 150 },
+                {
+                    headerText: 'Justification',
+                    template: function(data) {
+                        return data.Justified ? 'Justified' : 'Unjustified';
+                    },
+                    width: 150
+                }
+            ],
+            pageSettings: { pageSize: 10 }
+        });
+        grid.appendTo('#AbsencesGrid');
     </script>
 }

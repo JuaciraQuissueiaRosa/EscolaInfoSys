@@ -11,18 +11,19 @@ namespace EscolaInfoSys.Models
         public float Value { get; set; }
         public DateTime Date { get; set; }
 
-        [Display(Name = "Student")]
+        [Required(ErrorMessage = "Student is required")]
         public int? StudentId { get; set; }
         public Student? Student { get; set; }
 
-        [Display(Name = "Subject")]
+        [Required(ErrorMessage = "Subject is required")]
         public int? SubjectId { get; set; }
         public Subject? Subject { get; set; }
 
         [Display(Name = "Evaluation Type")]
-        public EvaluationType EvaluationType { get; set; }
+        [Required]
+        public EvaluationType? EvaluationType { get; set; }
 
-        [Display(Name = "StaffMember")]
+        [Required(ErrorMessage = "Staff Member is required")]
         public int? StaffMemberId { get; set; }
         public StaffMember? StaffMember { get; set; }
     }
