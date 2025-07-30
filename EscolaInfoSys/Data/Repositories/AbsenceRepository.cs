@@ -92,6 +92,9 @@ namespace EscolaInfoSys.Data.Repositories
                 .Where(a => a.StudentId == studentId)
                 .Select(a => new AbsenceViewModel
                 {
+                    Id = a.Id,
+                    StudentId = a.StudentId,
+                    SubjectId = a.SubjectId,
                     SubjectName = a.Subject.Name,
                     Date = a.Date,
                     Justified = a.Justified

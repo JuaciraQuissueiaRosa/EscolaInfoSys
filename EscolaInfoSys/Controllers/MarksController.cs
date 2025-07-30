@@ -118,6 +118,8 @@ namespace EscolaInfoSys.Controllers
             if (ModelState.IsValid)
             {
                 await _markRepo.AddAsync(mark);
+
+                await _markRepo.UpdateStudentSubjectPassStatusAsync(mark.StudentId.Value, mark.SubjectId.Value);
                 return RedirectToAction(nameof(Index));
             }
 
@@ -157,6 +159,7 @@ namespace EscolaInfoSys.Controllers
             if (ModelState.IsValid)
             {
                 await _markRepo.UpdateAsync(mark);
+                await _markRepo.UpdateStudentSubjectPassStatusAsync(mark.StudentId.Value, mark.SubjectId.Value);
                 return RedirectToAction(nameof(Index));
             }
 
@@ -168,6 +171,19 @@ namespace EscolaInfoSys.Controllers
             ViewBag.StaffMemberId = mark.StaffMemberId;
 
             return View(mark);
+        }
+
+        public async Task<IActionResult> Averages()
+        {
+            var user = await _accountService.GetCurrentUserAsync(User);
+            if (user == null) return Unauthorized();
+
+            var staff = await _staffRepo.GetByApplicationUserIdAsync(user.Id);
+            if (staff == null) return Unauthorized();
+
+            var averages = await _markRepo.GetStudentSubjectAveragesByStaffAsync(staff.Id);
+
+            return View(averages);
         }
 
         public async Task<IActionResult> Delete(int? id)

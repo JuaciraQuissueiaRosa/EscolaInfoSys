@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using EscolaInfoSys.Services;
+using EscolaInfoSys.Models.Dtos;
 
 namespace EscolaInfoSys.Controllers
 {
@@ -14,7 +15,7 @@ namespace EscolaInfoSys.Controllers
         private readonly IStudentRepository _studentRepo;
         private readonly IMarkRepository _markRepo;
         private readonly IAbsenceRepository _absenceRepo;
-        ISystemSettingsRepository _settingsRepo;
+        private readonly ISystemSettingsRepository _settingsRepo;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IStudentService _studentService;
 
@@ -59,21 +60,39 @@ namespace EscolaInfoSys.Controllers
 
             if (student == null) return NotFound();
 
-            var marks = await _markRepo.GetAllAsync();
-            var myMarks = marks.Where(m => m.StudentId == student.Id).ToList();
+            // Supondo que você tenha um método no repositório que retorna médias com aprovação:
+            var studentMarks = await _markRepo.GetStudentSubjectAveragesAsync(student.Id);
 
-            return View(myMarks); 
+            return View(studentMarks);
         }
+
 
         public async Task<IActionResult> MyAbsences()
         {
             var userId = _userManager.GetUserId(User);
 
-            var (absences, isExcluded) = await _studentService.GetStudentAbsencesAndExclusionAsync(userId);
+            var student = await _studentRepo.GetByApplicationUserIdAsync(userId);
+            if (student == null)
+            {
+                ViewBag.IsExcluded = false;
+                ViewBag.ExcludedSubjects = new List<string>();
+                return View(new List<StudentAbsenceStatusDto>());
+            }
 
+            var absencesStatus = await _studentService.GetStudentAbsencesAndExclusionStatusAsync(userId);
+
+            bool isExcluded = absencesStatus.IsExcluded;
+            var absences = absencesStatus.AbsencesStatus;
+
+            ViewBag.IsExcluded = isExcluded;
+            ViewBag.ExcludedSubjects = absences
+                .Where(x => x.IsExcluded)
+                .Select(x => x.SubjectName)
+                .ToList();
 
             return View(absences);
         }
+
 
 
 

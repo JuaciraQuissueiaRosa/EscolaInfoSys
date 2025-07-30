@@ -23,6 +23,8 @@ namespace EscolaInfoSys.Models
         [Required]
         public EvaluationType? EvaluationType { get; set; }
 
+        public bool? IsPassed { get; set; }
+
         [Required(ErrorMessage = "Staff Member is required")]
         public int? StaffMemberId { get; set; }
         public StaffMember? StaffMember { get; set; }

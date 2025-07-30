@@ -59,8 +59,6 @@ namespace EscolaInfoSys.Controllers
 
 
 
-
-
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();
@@ -89,6 +87,7 @@ namespace EscolaInfoSys.Controllers
             if (ModelState.IsValid)
             {
                 await _absenceRepo.AddAsync(absence);
+
 
                 // Só chama o checker se ambos os campos estiverem preenchidos
                 if (absence.StudentId > 0 && absence.SubjectId > 0)
@@ -128,14 +127,24 @@ namespace EscolaInfoSys.Controllers
 
             if (ModelState.IsValid)
             {
-                try
+                if (ModelState.IsValid)
                 {
-                    await _absenceRepo.UpdateFromViewModelAsync(model);
-                    return RedirectToAction(nameof(Index));
-                }
-                catch (Exception ex)
-                {
-                    ModelState.AddModelError("", ex.Message);
+                    try
+                    {
+                        await _absenceRepo.UpdateFromViewModelAsync(model);
+
+                        // ✅ Verifica novamente a exclusão por faltas
+                        if (model.StudentId > 0 && model.SubjectId > 0)
+                        {
+                            await _absenceChecker.CheckExclusionAsync(model.StudentId, model.SubjectId);
+                        }
+
+                        return RedirectToAction(nameof(Index));
+                    }
+                    catch (Exception ex)
+                    {
+                        ModelState.AddModelError("", ex.Message);
+                    }
                 }
             }
 

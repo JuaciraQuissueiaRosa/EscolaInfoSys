@@ -1,0 +1,38 @@
+﻿@model IEnumerable<EscolaInfoSys.Models.Dtos.StudentSubjectAverageDto>
+
+@{
+    ViewData["Title"] = "Student Subject Averages";
+}
+
+<h2><i class="fa fa-chart-bar"></i> Student Subject Averages</h2>
+
+<table class="table table-striped table-bordered">
+    <thead>
+        <tr>
+            <th>Student Email</th>
+            <th>Subject</th>
+            <th>Average</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.StudentEmail</td>
+                <td>@item.SubjectName</td>
+                <td>@item.Average.ToString("F2")</td>
+                <td>
+                    @if (item.IsPassed)
+                    {
+                        <span class="badge bg-success"><i class="fa fa-check"></i> Passed</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-danger"><i class="fa fa-times"></i> Failed</span>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

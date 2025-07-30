@@ -1,4 +1,5 @@
-﻿@model IEnumerable<EscolaInfoSys.Models.ViewModels.AbsenceViewModel>
+﻿@model IEnumerable<EscolaInfoSys.Models.Dtos.StudentAbsenceStatusDto>
+
 
 
 @{
@@ -14,6 +15,20 @@
 }
 else
 {
+    @if ((bool)(ViewBag.IsExcluded ?? false))
+    {
+        <div class="alert alert-danger mb-4">
+            <i class="fa fa-exclamation-triangle me-2"></i>
+            You have been excluded from the following subjects due to excessive absences:
+            <ul>
+                @foreach (var subject in (List<string>)ViewBag.ExcludedSubjects)
+                {
+                    <li>@subject</li>
+                }
+            </ul>
+        </div>
+    }
+
     <div id="AbsencesGrid"></div>
 }
 
@@ -30,17 +45,19 @@ else
             dataSource: absencesData,
             allowPaging: true,
             allowSorting: true,
-            columns: [
-                { field: 'SubjectName', headerText: 'Subject', width: 150 },
-                { field: 'Date', headerText: 'Date', type: 'date', format: 'dd/MM/yyyy', width: 150 },
-                {
-                    headerText: 'Justification',
-                    template: function(data) {
-                        return data.Justified ? 'Justified' : 'Unjustified';
-                    },
-                    width: 150
-                }
-            ],
+                   columns: [
+            { field: 'SubjectName', headerText: 'Subject', width: 150 },
+            { field: 'AbsencesCount', headerText: 'Absences', width: 100 },
+            { field: 'AbsencePercentage', headerText: '% Absences', format: 'N1', width: 120 },
+            {
+                field: 'IsExcluded',
+                headerText: 'Excluded',
+                template: function(data) {
+                    return data.IsExcluded ? '<span style="color:red; font-weight:bold;">Yes</span>' : 'No';
+                },
+                width: 100
+            }
+        ],
             pageSettings: { pageSize: 10 }
         });
         grid.appendTo('#AbsencesGrid');
