@@ -42,7 +42,6 @@ Entity Framework Core
 
 ASP.NET Identity (User/Role management)
 
-SignalR (real-time notifications)
 
 SMTP (email services)
 
