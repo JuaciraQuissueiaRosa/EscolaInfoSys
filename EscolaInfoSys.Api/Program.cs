@@ -11,17 +11,21 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// --- Serviços ---
 // Controllers
 builder.Services.AddControllers();
 
-// Banco de Dados compartilhado
+// Banco de Dados compartilhado (Entity Framework Core)
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-//  Identity (login com mesmas credenciais da Web)
+// Identity (login com mesmas credenciais da Web)
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
+
+// Serviços customizados
+builder.Services.AddScoped<IAccountService, AccountService>();
 
 // JWT Authentication
 builder.Services.AddAuthentication(options =>
@@ -55,7 +59,7 @@ builder.Services.AddCors(options =>
     });
 });
 
-
+// Registro de repositórios customizados (método de extensão)
 builder.Services.RegisterRepositories();
 
 // Swagger com suporte a JWT
@@ -88,20 +92,28 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
-// Pipeline
+// --- Pipeline de middlewares ---
+
+// Redireciona para HTTPS
+app.UseHttpsRedirection();
+
+// CORS deve vir antes da autenticação e autorização
 app.UseCors("AllowAll");
 
+// Autenticação
+app.UseAuthentication();
+
+// Autorização
+app.UseAuthorization();
+
+// Swagger (apenas em desenvolvimento)
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
-
-app.UseAuthentication(); // JWT
-app.UseAuthorization();
-
+// Mapear controllers (endpoints)
 app.MapControllers();
 
 app.Run();
