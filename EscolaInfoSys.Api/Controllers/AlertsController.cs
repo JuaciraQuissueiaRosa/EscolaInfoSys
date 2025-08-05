@@ -56,5 +56,30 @@ namespace EscolaInfoSys.Api.Controllers
             var alerts = await _alertRepo.GetByStaffIdAsync(staff.Id);
             return Ok(alerts);
         }
+
+        // 🔸 GET: api/alerts (admin vê todos os alertas)
+        [HttpGet]
+        [Authorize(Roles = "Administrator")]
+        public async Task<IActionResult> GetAllAlerts()
+        {
+            var alerts = await _alertRepo.GetAllWithStaffAsync();
+            return Ok(alerts);
+        }
+
+        // 🔸 PUT: api/alerts/{id}/respond (admin responde um alerta)
+        [HttpPut("{id}/respond")]
+        [Authorize(Roles = "Administrator")]
+        public async Task<IActionResult> RespondToAlert(int id, [FromBody] string response)
+        {
+            var alert = await _alertRepo.GetByIdAsync(id);
+            if (alert == null) return NotFound();
+
+            alert.AdminResponse = response;
+            alert.IsResolved = true;
+
+            await _alertRepo.UpdateAsync(alert);
+            return Ok(new { message = "Alert responded and marked as resolved." });
+        }
     }
 }
+
