@@ -7,12 +7,12 @@ using System.Text;
 
 namespace EscolaInfoSys.Api.Services
 {
-    public class AccountService : IAccountService
+    public class ApiAccountService : IApiAccountService
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IConfiguration _configuration;
 
-        public AccountService(UserManager<ApplicationUser> userManager, IConfiguration configuration)
+        public ApiAccountService(UserManager<ApplicationUser> userManager, IConfiguration configuration)
         {
             _userManager = userManager;
             _configuration = configuration;

@@ -15,7 +15,7 @@ namespace EscolaInfoSys.Api.Data.Interfaces.Repositories
             services.AddScoped<IStudentExclusionRepository, StudentExclusionRepository>();
             services.AddScoped<ISubjectRepository, SubjectRepository>();
             services.AddScoped<IFormGroupRepository, FormGroupRepository>();
-            services.AddScoped<EscolaInfoSys.Api.Services.IAccountService, EscolaInfoSys.Api.Services.AccountService>();
+            services.AddScoped<IApiAccountService, ApiAccountService>();
             services.AddScoped<IStudentExclusionStatusService, StudentExclusionStatusService>();
             services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 

@@ -10,9 +10,9 @@ namespace EscolaInfoSys.Api.Controllers
     [Route("api/[controller]")]
     public class AuthController : ControllerBase
     {
-        private readonly IAccountService _accountService;
+        private readonly IApiAccountService _accountService;
 
-        public AuthController(IAccountService accountService)
+        public AuthController(IApiAccountService accountService)
         {
             _accountService = accountService;
         }
