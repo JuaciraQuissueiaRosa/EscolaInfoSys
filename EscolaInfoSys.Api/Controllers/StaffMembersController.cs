@@ -1,69 +1,111 @@
-﻿using EscolaInfoSys.Data.Repositories.Interfaces;
+﻿using EscolaInfoSys.Data;
+using EscolaInfoSys.Data.Repositories.Interfaces;
 using EscolaInfoSys.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace EscolaInfoSys.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = "Administrator")]
-    public class StaffMembersController : ControllerBase
+    [Authorize(Roles = "StaffMember")]
+    public class StaffController : ControllerBase
     {
+        private readonly IFormGroupRepository _formGroupRepo;
+        private readonly IStudentRepository _studentRepo;
+        private readonly IMarkRepository _markRepo;
+        private readonly IAbsenceRepository _absenceRepo;
+        private readonly IStudentExclusionRepository _exclusionRepo;
         private readonly IStaffMemberRepository _staffRepo;
 
-        public StaffMembersController(IStaffMemberRepository staffRepo)
+        private readonly UserManager<ApplicationUser> _userManager;
+
+        public StaffController(
+            IFormGroupRepository formGroupRepo,
+            IStudentRepository studentRepo,
+            IMarkRepository markRepo,
+            IAbsenceRepository absenceRepo,
+            IStudentExclusionRepository exclusionRepo,
+            IStaffMemberRepository staffRepo,
+            UserManager<ApplicationUser> userManager)
         {
+            _formGroupRepo = formGroupRepo;
+            _studentRepo = studentRepo;
+            _markRepo = markRepo;
+            _absenceRepo = absenceRepo;
+            _exclusionRepo = exclusionRepo;
             _staffRepo = staffRepo;
+            _userManager = userManager;
+
         }
 
-        // GET: api/staffmembers
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<StaffMember>>> GetAll()
+        // GET: api/staff/students
+        [HttpGet("students")]
+        public async Task<IActionResult> GetStudents()
         {
-            var staff = await _staffRepo.GetAllWithUserAsync();
-            return Ok(staff);
+            var userId = _userManager.GetUserId(User);
+            var staff = await _staffRepo.GetByApplicationUserIdAsync(userId);
+            if (staff == null) return Unauthorized();
+
+            var marks = await _markRepo.GetAllAsync();
+
+            var studentIds = marks
+                .Where(m => m.StaffMemberId == staff.Id)
+                .Select(m => m.StudentId)
+                .Distinct()
+                .ToList();
+
+            var students = await Task.WhenAll(
+                studentIds
+                    .Where(id => id.HasValue)
+                    .Select(id => _studentRepo.GetFullByIdAsync(id.Value))
+            );
+
+            return Ok(students.Where(s => s != null));
         }
 
-        // GET: api/staffmembers/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<StaffMember>> Get(int id)
+
+
+
+        // GET: api/staff/students/{id}/marks
+        [HttpGet("students/{id}/marks")]
+        public async Task<IActionResult> GetStudentMarks(int id)
         {
-            var staff = await _staffRepo.GetByIdWithUserAsync(id);
-            if (staff == null) return NotFound();
-
-            return Ok(staff);
+            var marks = await _markRepo.GetAllAsync();
+            var studentMarks = marks.Where(m => m.StudentId == id);
+            return Ok(studentMarks);
         }
 
-        // POST: api/staffmembers
-        [HttpPost]
-        public async Task<ActionResult<StaffMember>> Post([FromBody] StaffMember staff)
+        // GET: api/staff/students/{id}/absences
+        [HttpGet("students/{id}/absences")]
+        public async Task<IActionResult> GetStudentAbsences(int id)
         {
-            await _staffRepo.AddAsync(staff);
-            return CreatedAtAction(nameof(Get), new { id = staff.Id }, staff);
+            var absences = await _absenceRepo.GetByStudentIdAsync(id);
+            return Ok(absences);
         }
 
-        // PUT: api/staffmembers/5
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, [FromBody] StaffMember updated)
+        // POST: api/staff/marks
+        [HttpPost("marks")]
+        public async Task<IActionResult> RegisterMark([FromBody] Mark mark)
         {
-            if (id != updated.Id) return BadRequest("ID mismatch");
-
-            await _staffRepo.UpdateAsync(updated);
-            return NoContent();
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+            await _markRepo.AddAsync(mark);
+            return Ok(mark);
         }
 
-        // DELETE: api/staffmembers/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        // GET: api/staff/averages
+        [HttpGet("averages")]
+        public async Task<IActionResult> GetAverages()
         {
-            var staff = await _staffRepo.GetByIdAsync(id);
-            if (staff == null) return NotFound();
+            var userId = _userManager.GetUserId(User);
 
-            await _staffRepo.DeleteAsync(staff);
-            return NoContent();
+            var staff = await _staffRepo.GetByApplicationUserIdAsync(userId);
+            if (staff == null) return Unauthorized();
+
+            var averages = await _markRepo.GetStudentSubjectAveragesByStaffAsync(staff.Id);
+            return Ok(averages);
         }
+
     }
 }
