@@ -11,11 +11,13 @@ namespace EscolaInfoSys.Api.Controllers
     {
         private readonly IFormGroupRepository _formGroupRepo;
         private readonly ISubjectRepository _subjectRepo;
+        private readonly ICourseRepository _courseRepo;
 
-        public PublicController(IFormGroupRepository formGroupRepo, ISubjectRepository subjectRepo)
+        public PublicController(IFormGroupRepository formGroupRepo, ISubjectRepository subjectRepo, ICourseRepository courseRepo)
         {
             _formGroupRepo = formGroupRepo;
             _subjectRepo = subjectRepo;
+            _courseRepo = courseRepo;
         }
 
         // GET: api/public/formgroups
@@ -33,5 +35,13 @@ namespace EscolaInfoSys.Api.Controllers
             var subjects = await _subjectRepo.GetAllAsync();
             return Ok(subjects.Select(s => new { s.Id, s.Name }));
         }
+
+        [HttpGet("courses")]
+        public async Task<IActionResult> GetCourses()
+        {
+            var courses = await _courseRepo.GetAllAsync();
+            return Ok(courses.Select(c => new { c.Id, c.Name }));
+        }
+
     }
 }
