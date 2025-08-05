@@ -18,10 +18,11 @@ namespace EscolaInfoSys.Data.Repositories
             services.AddScoped<ISystemSettingsRepository, SystemSettingsRepository>();
             services.AddScoped<IAlertRepository, AlertRepository>();
             services.AddScoped<IEmailSender, SmtpEmailSender>();
+            services.AddScoped<IAccountService, AccountService>();
 
             // Serviços sem SignalR
-           
-           
+
+
             // Generic Repository
             services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
