@@ -16,4 +16,8 @@
     <ProjectReference Include="..\EscolaInfoSys\EscolaInfoSys.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Data\" />
+  </ItemGroup>
+
 </Project>
