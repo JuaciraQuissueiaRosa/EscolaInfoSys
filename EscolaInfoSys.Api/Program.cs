@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using EscolaInfoSys.Api.Services;
+using EscolaInfoSys.Data.Repositories.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,7 +27,14 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddDefaultTokenProviders();
 
 // Serviços customizados
-builder.Services.AddScoped<IAccountService, AccountService>();
+
+
+builder.Services.AddScoped<IStudentExclusionStatusService, StudentExclusionStatusService>();
+builder.Services.RegisterRepositories();
+
+
+
+
 
 // JWT Authentication
 builder.Services.AddAuthentication(options =>
@@ -59,8 +68,8 @@ builder.Services.AddCors(options =>
     });
 });
 
-// Registro de repositórios customizados (método de extensão)
-builder.Services.RegisterRepositories();
+
+
 
 // Swagger com suporte a JWT
 builder.Services.AddEndpointsApiExplorer();
@@ -90,6 +99,9 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+builder.Services.AddScoped<EscolaInfoSys.Api.Services.IAccountService, EscolaInfoSys.Api.Services.AccountService>();
+
+
 var app = builder.Build();
 
 // --- Pipeline de middlewares ---
@@ -109,6 +121,7 @@ app.UseAuthorization();
 // Swagger (apenas em desenvolvimento)
 if (app.Environment.IsDevelopment())
 {
+    app.UseDeveloperExceptionPage();
     app.UseSwagger();
     app.UseSwaggerUI();
 }
