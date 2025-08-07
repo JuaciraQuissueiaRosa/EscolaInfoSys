@@ -65,6 +65,16 @@ builder.Services.AddCors(options =>
 builder.Services.RegisterRepositories();
 builder.Services.AddScoped<IStudentExclusionStatusService, StudentExclusionStatusService>();
 builder.Services.AddScoped<IApiAccountService, ApiAccountService>();
+builder.Services.AddScoped<IEmailSender, ApiEmailSender>();
+
+
+builder.Configuration["Mail:From"] = "noreply@EscolaInfoSysApi.somee.com";
+builder.Configuration["Mail:NameFrom"] = "Escola InfoSys";
+builder.Configuration["Mail:Smtp"] = "smtp.EscolaInfoSysApi.somee.com";
+builder.Configuration["Mail:Port"] = "25"; 
+builder.Configuration["Mail:Password"] = "Student123!";
+
+
 
 var app = builder.Build();
 
