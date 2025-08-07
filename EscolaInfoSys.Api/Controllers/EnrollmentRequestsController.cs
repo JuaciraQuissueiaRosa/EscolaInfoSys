@@ -1,4 +1,5 @@
-﻿using EscolaInfoSys.Data;
+﻿using EscolaInfoSys.Api.Models;
+using EscolaInfoSys.Data;
 using EscolaInfoSys.Data.Repositories.Interfaces;
 using EscolaInfoSys.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -28,7 +29,7 @@ namespace EscolaInfoSys.Api.Controllers
         // POST: api/enrollmentrequests
         [HttpPost]
         [Authorize(Roles = "Student")]
-        public async Task<IActionResult> Post([FromBody] string message)
+        public async Task<IActionResult> Post([FromBody] CreateEnrollmentRequestDto dto)
         {
             var userId = _userManager.GetUserId(User);
             var student = await _studentRepo.GetByApplicationUserIdAsync(userId);
@@ -37,15 +38,16 @@ namespace EscolaInfoSys.Api.Controllers
             var request = new Alert
             {
                 Title = "Enrollment Request",
-                Message = message,
+                Message = dto.Message,
                 CreatedAt = DateTime.UtcNow,
                 IsResolved = false,
-                StaffId = student.Id // Aqui usamos como StudentId
+                StaffId = student.Id
             };
 
             await _alertRepo.AddAsync(request);
             return Ok(new { message = "Enrollment request submitted." });
         }
+
 
         // GET: api/enrollmentrequests/mine
         [HttpGet("mine")]

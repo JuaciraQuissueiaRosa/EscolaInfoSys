@@ -10,28 +10,27 @@ namespace EscolaInfoSys.Api.Controllers
     [Route("api/[controller]")]
     public class AuthController : ControllerBase
     {
-        private readonly IApiAccountService _accountService;
+        private readonly IApiAccountService _authService;
 
-        public AuthController(IApiAccountService accountService)
+        public AuthController(IApiAccountService authService)
         {
-            _accountService = accountService;
+            _authService = authService;
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginDto model)
+        public async Task<IActionResult> Login([FromBody] LoginDto dto)
         {
-            var token = await _accountService.AuthenticateAsync(model.Email, model.Password);
+            var token = await _authService.AuthenticateAsync(dto.Email, dto.Password);
+
             if (token == null)
-                return Unauthorized("Invalid credentials");
+                return Unauthorized(new { message = "Invalid credentials or email not confirmed." });
 
             return Ok(new
             {
                 token,
-                expiration = DateTime.Now.AddHours(3)
+                expiration = DateTime.UtcNow.AddHours(3)
             });
         }
-
-      
     }
 
 }
