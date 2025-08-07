@@ -5,12 +5,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using EscolaInfoSys.Data.Repositories.Interfaces;
 using EscolaInfoSys.Data;
+using EscolaInfoSys.Api.Models;
 
 namespace EscolaInfoSys.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "Student")] // Apenas alunos autenticados
+    [Authorize(Roles = "Student")] /*Apenas alunos autenticados*/
     public class StudentsController : ControllerBase
     {
         private readonly IStudentRepository _studentRepo;
@@ -39,17 +40,74 @@ namespace EscolaInfoSys.Api.Controllers
             if (student == null)
                 return NotFound("Student not found");
 
+            //  domínio correto do site onde as imagens realmente estão
+            var baseUrl = "https://www.escolainfosys.somee.com";
+
             return Ok(new
             {
                 student.Id,
                 student.PupilNumber,
                 student.CourseId,
-                student.Course?.Name,
-                student.ApplicationUser?.UserName,
-                student.ApplicationUser?.Email,
-                student.ApplicationUser?.ProfilePhoto
+                Course = student.Course?.Name,
+                UserName = student.ApplicationUser?.UserName,
+                Email = student.ApplicationUser?.Email,
+                ProfilePhoto = string.IsNullOrEmpty(student.ProfilePhoto)
+                    ? null
+                    : $"{baseUrl}/uploads/{student.ProfilePhoto}"
             });
         }
+
+        [HttpPut("profile")]
+        public async Task<IActionResult> UpdateStudentProfileAsync([FromForm] UpdateStudentProfileDto dto)
+        {
+            var userId = _userManager.GetUserId(User);
+            var student = await _studentRepo.GetByApplicationUserIdAsync(userId);
+
+            if (student == null)
+                return NotFound("Student not found");
+
+            // Atualiza nome de usuário
+            if (!string.IsNullOrEmpty(dto.UserName))
+            {
+                student.ApplicationUser.UserName = dto.UserName;
+            }
+
+            // Atualiza foto de perfil, se enviada
+            if (dto.ProfilePhoto != null && dto.ProfilePhoto.Length > 0)
+            {
+                if (dto.ProfilePhoto.Length > 2 * 1024 * 1024)
+                    return BadRequest("Image file is too large (max 2MB).");
+
+                var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp" };
+                var extension = Path.GetExtension(dto.ProfilePhoto.FileName).ToLowerInvariant();
+                var mimeType = dto.ProfilePhoto.ContentType;
+
+                if (!allowedExtensions.Contains(extension) ||
+                    !mimeType.StartsWith("image/"))
+                {
+                    return BadRequest("Unsupported image format.");
+                }
+
+                // Gera nome único e salva
+                var uniqueFileName = Guid.NewGuid().ToString() + extension;
+                var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+
+                if (!Directory.Exists(uploadsFolder))
+                    Directory.CreateDirectory(uploadsFolder);
+
+                var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+                using var stream = new FileStream(filePath, FileMode.Create);
+                await dto.ProfilePhoto.CopyToAsync(stream);
+
+                // Atualiza nome do arquivo salvo no aluno
+                student.ProfilePhoto = uniqueFileName;
+            }
+
+            await _studentRepo.UpdateAsync(student);
+            return Ok(new { message = "Profile updated successfully." });
+        }
+
+
 
         // 🔹 GET: api/students/marks
         [HttpGet("marks")]
