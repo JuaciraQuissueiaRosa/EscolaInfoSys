@@ -56,7 +56,6 @@ namespace EscolaInfoSys.Api.Controllers
                     : $"{baseUrl}/uploads/{student.ProfilePhoto}"
             });
         }
-
         [HttpPut("profile")]
         public async Task<IActionResult> UpdateStudentProfileAsync([FromForm] UpdateStudentProfileDto dto)
         {
@@ -70,6 +69,11 @@ namespace EscolaInfoSys.Api.Controllers
             if (!string.IsNullOrEmpty(dto.UserName))
             {
                 student.ApplicationUser.UserName = dto.UserName;
+                student.ApplicationUser.NormalizedUserName = dto.UserName.ToUpper();
+
+                var result = await _userManager.UpdateAsync(student.ApplicationUser);
+                if (!result.Succeeded)
+                    return BadRequest(new { errors = result.Errors });
             }
 
             // Atualiza foto de perfil, se enviada
@@ -82,14 +86,13 @@ namespace EscolaInfoSys.Api.Controllers
                 var extension = Path.GetExtension(dto.ProfilePhoto.FileName).ToLowerInvariant();
                 var mimeType = dto.ProfilePhoto.ContentType;
 
-                if (!allowedExtensions.Contains(extension) ||
-                    !mimeType.StartsWith("image/"))
+                if (!allowedExtensions.Contains(extension) || !mimeType.StartsWith("image/"))
                 {
                     return BadRequest("Unsupported image format.");
                 }
 
                 // Gera nome único e salva
-                var uniqueFileName = Guid.NewGuid().ToString() + extension;
+                var uniqueFileName = Guid.NewGuid() + extension;
                 var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
 
                 if (!Directory.Exists(uploadsFolder))
@@ -99,13 +102,14 @@ namespace EscolaInfoSys.Api.Controllers
                 using var stream = new FileStream(filePath, FileMode.Create);
                 await dto.ProfilePhoto.CopyToAsync(stream);
 
-                // Atualiza nome do arquivo salvo no aluno
                 student.ProfilePhoto = uniqueFileName;
             }
 
             await _studentRepo.UpdateAsync(student);
+
             return Ok(new { message = "Profile updated successfully." });
         }
+
 
 
 
