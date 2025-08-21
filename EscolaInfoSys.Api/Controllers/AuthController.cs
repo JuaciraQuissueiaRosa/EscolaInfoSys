@@ -33,15 +33,23 @@ namespace EscolaInfoSys.Api.Controllers
             });
         }
 
-        //  POST: api/auth/forgot-password
+        // POST: api/auth/forgot-password
         [HttpPost("forgot-password")]
         [AllowAnonymous]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto dto)
         {
+            // gera link: escola://reset?email=...&token=...
             string ResetLinkBuilder(string token, string email, string scheme)
-                => $"https://www.escolainfosysapi.somee.com/reset-password?token={token}&email={email}";
+                => $"{scheme}://reset?email={Uri.EscapeDataString(email)}&token={Uri.EscapeDataString(token)}";
 
-            var success = await _authService.SendResetPasswordEmailAsync(dto.Email, "https", ResetLinkBuilder);
+            var scheme = "escola"; // 👈 custom URI scheme da app
+            var success = await _authService.SendResetPasswordEmailAsync(dto.Email, scheme, ResetLinkBuilder);
+
+#if DEBUG
+            // Em DEV/QA é útil devolver o token para testar no app sem depender do e-mail
+            if (success)
+                return Ok(new { message = "Reset password link sent to your email.", devTokenHint = "Usar apenas em DEV", tokenForTesting = "⚠ forneça o token aqui se o teu serviço retornar" });
+#endif
 
             if (!success)
                 return BadRequest(new { message = "Invalid email or email not confirmed." });
@@ -49,13 +57,17 @@ namespace EscolaInfoSys.Api.Controllers
             return Ok(new { message = "Reset password link sent to your email." });
         }
 
-        // POST: api/auth/reset-password
         [HttpPost("reset-password")]
         [AllowAnonymous]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto dto)
         {
-            var result = await _authService.ResetPasswordAsync(dto);
+            // token pode vir URL-encoded
+            var token = Uri.UnescapeDataString(dto.Token ?? "");
+            token = token.Replace(" ", "+"); // alguns clientes trocam + por espaço
 
+            dto.Token = token;
+
+            var result = await _authService.ResetPasswordAsync(dto);
             if (!result.Succeeded)
                 return BadRequest(new { errors = result.Errors });
 
