@@ -9,7 +9,7 @@ namespace EscolaInfoSys.Api.Controllers
 {
     [ApiController]
     [Route("api/courses")]
-    [Authorize(Roles = "Administrator")]
+    [Authorize]
     public class CoursesController : ControllerBase
     {
         private readonly ICourseRepository _courseRepo;

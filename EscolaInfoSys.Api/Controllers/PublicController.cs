@@ -1,4 +1,5 @@
 ﻿using EscolaInfoSys.Data.Repositories.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -7,6 +8,7 @@ namespace EscolaInfoSys.Api.Controllers
 {
     [ApiController]
     [Route("api/public")]
+    [AllowAnonymous]
     public class PublicController : ControllerBase
     {
         private readonly IFormGroupRepository _formGroupRepo;

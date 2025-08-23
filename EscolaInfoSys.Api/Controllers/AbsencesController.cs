@@ -11,7 +11,7 @@ namespace EscolaInfoSys.Api.Controllers
 {
     [ApiController]
     [Route("api/absences")]
-    [Authorize(Roles = "Student")]
+    [Authorize]
     public class AbsencesController : ControllerBase
     {
         private readonly IAbsenceRepository _absenceRepo;

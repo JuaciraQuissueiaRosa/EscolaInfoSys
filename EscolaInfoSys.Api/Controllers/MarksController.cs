@@ -11,7 +11,7 @@ namespace EscolaInfoSys.Api.Controllers
 {
     [ApiController]
     [Route("api/marks")]
-    [Authorize(Roles = "Student")]
+    [Authorize]
     public class MarksController : ControllerBase
     {
         private readonly IMarkRepository _markRepo;

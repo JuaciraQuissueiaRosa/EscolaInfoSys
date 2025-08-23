@@ -11,7 +11,7 @@ namespace EscolaInfoSys.Api.Controllers
 {
     [Route("api/students")]
     [ApiController]
-    [Authorize(Roles = "Student")] /*Apenas alunos autenticados*/
+    [Authorize]
     public class StudentsController : ControllerBase
     {
         private readonly IStudentRepository _studentRepo;

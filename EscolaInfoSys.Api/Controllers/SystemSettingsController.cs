@@ -10,7 +10,7 @@ namespace EscolaInfoSys.Api.Controllers
 
     [Route("api/systems")]
     [ApiController]
-    [Authorize(Roles = "Administrator")] // Apenas administradores podem alterar
+    [Authorize] 
     public class SystemSettingsController : ControllerBase
     {
         private readonly ISystemSettingsRepository _settingsRepo;

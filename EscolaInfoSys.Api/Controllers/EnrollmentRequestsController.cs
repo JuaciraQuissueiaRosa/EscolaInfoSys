@@ -10,6 +10,7 @@ namespace EscolaInfoSys.Api.Controllers
 {
     [ApiController]
     [Route("api/enrollments")]
+    [Authorize]
     public class EnrollmentRequestsController : ControllerBase
     {
         private readonly IAlertRepository _alertRepo;
