@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace EscolaInfoSys.Api.Controllers
 {
 
-    [Route("api/[controller]")]
+    [Route("api/systems")]
     [ApiController]
     [Authorize(Roles = "Administrator")] // Apenas administradores podem alterar
     public class SystemSettingsController : ControllerBase

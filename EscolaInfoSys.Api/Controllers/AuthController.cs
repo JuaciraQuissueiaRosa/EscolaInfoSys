@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace EscolaInfoSys.Api.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/auth")]
     public class AuthController : ControllerBase
     {
         private readonly IApiAccountService _authService;

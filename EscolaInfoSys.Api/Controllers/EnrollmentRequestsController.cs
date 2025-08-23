@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace EscolaInfoSys.Api.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/enrollments")]
     [ApiController]
     public class EnrollmentRequestsController : ControllerBase
     {

@@ -9,7 +9,7 @@ using EscolaInfoSys.Api.Models;
 
 namespace EscolaInfoSys.Api.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/students")]
     [ApiController]
     [Authorize(Roles = "Student")] /*Apenas alunos autenticados*/
     public class StudentsController : ControllerBase
