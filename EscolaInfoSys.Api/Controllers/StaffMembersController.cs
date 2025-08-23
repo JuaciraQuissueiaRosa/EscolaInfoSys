@@ -9,7 +9,7 @@ namespace EscolaInfoSys.Api.Controllers
 {
     [ApiController]
     [Route("api/staff")]
-    [Authorize]
+    //[Authorize]
     public class StaffController : ControllerBase
     {
         private readonly IFormGroupRepository _formGroupRepo;

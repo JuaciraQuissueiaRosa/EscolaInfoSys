@@ -12,7 +12,7 @@ namespace EscolaInfoSys.Api.Controllers
 {
     [ApiController]
     [Route("api/alerts")]
-    [Authorize]
+    //[Authorize]
     public class AlertsController : ControllerBase
     {
         private readonly IAlertRepository _alertRepo;

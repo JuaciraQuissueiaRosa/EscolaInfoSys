@@ -8,7 +8,7 @@ namespace EscolaInfoSys.Api.Controllers
 {
     [ApiController]
     [Route("api/exclusions")]
-    [Authorize]
+    //[Authorize]
     public class ExclusionsController : ControllerBase
     {
         private readonly IStudentExclusionStatusService _exclusionService;

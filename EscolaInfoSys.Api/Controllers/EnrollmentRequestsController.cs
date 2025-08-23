@@ -10,7 +10,7 @@ namespace EscolaInfoSys.Api.Controllers
 {
     [ApiController]
     [Route("api/enrollments")]
-    [Authorize]
+    //[Authorize]
     public class EnrollmentRequestsController : ControllerBase
     {
         private readonly IAlertRepository _alertRepo;
@@ -29,7 +29,7 @@ namespace EscolaInfoSys.Api.Controllers
 
         // POST: api/enrollments
         [HttpPost]
-        [Authorize(Roles = "Student")]
+      
         public async Task<IActionResult> Post([FromBody] CreateEnrollmentRequestDto dto)
         {
             var userId = _userManager.GetUserId(User);
@@ -52,7 +52,7 @@ namespace EscolaInfoSys.Api.Controllers
 
         // GET: api/enrollments/mine
         [HttpGet("mine")]
-        [Authorize(Roles = "Student")]
+       
         public async Task<IActionResult> GetMine()
         {
             var userId = _userManager.GetUserId(User);
@@ -66,7 +66,7 @@ namespace EscolaInfoSys.Api.Controllers
 
         // GET: api/enrollments
         [HttpGet]
-        [Authorize(Roles = "Administrator")]
+        
         public async Task<IActionResult> GetAll()
         {
             var alerts = await _alertRepo.GetAllWithStaffAsync();
@@ -76,7 +76,7 @@ namespace EscolaInfoSys.Api.Controllers
 
         // PUT: api/enrollments/{id}/approve
         [HttpPut("{id}/approve")]
-        [Authorize(Roles = "Administrator")]
+        
         public async Task<IActionResult> Approve(int id)
         {
             var request = await _alertRepo.GetByIdAsync(id);
@@ -91,7 +91,7 @@ namespace EscolaInfoSys.Api.Controllers
 
         // PUT: api/enrollments/{id}/reject
         [HttpPut("{id}/reject")]
-        [Authorize(Roles = "Administrator")]
+        
         public async Task<IActionResult> Reject(int id)
         {
             var request = await _alertRepo.GetByIdAsync(id);
