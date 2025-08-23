@@ -8,8 +8,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace EscolaInfoSys.Api.Controllers
 {
-    [Route("api/enrollments")]
     [ApiController]
+    [Route("api/enrollments")]
     public class EnrollmentRequestsController : ControllerBase
     {
         private readonly IAlertRepository _alertRepo;
@@ -26,7 +26,7 @@ namespace EscolaInfoSys.Api.Controllers
             _userManager = userManager;
         }
 
-        // POST: api/enrollmentrequests
+        // POST: api/enrollments
         [HttpPost]
         [Authorize(Roles = "Student")]
         public async Task<IActionResult> Post([FromBody] CreateEnrollmentRequestDto dto)
@@ -49,7 +49,7 @@ namespace EscolaInfoSys.Api.Controllers
         }
 
 
-        // GET: api/enrollmentrequests/mine
+        // GET: api/enrollments/mine
         [HttpGet("mine")]
         [Authorize(Roles = "Student")]
         public async Task<IActionResult> GetMine()
@@ -63,7 +63,7 @@ namespace EscolaInfoSys.Api.Controllers
             return Ok(enrollmentRequests);
         }
 
-        // GET: api/enrollmentrequests
+        // GET: api/enrollments
         [HttpGet]
         [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> GetAll()
@@ -73,7 +73,7 @@ namespace EscolaInfoSys.Api.Controllers
             return Ok(requests);
         }
 
-        // PUT: api/enrollmentrequests/{id}/approve
+        // PUT: api/enrollments/{id}/approve
         [HttpPut("{id}/approve")]
         [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> Approve(int id)
@@ -88,7 +88,7 @@ namespace EscolaInfoSys.Api.Controllers
             return Ok(new { message = "Request approved." });
         }
 
-        // PUT: api/enrollmentrequests/{id}/reject
+        // PUT: api/enrollments/{id}/reject
         [HttpPut("{id}/reject")]
         [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> Reject(int id)

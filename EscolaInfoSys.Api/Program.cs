@@ -10,6 +10,7 @@ using System.Text;
 using EscolaInfoSys.Api.Services;
 using EscolaInfoSys.Data.Repositories.Interfaces;
 using EscolaInfoSys.Api.Models;
+using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -45,7 +46,11 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidAudience = jwtSettings.Audience,
             IssuerSigningKey = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(jwtSettings.Key)),
-            ClockSkew = TimeSpan.Zero // ? sem tolerância de horário
+            ClockSkew = TimeSpan.Zero, // ? sem tolerância de horário
+
+
+             RoleClaimType = ClaimTypes.Role,
+            NameClaimType = ClaimTypes.NameIdentifier
         };
     });
 

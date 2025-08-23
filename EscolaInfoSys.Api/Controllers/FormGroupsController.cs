@@ -7,10 +7,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace EscolaInfoSys.Api.Controllers
 {
-    [Route("api/formgroups")]
-    [ApiController]
     [Authorize]
-
+    [ApiController]
+    [Route("api/formgroups")]
     public class FormGroupsController : ControllerBase
     {
         private readonly IFormGroupRepository _formGroupRepo;
