@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace EscolaInfoSys.Api.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/subjects")]
     [ApiController]
     [Authorize(Roles = "Administrator,StaffMember")]
     public class SubjectsController : ControllerBase

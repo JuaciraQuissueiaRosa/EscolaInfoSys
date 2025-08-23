@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace EscolaInfoSys.Api.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/staff")]
     [Authorize(Roles = "StaffMember")]
     public class StaffController : ControllerBase
     {

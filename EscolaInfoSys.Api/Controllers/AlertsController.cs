@@ -10,7 +10,7 @@ using System.Security.Claims;
 
 namespace EscolaInfoSys.Api.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/alerts")]
     [ApiController]
     [Authorize(Roles = "StaffMember")]
     public class AlertsController : ControllerBase

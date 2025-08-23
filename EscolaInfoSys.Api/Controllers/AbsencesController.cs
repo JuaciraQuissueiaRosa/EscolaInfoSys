@@ -9,7 +9,7 @@ using System.Security.Claims;
 
 namespace EscolaInfoSys.Api.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/absences")]
     [ApiController]
     [Authorize(Roles = "Student")]
     public class AbsencesController : ControllerBase
