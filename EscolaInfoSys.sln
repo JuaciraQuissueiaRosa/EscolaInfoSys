@@ -5,7 +5,7 @@ VisualStudioVersion = 17.13.35931.197
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EscolaInfoSys", "EscolaInfoSys\EscolaInfoSys.csproj", "{5B29F3CB-CFA4-4DDB-BA8D-AA9AB890F557}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EscolaInfoSys.Api", "EscolaInfoSys.Api\EscolaInfoSys.Api.csproj", "{EA5BBDEF-A870-4991-9569-E74ED71B0F6D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EscolaInfoSysApi", "EscolaInfoSysApi\EscolaInfoSysApi.csproj", "{201EC868-F89F-4D5F-B86A-9AFB0E00F8FC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +17,10 @@ Global
 		{5B29F3CB-CFA4-4DDB-BA8D-AA9AB890F557}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5B29F3CB-CFA4-4DDB-BA8D-AA9AB890F557}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5B29F3CB-CFA4-4DDB-BA8D-AA9AB890F557}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EA5BBDEF-A870-4991-9569-E74ED71B0F6D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EA5BBDEF-A870-4991-9569-E74ED71B0F6D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EA5BBDEF-A870-4991-9569-E74ED71B0F6D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EA5BBDEF-A870-4991-9569-E74ED71B0F6D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{201EC868-F89F-4D5F-B86A-9AFB0E00F8FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{201EC868-F89F-4D5F-B86A-9AFB0E00F8FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{201EC868-F89F-4D5F-B86A-9AFB0E00F8FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{201EC868-F89F-4D5F-B86A-9AFB0E00F8FC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
