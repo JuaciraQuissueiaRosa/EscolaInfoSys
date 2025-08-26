@@ -375,3 +375,7 @@ obj/
 bin/
 obj/
 .vs/
+*.zip
+bin/
+obj/
+.vs/
