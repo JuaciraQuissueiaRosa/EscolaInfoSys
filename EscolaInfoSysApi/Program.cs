@@ -8,10 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
-internal class Program
-{
-    private static void Main(string[] args)
-    {
+
         var builder = WebApplication.CreateBuilder(args);
 
         // >>> ADICIONE ISTO AQUI: configura JWT sem appsettings.json
@@ -116,5 +113,4 @@ internal class Program
         app.MapControllers();
 
         app.Run();
-    }
-}
+
