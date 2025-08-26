@@ -371,3 +371,7 @@ obj/
 *.iso
 *.dll
 *.pdb
+*.zip
+bin/
+obj/
+.vs/
