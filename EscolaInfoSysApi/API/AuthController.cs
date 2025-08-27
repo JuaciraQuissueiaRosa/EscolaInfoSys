@@ -6,7 +6,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 using System.IdentityModel.Tokens.Jwt;
+using System.Net;
 using System.Security.Claims;
 using System.Text;
 
@@ -19,17 +21,19 @@ namespace EscolaInfoSysApi.API
         private readonly IAccountService _account;
         private readonly UserManager<ApplicationUser> _users;
         private readonly IConfiguration _cfg;
+        private readonly IEmailSender _email;   // <<< injeta o sender do MVC
 
         public AuthController(
             IAccountService account,
             UserManager<ApplicationUser> users,
-            IConfiguration cfg)
+            IConfiguration cfg,
+            IEmailSender email)                  // <<< adiciona no ctor
         {
             _account = account;
             _users = users;
             _cfg = cfg;
+            _email = email;                    // <<< guarda a instância
         }
-
         // POST /api/auth/login
         [HttpPost("login")]
         public async Task<ActionResult<object>> Login([FromBody] LoginViewModel model)
@@ -49,22 +53,27 @@ namespace EscolaInfoSysApi.API
             return Ok(new { Token = token.Token, ExpiresAtUtc = token.ExpiresAtUtc });
         }
 
-        // POST /api/auth/forgot-password
-        [HttpPost("forgot-password")]
-        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordViewModel model)
-        {
-            // Envia e-mail de reset pelo teu AccountService
-            // urlBuilder recebe (encodedToken, email, scheme) — vamos gerar link baseado no host atual
-            var host = Request.Host.Value;
-            await _account.SendResetPasswordEmailAsync(
-                model.Email,
-                Request.Scheme,
-                (encodedToken, email, scheme) =>
-                    $"{scheme}://{host}/Account/ResetPassword?token={encodedToken}&email={Uri.EscapeDataString(email)}"
-            );
+        public record ForgotPasswordRequest(string Email);
 
-            // Mesmo que o e-mail não exista, devolvemos OK (não revelar existência)
-            return Ok();
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest req)
+        {
+            var user = await _users.FindByEmailAsync(req.Email);
+            if (user is null) return Ok(); // não revelar existência
+
+            var token = await _users.GeneratePasswordResetTokenAsync(user);
+            var webBase = _cfg["Web:BaseUrl"]!; // ex.: https://escolainfosys.somee.com
+            var link = $"{webBase}/Account/ResetPassword?email={WebUtility.UrlEncode(user.Email!)}&token={WebUtility.UrlEncode(token)}";
+
+            var html = $@"
+        <p>Olá,</p>
+        <p>Clique para redefinir a palavra-passe:</p>
+        <p><a href=""{link}"">Redefinir palavra-passe</a></p>
+        <p>Ou use este token na app móvel:</p>
+        <pre>{WebUtility.HtmlEncode(token)}</pre>";
+
+            await _email.SendEmailAsync(user.Email!, "Password reset", html); // ⬅️ usa o sender do MVC
+            return Ok(); // sem corpo
         }
 
         // POST /api/auth/reset-password

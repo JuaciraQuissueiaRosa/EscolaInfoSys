@@ -15,9 +15,24 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 
 var builder = WebApplication.CreateBuilder(args);
+// (A) Carrega o appsettings.json do MVC (mesmo Mail) via caminho relativo
+var mvcAppSettings = Path.Combine(builder.Environment.ContentRootPath, "..", "EscolaInfoSys", "appsettings.json");
+// ajuste "EscolaInfoSys" se a pasta/projeto tiver outro nome
+if (File.Exists(mvcAppSettings))
+{
+    builder.Configuration.AddJsonFile(mvcAppSettings, optional: false, reloadOnChange: true);
+}
 
-       
-        builder.Configuration["Jwt:Issuer"] = "EscolaInfoSys";
+// (B) DI do mesmo e-mail sender do MVC
+builder.Services.AddScoped<IEmailSender, SmtpEmailSender>();
+
+// (C) Base do site MVC p/ links de reset
+if (string.IsNullOrWhiteSpace(builder.Configuration["Web:BaseUrl"]))
+    builder.Configuration["Web:BaseUrl"] = "https://escolainfosys.somee.com";
+
+
+
+builder.Configuration["Jwt:Issuer"] = "EscolaInfoSys";
         builder.Configuration["Jwt:Audience"] = "EscolaInfoSysApi";
         builder.Configuration["Jwt:Key"] = "GcHiMA0R1IeeIeVFkNWXTdg2lK27BfrXJcbBo9HRnElSwVUcQJyydgS5U1UQcRb5";
 
