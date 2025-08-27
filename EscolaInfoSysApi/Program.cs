@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Mvc.Controllers;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 
 
@@ -37,6 +38,15 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddDefaultTokenProviders();
 
+
+// ⚠️ Aqui: JWT como esquema padrão (autenticar e desafiar)
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+});
+
         // JWT
         var jwt = builder.Configuration.GetSection("Jwt");
         builder.Services.AddAuthentication("Bearer")
@@ -56,7 +66,22 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
                 };
             });
 
-        builder.Services.AddAuthorization();
+//  isto evita redirects HTML quando falta auth em endpoints API
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.Events.OnRedirectToLogin = ctx =>
+    {
+        ctx.Response.StatusCode = StatusCodes.Status401Unauthorized;
+        return Task.CompletedTask;
+    };
+    options.Events.OnRedirectToAccessDenied = ctx =>
+    {
+        ctx.Response.StatusCode = StatusCodes.Status403Forbidden;
+        return Task.CompletedTask;
+    };
+});
+
+builder.Services.AddAuthorization();
 
         // CORS p/ .NET MAUI (abre no início; depois afina domínio)
         builder.Services.AddCors(opt =>
