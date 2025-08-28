@@ -62,19 +62,17 @@ namespace EscolaInfoSysApi.API
             if (user is null) return Ok(); // não revelar existência
 
             var token = await _users.GeneratePasswordResetTokenAsync(user);
-            var webBase = _cfg["Web:BaseUrl"]!; // ex.: https://escolainfosys.somee.com
+
+            var webBase = _cfg["Web:BaseUrl"] ?? "https://escolainfosys.somee.com";
             var link = $"{webBase}/Account/ResetPassword?email={WebUtility.UrlEncode(user.Email!)}&token={WebUtility.UrlEncode(token)}";
 
-            var html = $@"
-        <p>Olá,</p>
-        <p>Clique para redefinir a palavra-passe:</p>
-        <p><a href=""{link}"">Redefinir palavra-passe</a></p>
-        <p>Ou use este token na app móvel:</p>
-        <pre>{WebUtility.HtmlEncode(token)}</pre>";
+            await _email.SendEmailAsync(user.Email!, "Password reset",
+                $@"<p>Clique: <a href=""{link}"">Reset</a></p><pre>{WebUtility.HtmlEncode(token)}</pre>");
 
-            await _email.SendEmailAsync(user.Email!, "Password reset", html); // ⬅️ usa o sender do MVC
-            return Ok(); // sem corpo
+            // 👇 devolve link para o app abrir diretamente
+            return Ok(new { link });
         }
+
 
         // POST /api/auth/reset-password
         [HttpPost("reset-password")]

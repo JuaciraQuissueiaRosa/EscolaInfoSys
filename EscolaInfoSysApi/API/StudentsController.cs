@@ -76,5 +76,42 @@ namespace EscolaInfoSysApi.API
 
             return NoContent();
         }
+
+        [Authorize]
+        [HttpPost("profile/photo")]
+        public async Task<IActionResult> UpdateProfilePhoto([FromForm] IFormFile file,
+                                                    [FromServices] IWebHostEnvironment env,
+                                                    [FromServices] ApplicationDbContext db,
+                                                    [FromServices] UserManager<ApplicationUser> users)
+        {
+            if (file is null || file.Length == 0) return BadRequest("No file.");
+
+            var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
+            var allowed = new[] { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
+            if (!allowed.Contains(ext)) return BadRequest("Invalid file type.");
+
+            // guarda em wwwroot/uploads
+            var webRoot = env.WebRootPath ?? Path.Combine(env.ContentRootPath, "wwwroot");
+            var uploads = Path.Combine(webRoot, "uploads");
+            Directory.CreateDirectory(uploads);
+
+            var name = $"{Guid.NewGuid():N}{ext}";
+            var full = Path.Combine(uploads, name);
+            await using (var fs = System.IO.File.Create(full))
+                await file.CopyToAsync(fs);
+
+            var relPath = $"/uploads/{name}";
+            var publicUrl = $"{Request.Scheme}://{Request.Host}{relPath}";
+
+            // atualiza o utilizador atual
+            var user = await users.GetUserAsync(User);
+            if (user is null) return Unauthorized();
+
+            user.ProfilePhoto = relPath; // <- campo já usado no teu perfil
+            await db.SaveChangesAsync();
+
+            // devolve caminho relativo (para gravar) + URL pública (para a app mostrar)
+            return Ok(new { path = relPath, url = publicUrl });
+        }
     }
 }
