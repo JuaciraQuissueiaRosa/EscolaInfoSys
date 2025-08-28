@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 using System.IdentityModel.Tokens.Jwt;
@@ -59,17 +60,25 @@ namespace EscolaInfoSysApi.API
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest req)
         {
             var user = await _users.FindByEmailAsync(req.Email);
-            if (user is null) return Ok(); // não revelar existência
+            if (user is null) return Ok(); // não revelar
 
-            var token = await _users.GeneratePasswordResetTokenAsync(user);
+            var rawToken = await _users.GeneratePasswordResetTokenAsync(user);
+            var code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(rawToken));
 
             var webBase = _cfg["Web:BaseUrl"] ?? "https://escolainfosys.somee.com";
-            var link = $"{webBase}/Account/ResetPassword?email={WebUtility.UrlEncode(user.Email!)}&token={WebUtility.UrlEncode(token)}";
 
-            await _email.SendEmailAsync(user.Email!, "Password reset",
-                $@"<p>Clique: <a href=""{link}"">Reset</a></p><pre>{WebUtility.HtmlEncode(token)}</pre>");
+            // ✅ Envia 'code' e 'token' para ser compatível com o que o MVC espera
+            var link = $"{webBase}/Account/ResetPassword" +
+                       $"?email={Uri.EscapeDataString(user.Email!)}" +
+                       $"&code={code}&token={code}";
 
-            // 👇 devolve link para o app abrir diretamente
+            await _email.SendEmailAsync(
+                user.Email!,
+                "Password reset",
+                $@"<p>Clique para redefinir a sua palavra-passe:</p>
+            <p><a href=""{link}"">{WebUtility.HtmlEncode(link)}</a></p>"
+            );
+
             return Ok(new { link });
         }
 

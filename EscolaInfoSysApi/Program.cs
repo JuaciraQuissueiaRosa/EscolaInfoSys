@@ -197,6 +197,7 @@ app.UseSwaggerUI(c =>
 });
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();   
 app.UseCors("maui");
 app.UseAuthentication();
 app.UseAuthorization();
