@@ -60,28 +60,30 @@ namespace EscolaInfoSysApi.API
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest req)
         {
             var user = await _users.FindByEmailAsync(req.Email);
-            if (user is null) return Ok(); // não revelar
+            if (user is null) return Ok(); // não revelar existência
 
+            // 1) token do Identity
             var rawToken = await _users.GeneratePasswordResetTokenAsync(user);
+
+            // 2) codifica em Base64Url (é isto que o MVC espera como "code")
             var code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(rawToken));
 
+            // 3) monta link para a página do site (NÃO use "token=", só "code=")
             var webBase = _cfg["Web:BaseUrl"] ?? "https://escolainfosys.somee.com";
-
-            // ✅ Envia 'code' e 'token' para ser compatível com o que o MVC espera
             var link = $"{webBase}/Account/ResetPassword" +
                        $"?email={Uri.EscapeDataString(user.Email!)}" +
-                       $"&code={code}&token={code}";
+                       $"&code={code}";
 
+            // 4) envia o e-mail
             await _email.SendEmailAsync(
                 user.Email!,
                 "Password reset",
                 $@"<p>Clique para redefinir a sua palavra-passe:</p>
-            <p><a href=""{link}"">{WebUtility.HtmlEncode(link)}</a></p>"
-            );
+           <p><a href=""{link}"">{WebUtility.HtmlEncode(link)}</a></p>");
 
+            // opcional: devolve o link para o app abrir direto no browser
             return Ok(new { link });
         }
-
 
         // POST /api/auth/reset-password
         [HttpPost("reset-password")]
@@ -136,5 +138,9 @@ namespace EscolaInfoSysApi.API
 
             return (new JwtSecurityTokenHandler().WriteToken(token), token.ValidTo);
         }
+
+
+
+
     }
 }

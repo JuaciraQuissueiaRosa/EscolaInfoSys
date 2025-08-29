@@ -16,11 +16,13 @@ namespace EscolaInfoSysApi.API
     {
         private readonly UserManager<ApplicationUser> _users;
         private readonly IStudentRepository _students;
+        private readonly IConfiguration _cfg;
 
-        public StudentsController(UserManager<ApplicationUser> users, IStudentRepository students)
+        public StudentsController(UserManager<ApplicationUser> users, IStudentRepository students, IConfiguration cfg)
         {
             _users = users;
             _students = students;
+            _cfg = cfg;
         }
 
         public record UpdateProfileRequest(string? FullName, string? ProfilePhoto);
@@ -77,39 +79,44 @@ namespace EscolaInfoSysApi.API
             return NoContent();
         }
 
+        // POST /api/students/profile/photo
         [Authorize]
         [HttpPost("profile/photo")]
-        public async Task<IActionResult> UpdateProfilePhoto([FromForm] IFormFile file,
-                                                       [FromServices] IWebHostEnvironment env,
-                                                       [FromServices] UserManager<ApplicationUser> users)
+        [RequestSizeLimit(10_000_000)]
+        public async Task<ActionResult> UploadProfilePhoto(IFormFile file,
+            [FromServices] IWebHostEnvironment env)
         {
-            if (file is null || file.Length == 0) return BadRequest("No file.");
-            var allowed = new[] { ".png", ".jpg", ".jpeg", ".gif", ".webp" };
+            if (file is null || file.Length == 0) return BadRequest("File required.");
+
             var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
-            if (!allowed.Contains(ext)) return BadRequest("Invalid file type.");
+            var ok = new[] { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
+            if (!ok.Contains(ext)) return BadRequest("Invalid image type.");
 
-            var webRoot = env.WebRootPath ?? Path.Combine(env.ContentRootPath, "wwwroot");
-            var uploads = Path.Combine(webRoot, "uploads");
-            Directory.CreateDirectory(uploads);
+            var fname = $"{Guid.NewGuid():N}{ext}";
+            var root = env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+            var dir = Path.Combine(root, "uploads");
+            Directory.CreateDirectory(dir);
 
-            var name = $"{Guid.NewGuid():N}{ext}";
-            var full = Path.Combine(uploads, name);
-            await using (var fs = System.IO.File.Create(full))
+            var fullPath = Path.Combine(dir, fname);
+            await using (var fs = System.IO.File.Create(fullPath))
                 await file.CopyToAsync(fs);
 
-            var relPath = $"/uploads/{name}";
-            var publicUrl = $"{Request.Scheme}://{Request.Host}{relPath}";
+            var me = await _users.GetUserAsync(User);
+            if (me is null) return Unauthorized();
 
-            var user = await users.GetUserAsync(User);
-            if (user is null) return Unauthorized();
+            // guarda apenas o ficheiro (igual ao MVC faz)
+            me.ProfilePhoto = fname;
+            await _users.UpdateAsync(me);
 
-            user.ProfilePhoto = relPath;                 // salva o caminho no utilizador
-            var r = await users.UpdateAsync(user);       // <- persiste via Identity
-            if (!r.Succeeded) return BadRequest(r.Errors);
+            // monta URL pública servida pelo PRÓPRIO API
+            var baseUrl = $"{Request.Scheme}://{Request.Host}";
+            var path = $"/uploads/{fname}";
+            var url = $"{baseUrl}{path}";
 
-            return Ok(new { path = relPath, url = publicUrl });
+            return Ok(new { path, url });
         }
-
-
     }
+
+
+}
 }
