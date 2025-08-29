@@ -85,14 +85,32 @@ namespace EscolaInfoSysApi.API
             return Ok(new { link });
         }
 
-        // POST /api/auth/reset-password
-        [HttpPost("reset-password")]
-        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordViewModel model)
-        {
-            var result = await _account.ResetPasswordAsync(model);
-            if (!result.Succeeded)
-                return BadRequest(result.Errors);
+        public record ResetPasswordApiRequest(string Email, string? Code, string? Token, string NewPassword);
 
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordApiRequest req)
+        {
+            if (string.IsNullOrWhiteSpace(req.Email) || string.IsNullOrWhiteSpace(req.NewPassword))
+                return BadRequest("Email and new password are required.");
+
+            if (string.IsNullOrWhiteSpace(req.Code) && string.IsNullOrWhiteSpace(req.Token))
+                return BadRequest("Provide either 'code' or 'token'.");
+
+            // Se vier 'code' (do link do e-mail), decodifica para o token cru do Identity
+            string tokenRaw;
+            if (!string.IsNullOrWhiteSpace(req.Code))
+                tokenRaw = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(req.Code));
+            else
+                tokenRaw = req.Token!;
+
+            var result = await _account.ResetPasswordAsync(new ResetPasswordViewModel
+            {
+                Email = req.Email,
+                Token = tokenRaw,
+                NewPassword = req.NewPassword
+            });
+
+            if (!result.Succeeded) return BadRequest(result.Errors);
             return Ok();
         }
 
