@@ -16,6 +16,7 @@ using System.Text;
 
 namespace EscolaInfoSysApi.API
 {
+    [AllowAnonymous]
     [ApiController]
     [Route("api/[controller]")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
