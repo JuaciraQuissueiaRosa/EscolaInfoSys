@@ -1,6 +1,7 @@
 ﻿using EscolaInfoSys.Data;
 using EscolaInfoSys.Models.ViewModels;
 using EscolaInfoSys.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -17,6 +18,7 @@ namespace EscolaInfoSysApi.API
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class AuthController : ControllerBase
     {
         private readonly IAccountService _account;
@@ -36,6 +38,7 @@ namespace EscolaInfoSysApi.API
             _email = email;                    // <<< guarda a instância
         }
         // POST /api/auth/login
+        [AllowAnonymous]
         [HttpPost("login")]
         public async Task<ActionResult<object>> Login([FromBody] LoginViewModel model)
         {
@@ -56,6 +59,7 @@ namespace EscolaInfoSysApi.API
 
         public record ForgotPasswordRequest(string Email);
 
+        [AllowAnonymous]
         [HttpPost("forgot-password")]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest req)
         {
@@ -87,6 +91,7 @@ namespace EscolaInfoSysApi.API
 
         public record ResetPasswordApiRequest(string Email, string? Code, string? Token, string NewPassword);
 
+        [AllowAnonymous]
         [HttpPost("reset-password")]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordApiRequest req)
         {
@@ -115,7 +120,7 @@ namespace EscolaInfoSysApi.API
         }
 
         // POST /api/auth/change-password
-        [Authorize]
+        [AllowAnonymous]
         [HttpPost("change-password")]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordViewModel model)
         {

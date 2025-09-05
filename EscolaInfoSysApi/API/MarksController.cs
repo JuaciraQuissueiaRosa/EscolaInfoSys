@@ -1,5 +1,6 @@
 ﻿using EscolaInfoSys.Data;
 using EscolaInfoSys.Data.Repositories.Interfaces;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -11,6 +12,7 @@ namespace EscolaInfoSysApi.API
     [Authorize]
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class MarksController : ControllerBase
     {
         private readonly UserManager<ApplicationUser> _users;

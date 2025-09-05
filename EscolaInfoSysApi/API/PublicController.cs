@@ -1,5 +1,7 @@
 ﻿using EscolaInfoSys.Data;
 using EscolaInfoSys.Data.Repositories.Interfaces;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -8,6 +10,8 @@ namespace EscolaInfoSysApi.API
 {
     [ApiController]
     [Route("api/[controller]")]
+    [AllowAnonymous]
+ 
     public class PublicController : ControllerBase
     {
         private readonly ICourseRepository _courses;
