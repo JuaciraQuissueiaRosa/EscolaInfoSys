@@ -10,17 +10,19 @@ using Microsoft.EntityFrameworkCore;
 
 namespace EscolaInfoSysApi.API
 {
-    [Authorize]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class StudentsController : ControllerBase
     {
         private readonly UserManager<ApplicationUser> _users;
         private readonly IStudentRepository _students;
         private readonly IConfiguration _cfg;
 
-        public StudentsController(UserManager<ApplicationUser> users, IStudentRepository students, IConfiguration cfg)
+        public StudentsController(
+            UserManager<ApplicationUser> users,
+            IStudentRepository students,
+            IConfiguration cfg)
         {
             _users = users;
             _students = students;
@@ -29,6 +31,22 @@ namespace EscolaInfoSysApi.API
 
         public record UpdateProfileRequest(string? FullName, string? ProfilePhoto);
 
+        // Helper: extrai somente o nome do ficheiro de um path/URL
+        private static string ExtractFileName(string? pathOrUrl)
+        {
+            if (string.IsNullOrWhiteSpace(pathOrUrl)) return string.Empty;
+
+            var s = pathOrUrl.Trim();
+            if (Uri.TryCreate(s, UriKind.Absolute, out var uri))
+                s = uri.AbsolutePath; // ex.: /uploads/abc.jpg
+
+            var idx = s.LastIndexOf('/');
+            if (idx >= 0 && idx < s.Length - 1)
+                s = s[(idx + 1)..];
+
+            return s;
+        }
+
         [HttpGet("profile")]
         public async Task<ActionResult<ProfileViewModel>> GetProfile()
         {
@@ -36,14 +54,19 @@ namespace EscolaInfoSysApi.API
             if (user is null) return Unauthorized();
 
             var student = await _students.GetByApplicationUserIdAsync(user.Id);
-
             var roles = await _users.GetRolesAsync(user);
+
+            // Mesma regra do site: se o Student tiver foto, usa-a; senão, usa a do Identity
+            string? photo = !string.IsNullOrWhiteSpace(student?.ProfilePhoto)
+                ? student!.ProfilePhoto
+                : (!string.IsNullOrWhiteSpace(user.ProfilePhoto) ? user.ProfilePhoto : null);
+
             var vm = new ProfileViewModel
             {
                 Email = user.Email ?? "",
                 FullName = student?.FullName ?? user.Name ?? user.UserName ?? "",
                 Role = roles.FirstOrDefault() ?? "User",
-                ProfilePhoto = user.ProfilePhoto
+                ProfilePhoto = photo
             };
 
             return Ok(vm);
@@ -69,8 +92,14 @@ namespace EscolaInfoSysApi.API
 
             if (!string.IsNullOrWhiteSpace(req.ProfilePhoto))
             {
-                user.ProfilePhoto = req.ProfilePhoto;
-                changed = true;
+                // grava o NOME do ficheiro em ambos (o site lê daí)
+                var fileName = ExtractFileName(req.ProfilePhoto);
+                if (!string.IsNullOrEmpty(fileName))
+                {
+                    user.ProfilePhoto = fileName;
+                    student.ProfilePhoto = fileName;
+                    changed = true;
+                }
             }
 
             if (!changed) return NoContent();
@@ -82,11 +111,9 @@ namespace EscolaInfoSysApi.API
         }
 
         // POST /api/students/profile/photo
-        [Authorize]
         [HttpPost("profile/photo")]
         [RequestSizeLimit(10_000_000)]
-        public async Task<ActionResult> UploadProfilePhoto(IFormFile file,
-            [FromServices] IWebHostEnvironment env)
+        public async Task<ActionResult> UploadProfilePhoto(IFormFile file, [FromServices] IWebHostEnvironment env)
         {
             if (file is null || file.Length == 0) return BadRequest("File required.");
 
@@ -106,15 +133,22 @@ namespace EscolaInfoSysApi.API
             var me = await _users.GetUserAsync(User);
             if (me is null) return Unauthorized();
 
-            // guarda apenas o ficheiro (igual ao MVC faz)
+            // atualiza os dois lados para ficar igual ao site
             me.ProfilePhoto = fname;
             await _users.UpdateAsync(me);
 
-            // monta URL pública servida pelo PRÓPRIO API
-            var baseUrl = $"{Request.Scheme}://{Request.Host}";
-            var path = $"/uploads/{fname}";
-            var url = $"{baseUrl}{path}";
+            var student = await _students.GetByApplicationUserIdAsync(me.Id);
+            if (student != null)
+            {
+                student.ProfilePhoto = fname;
+                await _students.UpdateSelectedFieldsAsync(student);
+            }
 
+            var path = $"/uploads/{fname}";
+            var webBase = _cfg["Web:BaseUrl"] ?? "https://www.escolainfosys.somee.com";
+            var url = $"{webBase}{path}";
+
+            // devolve path (o que o site usa) e url (para o app pré-visualizar)
             return Ok(new { path, url });
         }
     }
